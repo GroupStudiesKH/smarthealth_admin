@@ -39,9 +39,7 @@ defineExpose({ hasPermission });
           :class="{ active: $route.path.startsWith('/layout') }"
           v-if="
             hasPermission('layout-banner-management', 'list') ||
-            hasPermission('layout-cms', 'list') ||
-            hasPermission('layout-homepage-popup', 'list') ||
-            hasPermission('layout-vip-list-management', 'list')
+            hasPermission('layout-cms', 'list')
           "
         >
           <a
@@ -80,24 +78,6 @@ defineExpose({ hasPermission });
                   >CMS</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('layout-homepage-popup', 'list')">
-                <a
-                  href="/layout/homepage-popup"
-                  class="nav-link"
-                  :class="{ active: $route.path === '/layout/homepage-popup' }"
-                  >首頁彈窗</a
-                >
-              </li>
-              <li class="nav-item" v-if="hasPermission('layout-vip-list-management', 'list')">
-                <a
-                  href="/layout/vip-list-management"
-                  class="nav-link"
-                  :class="{
-                    active: $route.path === '/layout/vip-list-management',
-                  }"
-                  >VIP列表管理</a
-                >
-              </li>
             </ul>
           </div>
         </li>
@@ -107,7 +87,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/permission') }"
-          v-if="hasPermission('permissions_group', 'list') || true"
+          v-if="hasPermission('permissions_group', 'list')"
         >
           <a
             class="nav-link"
@@ -127,7 +107,7 @@ defineExpose({ hasPermission });
             id="permissionManagement"
           >
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
                 <a
                   href="/permission"
                   class="nav-link"
@@ -135,7 +115,7 @@ defineExpose({ hasPermission });
                   >角色</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
                 <a
                   href="/admins"
                   class="nav-link"

@@ -9,25 +9,31 @@ const router = createRouter({
       path: "/",
       name: "home",
       component: () => import("../views/HomeView.vue"),
-      meta: { requiresAuth: false } 
+      meta: { requiresAuth: true } 
+    },
+    {
+      path: "/user/edit",
+      name: "userEdit",
+      component: () => import("../views/UserEdit.vue"),
+      meta: { requiresAuth: true }
     },
     {
       path: "/permission/add",
       name: "permissionAdd",
       component: () => import("../views/PermissionAdd.vue"),
-      meta: { requiresAuth: false }
+      meta: { requiresAuth: true }
     },
     {
       path: "/permission/edit/:id",
       name: "permissionEdit",
       component: () => import("../views/PermissionEdit.vue"),
-      meta: { requiresAuth: false } 
+      meta: { requiresAuth: true } 
     },
     {
       path: "/permission",
       name: "permission",
       component: () => import("../views/PermissionView.vue"),
-      meta: { requiresAuth: false } 
+      meta: { requiresAuth: true } 
     },
     {
       path: "/admins",
@@ -39,7 +45,7 @@ const router = createRouter({
       path: "/layout/banner",
       name: "bannerLists",
       component: () => import("../views/BannerView.vue"),
-      meta: { requiresAuth: false } 
+      meta: { requiresAuth: true } 
     },
     {
       path: "/layout/banner/edit/:id",
