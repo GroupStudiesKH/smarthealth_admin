@@ -106,6 +106,42 @@ const router = createRouter({
       component: () => import("../views/AdminAdd.vue"),
       meta: { requiresAuth: false }
     },
+    {
+      path: '/course/list',
+      name: 'CourseList',
+      component: () => import('../views/course/CourseList.vue'),
+      meta: {
+        title: '課程列表',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/course/add',
+      name: 'CourseAdd',
+      component: () => import('../views/course/CourseEdit.vue'),
+      meta: {
+        title: '新增課程',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/course/edit/:id',
+      name: 'CourseEdit',
+      component: () => import('../views/course/CourseEdit.vue'),
+      meta: {
+        title: '編輯課程',
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/course/content',
+      name: 'ChapterContent',
+      component: () => import('../views/course/ChapterContent.vue'),
+      meta: {
+        title: '章節內容管理',
+        requiresAuth: true
+      }
+    }
   ],
 });
 
