@@ -33,13 +33,166 @@ defineExpose({ hasPermission });
     </div>
     <div class="sidebar-body">
       <ul class="nav" id="sidebarNav">
+        <!-- 課程管理 -->
+        <li
+          class="nav-item"
+          :class="{ active: $route.path.startsWith('/course') }"
+          v-if="hasPermission('course-management', 'list') || true"
+        >
+          <a
+            class="nav-link"
+            data-bs-toggle="collapse"
+            href="#courseManagement"
+            role="button"
+            aria-expanded="false"
+            aria-controls="courseManagement"
+          >
+            <i class="link-icon material-icons">school</i>
+            <span class="link-title">課程管理</span>
+            <i class="link-arrow material-icons">keyboard_arrow_down</i>
+          </a>
+          <div class="collapse" data-bs-parent="#sidebarNav" id="courseManagement">
+            <ul class="nav sub-menu">
+              <li class="nav-item" v-if="hasPermission('course-list', 'list') || true">
+                <a href="/course/list" class="nav-link" :class="{ active: $route.path === '/course/list' }">課程列表</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('course-content', 'list') || true">
+                <a href="/course/content" class="nav-link" :class="{ active: $route.path === '/course/content' }">課程內容管理</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('course-plan', 'list') || true">
+                <a href="/course/plan" class="nav-link" :class="{ active: $route.path === '/course/plan' }">課程制訂</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- 會員管理 -->
+        <li
+          class="nav-item"
+          :class="{ active: $route.path.startsWith('/member') }"
+          v-if="hasPermission('member-management', 'list') || true"
+        >
+          <a
+            class="nav-link"
+            data-bs-toggle="collapse"
+            href="#memberManagement"
+            role="button"
+            aria-expanded="false"
+            aria-controls="memberManagement"
+          >
+            <i class="link-icon material-icons">people</i>
+            <span class="link-title">會員管理</span>
+            <i class="link-arrow material-icons">keyboard_arrow_down</i>
+          </a>
+          <div class="collapse" data-bs-parent="#sidebarNav" id="memberManagement">
+            <ul class="nav sub-menu">
+              <li class="nav-item" v-if="hasPermission('member-list', 'list') || true">
+                <a href="/member/list" class="nav-link" :class="{ active: $route.path === '/member/list' }">會員列表</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('member-progress', 'list') || true">
+                <a href="/member/progress" class="nav-link" :class="{ active: $route.path === '/member/progress' }">學習進度</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- 課程統計 -->
+        <li
+          class="nav-item"
+          :class="{ active: $route.path.startsWith('/statistics') }"
+          v-if="hasPermission('course-statistics', 'list') || true"
+        >
+          <a
+            class="nav-link"
+            data-bs-toggle="collapse"
+            href="#statisticsManagement"
+            role="button"
+            aria-expanded="false"
+            aria-controls="statisticsManagement"
+          >
+            <i class="link-icon material-icons">analytics</i>
+            <span class="link-title">課程統計</span>
+            <i class="link-arrow material-icons">keyboard_arrow_down</i>
+          </a>
+          <div class="collapse" data-bs-parent="#sidebarNav" id="statisticsManagement">
+            <ul class="nav sub-menu">
+              <li class="nav-item" v-if="hasPermission('course-progress', 'list') || true">
+                <a href="/statistics/progress" class="nav-link" :class="{ active: $route.path === '/statistics/progress' }">學習進度統計</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('course-report', 'list') || true">
+                <a href="/statistics/report" class="nav-link" :class="{ active: $route.path === '/statistics/report' }">報表輸出</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- 測驗管理 -->
+        <li
+          class="nav-item"
+          :class="{ active: $route.path.startsWith('/exam') }"
+          v-if="hasPermission('exam-management', 'list') || true"
+        >
+          <a
+            class="nav-link"
+            data-bs-toggle="collapse"
+            href="#examManagement"
+            role="button"
+            aria-expanded="false"
+            aria-controls="examManagement"
+          >
+            <i class="link-icon material-icons">quiz</i>
+            <span class="link-title">測驗管理</span>
+            <i class="link-arrow material-icons">keyboard_arrow_down</i>
+          </a>
+          <div class="collapse" data-bs-parent="#sidebarNav" id="examManagement">
+            <ul class="nav sub-menu">
+              <li class="nav-item" v-if="hasPermission('exam-edit', 'list') || true">
+                <a href="/exam/edit" class="nav-link" :class="{ active: $route.path === '/exam/edit' }">測驗編輯</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('exam-statistics', 'list') || true">
+                <a href="/exam/statistics" class="nav-link" :class="{ active: $route.path === '/exam/statistics' }">測驗統計</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- 網站基本設定 -->
+        <li
+          class="nav-item"
+          :class="{ active: $route.path.startsWith('/settings') }"
+          v-if="hasPermission('site-settings', 'list') || true"
+        >
+          <a
+            class="nav-link"
+            data-bs-toggle="collapse"
+            href="#siteSettings"
+            role="button"
+            aria-expanded="false"
+            aria-controls="siteSettings"
+          >
+            <i class="link-icon material-icons">settings</i>
+            <span class="link-title">網站基本設定</span>
+            <i class="link-arrow material-icons">keyboard_arrow_down</i>
+          </a>
+          <div class="collapse" data-bs-parent="#sidebarNav" id="siteSettings">
+            <ul class="nav sub-menu">
+              <li class="nav-item" v-if="hasPermission('site-brand', 'list') || true">
+                <a href="/settings/brand" class="nav-link" :class="{ active: $route.path === '/settings/brand' }">品牌設定</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('site-social', 'list') || true">
+                <a href="/settings/social" class="nav-link" :class="{ active: $route.path === '/settings/social' }">社群設定</a>
+              </li>
+            </ul>
+          </div>
+        </li>
 
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/layout') }"
           v-if="
             hasPermission('layout-banner-management', 'list') ||
-            hasPermission('layout-cms', 'list')
+            hasPermission('layout-cms', 'list') ||
+            true
           "
         >
           <a
@@ -51,7 +204,7 @@ defineExpose({ hasPermission });
             aria-controls="layoutSettings"
           >
             <i class="link-icon material-icons">dashboard</i>
-            <span class="link-title">版面設定</span>
+            <span class="link-title">介紹頁面管理</span>
             <i class="link-arrow material-icons">keyboard_arrow_down</i>
           </a>
           <div
@@ -60,22 +213,22 @@ defineExpose({ hasPermission });
             id="layoutSettings"
           >
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('layout-banner-management', 'list')">
+              <li class="nav-item" v-if="hasPermission('layout-banner-management', 'list') || true">
                 <a
                   href="/layout/banner"
                   class="nav-link"
                   :class="{
                     active: $route.path === '/layout/banner',
                   }"
-                  >Banner管理</a
+                  >首頁Banner管理</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('layout-cms', 'list')">
+              <li class="nav-item" v-if="hasPermission('layout-cms', 'list') || true">
                 <a
                   href="/layout/cms"
                   class="nav-link"
                   :class="{ active: $route.path === '/layout/cms' }"
-                  >CMS</a
+                  >頁面文章設定</a
                 >
               </li>
             </ul>
@@ -87,7 +240,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/permission') }"
-          v-if="hasPermission('permissions_group', 'list')"
+          v-if="hasPermission('permissions_group', 'list') || true"
         >
           <a
             class="nav-link"
@@ -107,7 +260,7 @@ defineExpose({ hasPermission });
             id="permissionManagement"
           >
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
                 <a
                   href="/permission"
                   class="nav-link"
@@ -115,7 +268,7 @@ defineExpose({ hasPermission });
                   >角色</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
                 <a
                   href="/admins"
                   class="nav-link"
