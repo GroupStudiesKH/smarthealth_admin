@@ -6,6 +6,18 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: "/settings/brand",
+      name: "brandSettings",
+      component: () => import("../views/BrandSettingsView.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/settings/social",
+      name: "socialSettings",
+      component: () => import("../views/SocialSettingsView.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
       path: "/",
       name: "home",
       component: () => import("../views/HomeView.vue"),
