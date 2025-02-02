@@ -4,6 +4,8 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 export default {
   components: {
     Footer,
@@ -13,6 +15,8 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const editor = ref(null);
+    const coverImagePreview = ref(null);
 
     const course = ref({
       title: "",
@@ -21,17 +25,24 @@ export default {
       category: "",
       tags: [],
       chapters: [],
+      coverImage: null
     });
 
     const categories = ["健康管理", "營養學", "運動科學", "心理健康"];
     const availableTags = ["基礎", "入門", "進階", "專業", "實務"];
+    const availableChapters = ref([
+      { id: 1, title: "第一章：健康管理概論" },
+      { id: 2, title: "第二章：健康評估方法" },
+      { id: 3, title: "第三章：健康計劃制定" },
+      { id: 4, title: "第四章：健康監測與追蹤" },
+    ]);
 
     const selectedTags = ref([]);
 
     const addChapter = () => {
       course.value.chapters.push({
+        id: null,
         title: "",
-        content: "",
         order: course.value.chapters.length + 1,
       });
     };
@@ -44,13 +55,44 @@ export default {
       });
     };
 
+    const updateChapterTitle = (index, chapterId) => {
+      const selectedChapter = availableChapters.value.find(ch => ch.id === chapterId);
+      if (selectedChapter) {
+        course.value.chapters[index].id = selectedChapter.id;
+        course.value.chapters[index].title = selectedChapter.title;
+      }
+    };
+
     const saveCourse = () => {
       // 這裡實作儲存課程的邏輯
       console.log("儲存課程", course.value);
       router.push("/course/list");
     };
 
+    const handleCoverImageUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          coverImagePreview.value = e.target.result;
+          course.value.coverImage = file;
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const removeCoverImage = () => {
+      coverImagePreview.value = null;
+      course.value.coverImage = null;
+    };
+
     onMounted(() => {
+      editor.value = ClassicEditor
+        .create(document.querySelector('#editor'))
+        .catch(error => {
+          console.error(error);
+        });
+
       const courseId = route.params.id;
       if (courseId) {
         // 如果是編輯模式，載入課程資料
@@ -82,6 +124,10 @@ export default {
       removeChapter,
       saveCourse,
       route,
+      handleCoverImageUpload,
+      removeCoverImage,
+      coverImagePreview,
+      editor
     };
   },
 };
@@ -102,6 +148,8 @@ export default {
                 </h6>
 
                 <form @submit.prevent="saveCourse">
+
+
                   <!-- 基本資訊 -->
                   <div class="mb-3">
                     <label class="form-label">課程標題</label>
@@ -163,77 +211,87 @@ export default {
                     </div>
                   </div>
 
-                  <!-- 課程內容 -->
                   <div class="mb-3">
                     <label class="form-label">課程簡介</label>
-                    <div class="editor-container">
-                      <!-- 這裡整合 WYSIWYG 編輯器 -->
-                      <textarea
-                        class="form-control"
-                        v-model="course.content"
-                        rows="5"
-                      ></textarea>
+                    <div id="editor"></div>
+                  </div>
+
+
+
+                <!-- 封面照片上傳 -->
+                <div class="mb-3">
+                    <label class="form-label">課程封面照片</label>
+                    <div class="cover-image-container">
+                      <div v-if="coverImagePreview" class="cover-preview">
+                        <img :src="coverImagePreview" alt="課程封面預覽" />
+                        <button type="button" class="btn btn-danger btn-sm" @click="removeCoverImage">
+                          移除封面
+                        </button>
+                      </div>
+                      <div v-else class="upload-placeholder">
+                        <input
+                          type="file"
+                          class="form-control"
+                          accept="image/*"
+                          @change="handleCoverImageUpload"
+                        />
+                      </div>
                     </div>
                   </div>
 
                   <!-- 章節管理 -->
                   <div class="mb-3">
-                    <div
-                      class="d-flex justify-content-between align-items-center mb-3"
-                    >
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                       <label class="form-label mb-0">章節管理</label>
-                      <button
-                        type="button"
-                        class="btn btn-primary btn-sm"
-                        @click="addChapter"
-                      >
+                      <button type="button" class="btn btn-primary btn-sm" @click="addChapter">
                         新增章節
                       </button>
                     </div>
 
-                    <div
-                      v-for="(chapter, index) in course.chapters"
-                      :key="index"
-                      class="card mb-3"
-                    >
-                      <div class="card-body">
-                        <div
-                          class="d-flex justify-content-between align-items-start mb-3"
-                        >
-                          <h6 class="card-title mb-0">
-                            第 {{ chapter.order }} 章
-                          </h6>
-                          <button
-                            type="button"
-                            class="btn btn-outline-danger btn-sm"
-                            @click="removeChapter(index)"
-                          >
-                            刪除
-                          </button>
-                        </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">章節標題</label>
-                          <input
-                            type="text"
-                            class="form-control"
-                            v-model="chapter.title"
-                            required
-                          />
-                        </div>
-
-                        <div class="mb-3">
-                          <label class="form-label">章節內容</label>
-                          <div class="editor-container">
-                            <!-- 這裡整合 WYSIWYG 編輯器 -->
-                            <textarea
-                              class="form-control"
-                              v-model="chapter.content"
-                              rows="3"
-                            ></textarea>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="table-responsive">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th style="width: 80px">順序</th>
+                            <th>章節</th>
+                            <th style="width: 100px">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(chapter, index) in course.chapters" :key="index">
+                            <td class="text-center">{{ chapter.order }}</td>
+                            <td>
+                              <select 
+                                class="form-select" 
+                                v-model="chapter.id"
+                                @change="updateChapterTitle(index, chapter.id)"
+                                required
+                              >
+                                <option value="">請選擇章節</option>
+                                <option 
+                                  v-for="availableChapter in availableChapters" 
+                                  :key="availableChapter.id"
+                                  :value="availableChapter.id"
+                                >
+                                  {{ availableChapter.title }}
+                                </option>
+                              </select>
+                            </td>
+                            <td class="text-center">
+                              <button 
+                                type="button" 
+                                class="btn btn-outline-danger btn-sm"
+                                @click="removeChapter(index)"
+                              >
+                                刪除
+                              </button>
+                            </td>
+                          </tr>
+                          <tr v-if="course.chapters.length === 0">
+                            <td colspan="3" class="text-center">尚未添加任何章節</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
 
@@ -259,6 +317,33 @@ export default {
 </template>
 
 <style scoped>
+.cover-image-container {
+  max-width: 400px;
+}
+
+.cover-preview {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.cover-preview img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.cover-preview button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.upload-placeholder {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 4px;
+}
 .page-header {
   margin-bottom: 1.5rem;
 }
