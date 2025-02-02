@@ -38,6 +38,38 @@ export default {
     ]);
 
     const selectedTags = ref([]);
+    const instructorSearchQuery = ref("");
+    const chapterSearchQuery = ref("");
+
+    // 模擬的講師列表
+    const availableInstructors = ref([
+      { id: 1, name: "王大明", specialty: "健康管理" },
+      { id: 2, name: "李小華", specialty: "營養學" },
+      { id: 3, name: "張美玲", specialty: "運動科學" },
+      { id: 4, name: "陳建國", specialty: "心理健康" },
+    ]);
+
+    // 過濾講師列表
+    const filteredInstructors = computed(() => {
+      const query = instructorSearchQuery.value.toLowerCase();
+      return availableInstructors.value.filter(instructor =>
+        instructor.name.toLowerCase().includes(query) ||
+        instructor.specialty.toLowerCase().includes(query)
+      );
+    });
+
+    // 過濾章節列表
+    const filteredChapters = computed(() => {
+      const query = chapterSearchQuery.value.toLowerCase();
+      return availableChapters.value.filter(chapter =>
+        chapter.title.toLowerCase().includes(query)
+      );
+    });
+
+    const selectInstructor = (instructor) => {
+      course.value.instructor = instructor.name;
+      instructorSearchQuery.value = "";
+    };
 
     const addChapter = () => {
       course.value.chapters.push({
@@ -55,12 +87,16 @@ export default {
       });
     };
 
-    const updateChapterTitle = (index, chapterId) => {
-      const selectedChapter = availableChapters.value.find(ch => ch.id === chapterId);
-      if (selectedChapter) {
-        course.value.chapters[index].id = selectedChapter.id;
-        course.value.chapters[index].title = selectedChapter.title;
-      }
+    const getFilteredChapters = (query) => {
+      return availableChapters.value.filter(chapter =>
+        chapter.title.toLowerCase().includes(query.toLowerCase())
+      );
+    };
+
+    const selectChapter = (index, selectedChapter) => {
+      course.value.chapters[index].id = selectedChapter.id;
+      course.value.chapters[index].title = selectedChapter.title;
+      course.value.chapters[index].searchQuery = selectedChapter.title;
     };
 
     const saveCourse = () => {
@@ -127,7 +163,14 @@ export default {
       handleCoverImageUpload,
       removeCoverImage,
       coverImagePreview,
-      editor
+      editor,
+      instructorSearchQuery,
+      chapterSearchQuery,
+      filteredInstructors,
+      filteredChapters,
+      selectInstructor,
+      getFilteredChapters,
+      selectChapter
     };
   },
 };
@@ -148,8 +191,6 @@ export default {
                 </h6>
 
                 <form @submit.prevent="saveCourse">
-
-
                   <!-- 基本資訊 -->
                   <div class="mb-3">
                     <label class="form-label">課程標題</label>
@@ -163,12 +204,28 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">講師</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      v-model="course.instructor"
-                      required
-                    />
+                    <div class="position-relative">
+                      <input
+                        type="text"
+                        class="form-control"
+                        v-model="instructorSearchQuery"
+                        placeholder="搜尋講師..."
+                      />
+                      <div v-if="instructorSearchQuery && filteredInstructors.length > 0" 
+                           class="dropdown-menu show position-absolute w-100" 
+                           style="z-index: 1000;">
+                        <a v-for="instructor in filteredInstructors" 
+                           :key="instructor.id"
+                           class="dropdown-item"
+                           href="#"
+                           @click.prevent="selectInstructor(instructor)">
+                          {{ instructor.name }} ({{ instructor.specialty }})
+                        </a>
+                      </div>
+                    </div>
+                    <div v-if="course.instructor" class="mt-2">
+                      已選擇講師：{{ course.instructor }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -187,6 +244,11 @@ export default {
                         {{ category }}
                       </option>
                     </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程簡介</label>
+                    <div id="editor"></div>
                   </div>
 
                   <div class="mb-3">
@@ -211,15 +273,8 @@ export default {
                     </div>
                   </div>
 
+                  <!-- 封面照片上傳 -->
                   <div class="mb-3">
-                    <label class="form-label">課程簡介</label>
-                    <div id="editor"></div>
-                  </div>
-
-
-
-                <!-- 封面照片上傳 -->
-                <div class="mb-3">
                     <label class="form-label">課程封面照片</label>
                     <div class="cover-image-container">
                       <div v-if="coverImagePreview" class="cover-preview">
@@ -261,21 +316,30 @@ export default {
                           <tr v-for="(chapter, index) in course.chapters" :key="index">
                             <td class="text-center">{{ chapter.order }}</td>
                             <td>
-                              <select 
-                                class="form-select" 
-                                v-model="chapter.id"
-                                @change="updateChapterTitle(index, chapter.id)"
-                                required
-                              >
-                                <option value="">請選擇章節</option>
-                                <option 
-                                  v-for="availableChapter in availableChapters" 
-                                  :key="availableChapter.id"
-                                  :value="availableChapter.id"
+                              <div class="position-relative">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  v-model="chapter.searchQuery"
+                                  placeholder="搜尋章節..."
+                                  required
+                                />
+                                <div 
+                                  v-if="chapter.searchQuery && getFilteredChapters(chapter.searchQuery).length > 0" 
+                                  class="dropdown-menu show position-absolute w-100" 
+                                  style="z-index: 1000;"
                                 >
-                                  {{ availableChapter.title }}
-                                </option>
-                              </select>
+                                  <a 
+                                    v-for="availableChapter in getFilteredChapters(chapter.searchQuery)" 
+                                    :key="availableChapter.id"
+                                    class="dropdown-item"
+                                    href="#"
+                                    @click.prevent="selectChapter(index, availableChapter)"
+                                  >
+                                    {{ availableChapter.title }}
+                                  </a>
+                                </div>
+                              </div>
                             </td>
                             <td class="text-center">
                               <button 
