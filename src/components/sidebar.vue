@@ -54,10 +54,7 @@ defineExpose({ hasPermission });
           <div class="collapse" data-bs-parent="#sidebarNav" id="courseManagement">
             <ul class="nav sub-menu">
               <li class="nav-item" v-if="hasPermission('course-list', 'list') || true">
-                <a href="/course/list" class="nav-link" :class="{ active: $route.path === '/course/list' }">課程列表</a>
-              </li>
-              <li class="nav-item" v-if="hasPermission('course-content', 'list') || true">
-                <a href="/course/content" class="nav-link" :class="{ active: $route.path === '/course/content' }">章節內容管理</a>
+                <a href="/course" class="nav-link" :class="{ active: $route.path === '/course/list' }">課程列表</a>
               </li>
             </ul>
           </div>

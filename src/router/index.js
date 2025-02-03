@@ -107,13 +107,28 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/course/list',
-      name: 'CourseList',
-      component: () => import('../views/course/CourseList.vue'),
-      meta: {
-        title: '課程列表',
-        requiresAuth: true
-      }
+      path: "/course",
+      name: "courseList",
+      component: () => import("../views/course/CourseList.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/course/:courseId/chapters",
+      name: "chapterList",
+      component: () => import("../views/course/ChapterList.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/course/:courseId/chapter/:chapterId/edit",
+      name: "chapterEdit",
+      component: () => import("../views/course/ChapterEdit.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/course/:courseId/chapter/add",
+      name: "chapterAdd",
+      component: () => import("../views/course/ChapterEdit.vue"),
+      meta: { requiresAuth: true }
     },
     {
       path: '/course/add',
@@ -130,15 +145,6 @@ const router = createRouter({
       component: () => import('../views/course/CourseEdit.vue'),
       meta: {
         title: '編輯課程',
-        requiresAuth: true
-      }
-    },
-    {
-      path: '/course/content',
-      name: 'ChapterContent',
-      component: () => import('../views/course/ChapterContent.vue'),
-      meta: {
-        title: '章節內容管理',
         requiresAuth: true
       }
     }

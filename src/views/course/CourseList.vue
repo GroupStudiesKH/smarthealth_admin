@@ -71,6 +71,7 @@ export default {
     };
     return {
       courses,
+      router,
       searchQuery,
       selectedCategory,
       selectedStatus,
@@ -183,6 +184,12 @@ export default {
                                     @click="handleEdit(course.id)"
                                 >
                                     編輯
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-outline-info me-2"
+                                    @click="router.push(`/course/${course.id}/chapters`)"
+                                >
+                                    章節管理
                                 </button>
                                 <button
                                     class="btn btn-sm btn-outline-danger"
