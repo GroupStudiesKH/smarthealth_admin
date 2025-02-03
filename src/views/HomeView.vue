@@ -1,3 +1,6 @@
+>
+```
+
 <script>
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -15,45 +18,37 @@ export default {
   setup() {
     const router = useRouter();
 
-    const dailyStats = ref({
-      newUsers: 245,
-      totalBets: 12879,
-      totalWagers: 987650,
-      totalWinnings: 876543
+    const memberStats = ref({
+      totalMembers: 12456,
+      newMonthlyMembers: 245,
+      totalCourses: 389,
+      publicCourses: 156
     });
 
-    const revenueData = ref([
-      { month: '一月', revenue: 1250000, profit: 375000 },
-      { month: '二月', revenue: 1380000, profit: 414000 },
-      { month: '三月', revenue: 1420000, profit: 426000 },
-      { month: '四月', revenue: 1650000, profit: 495000 }
+    const popularCourses = ref([
+      { name: '健康飲食入門', enrollments: 156, rating: 4.8 },
+      { name: '運動科學基礎', enrollments: 142, rating: 4.7 },
+      { name: '心理健康與壓力管理', enrollments: 128, rating: 4.9 },
+      { name: '瑜伽與冥想課程', enrollments: 115, rating: 4.6 },
+      { name: '營養學概論', enrollments: 98, rating: 4.5 }
     ]);
 
-    const popularGames = ref([
-      { name: '水果機', bets: 5689, revenue: 234567 },
-      { name: '老虎機', bets: 3421, revenue: 156789 },
-      { name: '捕魚機', bets: 2876, revenue: 98765 },
-      { name: '麻將機', bets: 2345, revenue: 87654 },
-      { name: '拉霸機', bets: 1987, revenue: 76543 }
-    ]);
-
-    const recentTransactions = ref([
-      { id: 1, user: "player123", type: "存款", amount: 50000, time: "2024-01-15 14:30" },
-      { id: 2, user: "vip888", type: "提款", amount: -30000, time: "2024-01-15 15:45" },
-      { id: 3, user: "lucky777", type: "下注", amount: -10000, time: "2024-01-15 16:20" },
-      { id: 4, user: "master66", type: "贏分", amount: 25000, time: "2024-01-15 17:15" },
-      { id: 5, user: "golden99", type: "存款", amount: 100000, time: "2024-01-15 18:00" }
+    const popularTeachers = ref([
+      { name: '王大明', courses: 12, students: 1560, rating: 4.9 },
+      { name: '李小華', courses: 8, students: 1280, rating: 4.8 },
+      { name: '張教授', courses: 10, students: 1150, rating: 4.7 },
+      { name: '陳醫師', courses: 6, students: 980, rating: 4.8 },
+      { name: '林講師', courses: 7, students: 860, rating: 4.6 }
     ]);
 
     onMounted(() => {
-      // 這裡可以加入初始化圖表的程式碼
+      // 初始化數據
     });
 
     return {
-      dailyStats,
-      revenueData,
-      popularGames,
-      recentTransactions
+      memberStats,
+      popularCourses,
+      popularTeachers
     };
   },
 };
@@ -72,16 +67,10 @@ export default {
               <div class="col-md-3 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title">今日新增會員</h6>
+                    <h6 class="card-title">總會員數量</h6>
                     <div class="row">
                       <div class="col-12">
-                        <h3 class="mb-2">{{ dailyStats.newUsers }}</h3>
-                        <div class="d-flex align-items-baseline">
-                          <p class="text-success">
-                            <span>+5.4%</span>
-                            <i data-feather="arrow-up" class="icon-sm mb-1"></i>
-                          </p>
-                        </div>
+                        <h3 class="mb-2">{{ memberStats.totalMembers }}</h3>
                       </div>
                     </div>
                   </div>
@@ -90,16 +79,10 @@ export default {
               <div class="col-md-3 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title">今日投注次數</h6>
+                    <h6 class="card-title">本月新增會員</h6>
                     <div class="row">
                       <div class="col-12">
-                        <h3 class="mb-2">{{ dailyStats.totalBets }}</h3>
-                        <div class="d-flex align-items-baseline">
-                          <p class="text-success">
-                            <span>+2.8%</span>
-                            <i data-feather="arrow-up" class="icon-sm mb-1"></i>
-                          </p>
-                        </div>
+                        <h3 class="mb-2">{{ memberStats.newMonthlyMembers }}</h3>
                       </div>
                     </div>
                   </div>
@@ -108,16 +91,10 @@ export default {
               <div class="col-md-3 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title">今日投注金額</h6>
+                    <h6 class="card-title">總課程數量</h6>
                     <div class="row">
                       <div class="col-12">
-                        <h3 class="mb-2">{{ dailyStats.totalWagers }}</h3>
-                        <div class="d-flex align-items-baseline">
-                          <p class="text-danger">
-                            <span>-1.2%</span>
-                            <i data-feather="arrow-down" class="icon-sm mb-1"></i>
-                          </p>
-                        </div>
+                        <h3 class="mb-2">{{ memberStats.totalCourses }}</h3>
                       </div>
                     </div>
                   </div>
@@ -126,16 +103,10 @@ export default {
               <div class="col-md-3 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
-                    <h6 class="card-title">今日派彩金額</h6>
+                    <h6 class="card-title">公開課程數量</h6>
                     <div class="row">
                       <div class="col-12">
-                        <h3 class="mb-2">{{ dailyStats.totalWinnings }}</h3>
-                        <div class="d-flex align-items-baseline">
-                          <p class="text-success">
-                            <span>+3.1%</span>
-                            <i data-feather="arrow-up" class="icon-sm mb-1"></i>
-                          </p>
-                        </div>
+                        <h3 class="mb-2">{{ memberStats.publicCourses }}</h3>
                       </div>
                     </div>
                   </div>
@@ -149,25 +120,19 @@ export default {
           <div class="col-lg-7 col-xl-8 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">營收趨勢</h6>
+                <h6 class="card-title">本月熱門課程排行</h6>
                 <div class="table-responsive">
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>月份</th>
-                        <th>營收</th>
-                        <th>利潤</th>
-                        <th>成長率</th>
+                        <th>課程名稱</th>
+                        <th>報名人數</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="data in revenueData" :key="data.month">
-                        <td>{{ data.month }}</td>
-                        <td>{{ data.revenue }}</td>
-                        <td>{{ data.profit }}</td>
-                        <td>
-                          <span class="badge bg-success">+{{ Math.floor(Math.random() * 10) }}%</span>
-                        </td>
+                      <tr v-for="course in popularCourses" :key="course.name">
+                        <td>{{ course.name }}</td>
+                        <td>{{ course.enrollments }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -179,57 +144,21 @@ export default {
           <div class="col-lg-5 col-xl-4 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">熱門遊戲排行</h6>
+                <h6 class="card-title">本月熱門講師排行</h6>
                 <div class="table-responsive">
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>遊戲名稱</th>
-                        <th>投注次數</th>
-                        <th>營收</th>
+                        <th>講師姓名</th>
+                        <th>課程數</th>
+                        <th>學員數</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="game in popularGames" :key="game.name">
-                        <td>{{ game.name }}</td>
-                        <td>{{ game.bets }}</td>
-                        <td>{{ game.revenue }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-12 stretch-card">
-            <div class="card">
-              <div class="card-body">
-                <h6 class="card-title">最近交易紀錄</h6>
-                <div class="table-responsive">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>交易ID</th>
-                        <th>用戶</th>
-                        <th>類型</th>
-                        <th>金額</th>
-                        <th>時間</th>
-                        <th>狀態</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="trans in recentTransactions" :key="trans.id">
-                        <td>{{ trans.id }}</td>
-                        <td>{{ trans.user }}</td>
-                        <td>{{ trans.type }}</td>
-                        <td :class="trans.amount >= 0 ? 'text-success' : 'text-danger'">
-                          {{ trans.amount }}
-                        </td>
-                        <td>{{ trans.time }}</td>
-                        <td><span class="badge bg-success">成功</span></td>
+                      <tr v-for="teacher in popularTeachers" :key="teacher.name">
+                        <td>{{ teacher.name }}</td>
+                        <td>{{ teacher.courses }}</td>
+                        <td>{{ teacher.students }}</td>
                       </tr>
                     </tbody>
                   </table>
