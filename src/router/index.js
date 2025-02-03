@@ -147,7 +147,13 @@ const router = createRouter({
         title: '編輯課程',
         requiresAuth: true
       }
-    }
+    },
+    {
+      path: "/member",
+      name: "memberList",
+      component: () => import("../views/MemberView.vue"),
+      meta: { requiresAuth: true }
+    },
   ],
 });
 
