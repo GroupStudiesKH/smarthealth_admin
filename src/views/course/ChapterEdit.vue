@@ -24,7 +24,8 @@ export default {
       title: "",
       content: "",
       status: "草稿",
-      files: [],
+      pdfFile: null,
+      videoFile: null
     });
 
     const fetchChapter = async (chapterId) => {
@@ -63,13 +64,34 @@ export default {
       }
     };
 
-    const handleFileUpload = (event) => {
-      const files = Array.from(event.target.files);
-      chapter.value.files = [...chapter.value.files, ...files];
+    const handlePdfUpload = (event) => {
+      const file = event.target.files[0];
+      if (file && file.type === 'application/pdf') {
+        chapter.value.pdfFile = file;
+      } else {
+        modalMessage.value = "請上傳PDF格式的檔案";
+        showModal.value = true;
+        event.target.value = '';
+      }
     };
 
-    const removeFile = (index) => {
-      chapter.value.files.splice(index, 1);
+    const handleVideoUpload = (event) => {
+      const file = event.target.files[0];
+      if (file && (file.type === 'video/mp4' || file.type === 'video/quicktime')) {
+        chapter.value.videoFile = file;
+      } else {
+        modalMessage.value = "請上傳MP4或MOV格式的影片";
+        showModal.value = true;
+        event.target.value = '';
+      }
+    };
+
+    const removePdf = () => {
+      chapter.value.pdfFile = null;
+    };
+
+    const removeVideo = () => {
+      chapter.value.videoFile = null;
     };
 
     onMounted(async () => {
@@ -91,8 +113,10 @@ export default {
       showModal,
       modalMessage,
       saveChapter,
-      handleFileUpload,
-      removeFile,
+      handlePdfUpload,
+      handleVideoUpload,
+      removePdf,
+      removeVideo,
       route
     };
   },
@@ -145,20 +169,42 @@ export default {
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">附件</label>
+                    <label class="form-label">PDF檔案</label>
                     <input
                       type="file"
                       class="form-control"
-                      @change="handleFileUpload"
-                      multiple
+                      accept=".pdf"
+                      @change="handlePdfUpload"
                     >
-                    <div class="mt-2" v-if="chapter.files.length > 0">
-                      <div v-for="(file, index) in chapter.files" :key="index" class="d-flex align-items-center mb-2">
-                        <span class="me-2">{{ file.name }}</span>
+                    <div class="mt-2" v-if="chapter.pdfFile">
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="me-2">{{ chapter.pdfFile.name }}</span>
                         <button
                           type="button"
                           class="btn btn-sm btn-outline-danger"
-                          @click="removeFile(index)"
+                          @click="removePdf"
+                        >
+                          刪除
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">影片檔案</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      accept="video/mp4,video/quicktime"
+                      @change="handleVideoUpload"
+                    >
+                    <div class="mt-2" v-if="chapter.videoFile">
+                      <div class="d-flex align-items-center mb-2">
+                        <span class="me-2">{{ chapter.videoFile.name }}</span>
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          @click="removeVideo"
                         >
                           刪除
                         </button>
