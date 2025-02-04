@@ -183,7 +183,7 @@ export default {
                             <i class="material-icons">{{ item.status ? 'block' : 'check_circle' }}</i>
                           </button>
                           <button class="btn btn-sm btn-primary" @click="handleViewGrades(item.id)">
-                            <i class="material-icons">school</i>
+                            學習紀錄統計
                           </button>
                         </td>
                       </tr>
