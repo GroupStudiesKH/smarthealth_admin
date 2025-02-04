@@ -166,6 +166,12 @@ const router = createRouter({
       component: () => import("../views/MemberView.vue"),
       meta: { requiresAuth: true }
     },
+    {
+      path: "/statistics/progress",
+      name: "statisticsProgress",
+      component: () => import("../views/statistics/progress.vue"),
+      meta: { requiresAuth: true }
+    },
   ],
 });
 
