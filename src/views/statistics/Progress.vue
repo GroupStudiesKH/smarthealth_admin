@@ -22,7 +22,8 @@ export default {
         instructor: '王大明',
         category: '醫療保健',
         completionRate: 85,
-        averageScore: 78
+        averageScore: 78,
+        students_count: 156
       },
       {
         id: 2,
@@ -30,7 +31,8 @@ export default {
         instructor: '李美玲',
         category: '護理照護',
         completionRate: 92,
-        averageScore: 88
+        averageScore: 88,
+        students_count: 142
       },
       {
         id: 3,
@@ -38,7 +40,8 @@ export default {
         instructor: '張志豪',
         category: '急救訓練',
         completionRate: 75,
-        averageScore: 82
+        averageScore: 82,
+        students_count: 128
       },
       {
         id: 4,
@@ -46,7 +49,8 @@ export default {
         instructor: '陳雅琪',
         category: '長照服務',
         completionRate: 88,
-        averageScore: 85
+        averageScore: 85,
+        students_count: 115
       },
       {
         id: 5,
@@ -54,7 +58,8 @@ export default {
         instructor: '林心理',
         category: '心理健康',
         completionRate: 90,
-        averageScore: 92
+        averageScore: 92,
+        students_count: 98
       },
       {
         id: 6,
@@ -62,7 +67,8 @@ export default {
         instructor: '黃醫師',
         category: '長照服務',
         completionRate: 82,
-        averageScore: 85
+        averageScore: 85,
+        students_count: 10
       },
       {
         id: 7,
@@ -70,7 +76,8 @@ export default {
         instructor: '周醫師',
         category: '醫療保健',
         completionRate: 88,
-        averageScore: 90
+        averageScore: 90,
+        students_count: 10
       },
       {
         id: 8,
@@ -78,7 +85,8 @@ export default {
         instructor: '劉醫師',
         category: '急救訓練',
         completionRate: 95,
-        averageScore: 89
+        averageScore: 89,
+        students_count: 10
       },
       {
         id: 9,
@@ -86,7 +94,8 @@ export default {
         instructor: '吳護理師',
         category: '護理照護',
         completionRate: 87,
-        averageScore: 84
+        averageScore: 84,
+        students_count: 10
       },
       {
         id: 10,
@@ -94,7 +103,8 @@ export default {
         instructor: '謝心理師',
         category: '心理健康',
         completionRate: 91,
-        averageScore: 88
+        averageScore: 88,
+        students_count: 10
       },
       {
         id: 11,
@@ -102,7 +112,8 @@ export default {
         instructor: '楊營養師',
         category: '長照服務',
         completionRate: 89,
-        averageScore: 86
+        averageScore: 86,
+        students_count: 10
       },
       {
         id: 12,
@@ -110,7 +121,8 @@ export default {
         instructor: '鄭醫師',
         category: '醫療保健',
         completionRate: 84,
-        averageScore: 83
+        averageScore: 83,
+        students_count: 10
       },
       {
         id: 13,
@@ -118,7 +130,8 @@ export default {
         instructor: '蔡醫師',
         category: '急救訓練',
         completionRate: 93,
-        averageScore: 91
+        averageScore: 91,
+        students_count: 10
       },
       {
         id: 14,
@@ -126,7 +139,8 @@ export default {
         instructor: '趙護理師',
         category: '護理照護',
         completionRate: 86,
-        averageScore: 87
+        averageScore: 87,
+        students_count: 10
       },
       {
         id: 15,
@@ -134,7 +148,8 @@ export default {
         instructor: '孫心理師',
         category: '心理健康',
         completionRate: 88,
-        averageScore: 89
+        averageScore: 89,
+        students_count: 10
       }
     ])
 
@@ -242,6 +257,7 @@ export default {
                         <th>分類</th>
                         <th>完課率</th>
                         <th>平均分數</th>
+                        <th>上課人數</th>
                         <th>操作</th>
                       </tr>
                     </thead>
@@ -272,6 +288,7 @@ export default {
                             </div>
                           </div>
                         </td>
+                        <td>{{ course.students_count }}人</td>
                         <td>
                           <button
                             class="btn btn-primary btn-sm"

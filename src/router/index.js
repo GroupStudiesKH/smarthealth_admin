@@ -187,6 +187,18 @@ const router = createRouter({
       component: () => import("../views/statistics/CourseReport.vue"),
       meta: { requiresAuth: true }
     },
+    {
+      path: "/exam/statistics",
+      name: "examStatistics",
+      component: () => import("../views/exam/Statistics.vue"),
+      meta: { requiresAuth: true }
+    },
+    // {
+    //   path: "/exam/edit/:id",
+    //   name: "examEdit",
+    //   component: () => import("../views/exam/ExamEdit.vue"),
+    //   meta: { requiresAuth: true }
+    // },
   ],
 });
 
