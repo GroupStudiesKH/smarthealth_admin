@@ -47,8 +47,100 @@ export default {
         category: '長照服務',
         completionRate: 88,
         averageScore: 85
+      },
+      {
+        id: 5,
+        name: '心理健康諮詢基礎',
+        instructor: '林心理',
+        category: '心理健康',
+        completionRate: 90,
+        averageScore: 92
+      },
+      {
+        id: 6,
+        name: '老年照護專業課程',
+        instructor: '黃醫師',
+        category: '長照服務',
+        completionRate: 82,
+        averageScore: 85
+      },
+      {
+        id: 7,
+        name: '兒童醫療照護',
+        instructor: '周醫師',
+        category: '醫療保健',
+        completionRate: 88,
+        averageScore: 90
+      },
+      {
+        id: 8,
+        name: '急診室緊急救護',
+        instructor: '劉醫師',
+        category: '急救訓練',
+        completionRate: 95,
+        averageScore: 89
+      },
+      {
+        id: 9,
+        name: '居家護理實務',
+        instructor: '吳護理師',
+        category: '護理照護',
+        completionRate: 87,
+        averageScore: 84
+      },
+      {
+        id: 10,
+        name: '壓力管理與調適',
+        instructor: '謝心理師',
+        category: '心理健康',
+        completionRate: 91,
+        averageScore: 88
+      },
+      {
+        id: 11,
+        name: '高齡者營養照護',
+        instructor: '楊營養師',
+        category: '長照服務',
+        completionRate: 89,
+        averageScore: 86
+      },
+      {
+        id: 12,
+        name: '社區醫療服務',
+        instructor: '鄭醫師',
+        category: '醫療保健',
+        completionRate: 84,
+        averageScore: 83
+      },
+      {
+        id: 13,
+        name: '災難醫療應變',
+        instructor: '蔡醫師',
+        category: '急救訓練',
+        completionRate: 93,
+        averageScore: 91
+      },
+      {
+        id: 14,
+        name: '精神科護理實務',
+        instructor: '趙護理師',
+        category: '護理照護',
+        completionRate: 86,
+        averageScore: 87
+      },
+      {
+        id: 15,
+        name: '情緒管理與輔導',
+        instructor: '孫心理師',
+        category: '心理健康',
+        completionRate: 88,
+        averageScore: 89
       }
     ])
+
+    // 分頁相關狀態
+    const currentPage = ref(1)
+    const pageSize = ref(10)
 
     // 篩選相關狀態
     const searchQuery = ref('')
@@ -61,14 +153,30 @@ export default {
 
     // 篩選後的課程列表
     const filteredCourses = computed(() => {
-      return courses.value.filter(course => {
+      const filtered = courses.value.filter(course => {
         const matchQuery = 
           course.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
           course.instructor.toLowerCase().includes(searchQuery.value.toLowerCase())
         const matchCategory = !selectedCategory.value || course.category === selectedCategory.value
         return matchQuery && matchCategory
       })
+      
+      // 計算總頁數
+      totalPages.value = Math.ceil(filtered.length / pageSize.value)
+      
+      // 根據當前頁碼進行分頁
+      const start = (currentPage.value - 1) * pageSize.value
+      const end = start + pageSize.value
+      return filtered.slice(start, end)
     })
+
+    // 總頁數
+    const totalPages = ref(1)
+
+    // 分頁導航方法
+    const goToPage = (page) => {
+      currentPage.value = page
+    }
 
     // 檢視詳細資料方法
     const viewDetails = (courseId) => {
@@ -80,7 +188,10 @@ export default {
       categories,
       searchQuery,
       selectedCategory,
-      viewDetails
+      viewDetails,
+      currentPage,
+      totalPages,
+      goToPage
     }
   }
 }
@@ -114,6 +225,12 @@ export default {
                         {{ category }}
                       </option>
                     </select>
+                  </div>
+                  <div class="col-md-3 text-end">
+                    <button class="btn btn-primary" @click="exportReport">
+                      <i class="material-icons align-middle me-1">file_download</i>
+                      匯出報表
+                    </button>
                   </div>
                 </div>
                 <div class="table-responsive">
@@ -166,6 +283,28 @@ export default {
                       </tr>
                     </tbody>
                   </table>
+                </div>
+                <!-- 分頁導航 -->
+                <div class="d-flex justify-content-center mt-4">
+                  <nav>
+                    <ul class="pagination">
+                      <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                        <a class="page-link" href="#" @click.prevent="goToPage(currentPage - 1)">
+                          上一頁
+                        </a>
+                      </li>
+                      <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <a class="page-link" href="#" @click.prevent="goToPage(page)">
+                          {{ page }}
+                        </a>
+                      </li>
+                      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                        <a class="page-link" href="#" @click.prevent="goToPage(currentPage + 1)">
+                          下一頁
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
               </div>
             </div>

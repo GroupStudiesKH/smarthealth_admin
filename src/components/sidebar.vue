@@ -110,9 +110,6 @@ defineExpose({ hasPermission });
               <li class="nav-item" v-if="hasPermission('course-progress', 'list') || true">
                 <a href="/statistics/progress" class="nav-link" :class="{ active: $route.path === '/statistics/progress' }">學習進度統計</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('course-report', 'list') || true">
-                <a href="/statistics/report" class="nav-link" :class="{ active: $route.path === '/statistics/report' }">報表輸出</a>
-              </li>
             </ul>
           </div>
         </li>

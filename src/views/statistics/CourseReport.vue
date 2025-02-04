@@ -110,7 +110,13 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">課程詳細報表</h6>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="card-title mb-0">課程詳細報表</h6>
+                  <button class="btn btn-primary" @click="exportReport">
+                    <i class="material-icons align-middle me-1">file_download</i>
+                    匯出報表
+                  </button>
+                </div>
                 <hr>
                 
                 <!-- 課程基本資訊 -->
