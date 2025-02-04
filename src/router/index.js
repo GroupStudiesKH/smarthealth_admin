@@ -172,6 +172,15 @@ const router = createRouter({
       component: () => import("../views/statistics/progress.vue"),
       meta: { requiresAuth: true }
     },
+
+    // /statistics/course-report
+
+    {
+      path: "/statistics/course-report/:id",
+      name: "statisticsCourseReport",
+      component: () => import("../views/statistics/CourseReport.vue"),
+      meta: { requiresAuth: true }
+    },
   ],
 });
 

@@ -1,5 +1,6 @@
 <script>
 import { ref, computed } from 'vue'
+import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -11,6 +12,8 @@ export default {
     Sidebar,
   },
   setup() {
+    const router = useRouter();
+    const route = useRoute();
     // 模擬課程統計數據
     const courses = ref([
       {
@@ -19,7 +22,7 @@ export default {
         instructor: '王大明',
         category: '醫療保健',
         completionRate: 85,
-        examPassRate: 78
+        averageScore: 78
       },
       {
         id: 2,
@@ -27,7 +30,7 @@ export default {
         instructor: '李美玲',
         category: '護理照護',
         completionRate: 92,
-        examPassRate: 88
+        averageScore: 88
       },
       {
         id: 3,
@@ -35,7 +38,7 @@ export default {
         instructor: '張志豪',
         category: '急救訓練',
         completionRate: 75,
-        examPassRate: 82
+        averageScore: 82
       },
       {
         id: 4,
@@ -43,7 +46,7 @@ export default {
         instructor: '陳雅琪',
         category: '長照服務',
         completionRate: 88,
-        examPassRate: 85
+        averageScore: 85
       }
     ])
 
@@ -69,8 +72,7 @@ export default {
 
     // 檢視詳細資料方法
     const viewDetails = (courseId) => {
-      console.log('查看課程詳細資料:', courseId)
-      // 這裡可以導向詳細頁面或開啟 Modal
+      router.push(`/statistics/course-report/${courseId}`)
     }
 
     return {
@@ -122,7 +124,7 @@ export default {
                         <th>課程講師</th>
                         <th>分類</th>
                         <th>完課率</th>
-                        <th>測驗通過率</th>
+                        <th>平均分數</th>
                         <th>操作</th>
                       </tr>
                     </thead>
@@ -147,9 +149,9 @@ export default {
                             <div
                               class="progress-bar bg-info"
                               role="progressbar"
-                              :style="{ width: course.examPassRate + '%' }"
+                              :style="{ width: course.averageScore + '%' }"
                             >
-                              {{ course.examPassRate }}%
+                              {{ course.averageScore }}分
                             </div>
                           </div>
                         </td>
