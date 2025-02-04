@@ -1,5 +1,5 @@
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -47,6 +47,26 @@ export default {
       }
     ])
 
+    // 篩選相關狀態
+    const searchQuery = ref('')
+    const selectedCategory = ref('')
+
+    // 取得所有課程分類
+    const categories = computed(() => {
+      return [...new Set(courses.value.map(course => course.category))]
+    })
+
+    // 篩選後的課程列表
+    const filteredCourses = computed(() => {
+      return courses.value.filter(course => {
+        const matchQuery = 
+          course.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          course.instructor.toLowerCase().includes(searchQuery.value.toLowerCase())
+        const matchCategory = !selectedCategory.value || course.category === selectedCategory.value
+        return matchQuery && matchCategory
+      })
+    })
+
     // 檢視詳細資料方法
     const viewDetails = (courseId) => {
       console.log('查看課程詳細資料:', courseId)
@@ -54,7 +74,10 @@ export default {
     }
 
     return {
-      courses,
+      courses: filteredCourses,
+      categories,
+      searchQuery,
+      selectedCategory,
       viewDetails
     }
   }
@@ -72,6 +95,25 @@ export default {
             <div class="card">
               <div class="card-body">
                 <h6 class="card-title">學習進度統計</h6>
+                <!-- 篩選區域 -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="searchQuery"
+                      placeholder="搜尋課程名稱或講師..."
+                    />
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" v-model="selectedCategory">
+                      <option value="">所有分類</option>
+                      <option v-for="category in categories" :key="category" :value="category">
+                        {{ category }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead>
