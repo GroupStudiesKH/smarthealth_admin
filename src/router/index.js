@@ -161,8 +161,14 @@ const router = createRouter({
       }
     },
     {
+      path: "/member/grades/:id",
+      name: "memberGrades",
+      component: () => import("../views/MemberGrades.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
       path: "/member",
-      name: "memberList",
+      name: "member",
       component: () => import("../views/MemberView.vue"),
       meta: { requiresAuth: true }
     },

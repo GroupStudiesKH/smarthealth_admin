@@ -4,12 +4,14 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import StudentDetailModal from "@/components/StudentDetailModal.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    StudentDetailModal,
   },
   setup() {
     const router = useRouter();
@@ -242,94 +244,10 @@ export default {
                 </nav>
 
                 <!-- 學生詳細資料模態框 -->
-                <div class="modal fade" :class="{ 'show d-block': showStudentModal }" tabindex="-1" role="dialog" aria-hidden="true">
-                  <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">學生學習詳細資料</h5>
-                        <button type="button" class="btn-close" @click="showStudentModal = false"></button>
-                      </div>
-                      <div class="modal-body" v-if="selectedStudent">
-                        <!-- 基本資訊 -->
-                        <div class="student-info mb-4">
-                          <h6>基本資訊</h6>
-                          <div class="row">
-                            <div class="col-md-6">
-                              <p><strong>學生姓名：</strong>{{ selectedStudent.name }}</p>
-                              <p><strong>電子郵件：</strong>{{ selectedStudent.email }}</p>
-                            </div>
-                            <div class="col-md-6">
-                              <p><strong>總學習時數：</strong>{{ selectedStudent.totalTime }}</p>
-                              <p><strong>最後登入：</strong>{{ selectedStudent.lastAccess }}</p>
-                            </div>
-                          </div>
-                          <div class="progress mb-3">
-                            <div class="progress-bar bg-success" role="progressbar" :style="{ width: selectedStudent.progress + '%' }">
-                              總進度：{{ selectedStudent.progress }}%
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- 章節進度 -->
-                        <div class="chapter-progress mb-4">
-                          <h6>章節進度</h6>
-                          <div class="table-responsive">
-                            <table class="table">
-                              <thead>
-                                <tr>
-                                  <th>章節名稱</th>
-                                  <th>完成進度</th>
-                                  <th>測驗分數</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr v-for="chapter in selectedStudent.chapterProgress" :key="chapter.name">
-                                  <td>{{ chapter.name }}</td>
-                                  <td>
-                                    <div class="progress">
-                                      <div class="progress-bar bg-info" role="progressbar" :style="{ width: chapter.progress + '%' }">
-                                        {{ chapter.progress }}%
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td>{{ chapter.score || '尚未完成' }}</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                        <!-- 測驗成績 -->
-                        <div class="quiz-results">
-                          <h6>測驗成績記錄</h6>
-                          <div class="table-responsive">
-                            <table class="table">
-                              <thead>
-                                <tr>
-                                  <th>測驗名稱</th>
-                                  <th>分數</th>
-                                  <th>完成日期</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr v-for="quiz in selectedStudent.quizResults" :key="quiz.name">
-                                  <td>{{ quiz.name }}</td>
-                                  <td>{{ quiz.score }}</td>
-                                  <td>{{ quiz.date }}</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="showStudentModal = false">關閉</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- 模態框背景遮罩 -->
-                <div class="modal-backdrop fade show" v-if="showStudentModal"></div>
+                <StudentDetailModal
+                  v-model:show="showStudentModal"
+                  :student="selectedStudent"
+                />
               </div>
             </div>
           </div>
