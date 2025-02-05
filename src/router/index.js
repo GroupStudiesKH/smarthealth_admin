@@ -101,22 +101,28 @@ const router = createRouter({
       component: () => import("../views/LoginView.vue")
     },
     {
-      path: "/layout/cms",
-      name: "cms",
-      component: () => import("../views/CmsView.vue"),
-      meta: { requiresAuth: false }
+      path: "/content/faq",
+      name: "faqEdit",
+      component: () => import("../views/content/FaqEdit.vue"),
+      meta: { requiresAuth: true }
     },
     {
-      path: "/layout/cms/add",
-      name: "cmsAdd",
-      component: () => import("../views/CmsAdd.vue"),
-      meta: { requiresAuth: false }
+      path: "/content/about",
+      name: "aboutEdit",
+      component: () => import("../views/content/AboutEdit.vue"),
+      meta: { requiresAuth: true }
     },
     {
-      path: "/layout/cms/edit/:id",
-      name: "cmsEdit",
-      component: () => import("../views/CmsEdit.vue"),
-      meta: { requiresAuth: false }
+      path: "/content/privacy",
+      name: "privacyEdit",
+      component: () => import("../views/content/PrivacyEdit.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/content/security",
+      name: "securityEdit",
+      component: () => import("../views/content/SecurityEdit.vue"),
+      meta: { requiresAuth: true }
     },
     {
       path: "/admins/:id/edit",

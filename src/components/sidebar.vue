@@ -86,7 +86,6 @@ defineExpose({ hasPermission });
             </ul>
           </div>
         </li>
-
         <!-- 課程統計 -->
         <li
           class="nav-item"
@@ -208,13 +207,17 @@ defineExpose({ hasPermission });
                   >首頁Banner管理</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('layout-cms', 'list') || true">
-                <a
-                  href="/layout/cms"
-                  class="nav-link"
-                  :class="{ active: $route.path === '/layout/cms' }"
-                  >頁面文章設定</a
-                >
+              <li class="nav-item" v-if="hasPermission('content-faq', 'edit') || true">
+                <a href="/content/faq" class="nav-link" :class="{ active: $route.path === '/content/faq' }">FAQ</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('content-about', 'edit') || true">
+                <a href="/content/about" class="nav-link" :class="{ active: $route.path === '/content/about' }">計劃緣起</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('content-privacy', 'edit') || true">
+                <a href="/content/privacy" class="nav-link" :class="{ active: $route.path === '/content/privacy' }">隱私權政策</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('content-security', 'edit') || true">
+                <a href="/content/security" class="nav-link" :class="{ active: $route.path === '/content/security' }">資安政策</a>
               </li>
             </ul>
           </div>
