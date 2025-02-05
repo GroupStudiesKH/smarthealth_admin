@@ -14,6 +14,11 @@ export default {
   setup() {
     const router = useRouter();
 
+    // 跳轉到題目編輯頁面
+    const goToExamEdit = (examId) => {
+      router.push(`/exam/edit/${examId}`);
+    };
+
     // 模擬測驗統計數據
     const examData = ref([
       { id: 1, courseName: '基礎醫療保健課程', instructor: '王大明', category: '醫療保健', averageScore: 85, participantsCount: 156 },
@@ -103,7 +108,8 @@ export default {
       totalPages,
       editExam,
       viewResult,
-      goToPage
+      goToPage,
+      goToExamEdit
     }
   }
 }
@@ -161,7 +167,7 @@ export default {
                         <td>{{ exam.averageScore }}</td>
                         <td>{{ exam.participantsCount }}</td>
                         <td>
-                          <button class="btn btn-primary btn-sm me-2" @click="editExam(exam.id)">
+                          <button class="btn btn-primary btn-sm me-2" @click="goToExamEdit(exam.id)">
                             編輯題目
                           </button>
                           <button class="btn btn-info btn-sm" @click="viewResult(exam.id)">

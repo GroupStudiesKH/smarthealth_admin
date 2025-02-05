@@ -28,7 +28,8 @@ export default {
           question: '人體正常體溫是37度',
           correctAnswer: true,
           correctCount: 142,
-          incorrectCount: 14
+          incorrectCount: 14,
+          chapter: '第一章：健康生活概論'
         },
         {
           id: 2,
@@ -37,7 +38,8 @@ export default {
           options: ['胸骨上端', '胸骨中下段', '左胸', '右胸'],
           correctAnswer: 1,
           correctCount: 138,
-          incorrectCount: 18
+          incorrectCount: 18,
+          chapter: '期中考試'
         },
         {
           id: 3,
@@ -46,7 +48,8 @@ export default {
           options: ['頭暈', '噁心', '體溫升高', '皮膚發紅'],
           correctAnswer: [0, 1, 2, 3],
           correctCount: 125,
-          incorrectCount: 31
+          incorrectCount: 31,
+          chapter: '期末考試'
         }
       ]
     })
@@ -100,6 +103,7 @@ export default {
                         <th>答對人數</th>
                         <th>答錯人數</th>
                         <th>正確率</th>
+                        <th>所屬範圍</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -127,6 +131,7 @@ export default {
                         <td>
                           {{ Math.round((question.correctCount / (question.correctCount + question.incorrectCount)) * 100) }}%
                         </td>
+                        <td>{{ question.chapter }}</td>
                       </tr>
                     </tbody>
                   </table>
