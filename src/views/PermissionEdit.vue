@@ -29,16 +29,80 @@ export default {
 
     const fetchPermissionOptions = async () => {
       try {
-        const response = await apiService.getPermissionOptions();
-        permissionStructure.value = response;
-        permissionData.value = {
-          id: "",
-          name: "",
-          permissions: Object.keys(response).reduce((acc, key) => {
-            acc[key] = [];
-            return acc;
-          }, {})
+        // 模擬權限結構數據
+        const mockPermissionStructure = {
+          courseManagement: {
+            title: "課程管理",
+            list: {
+              "course-management": {
+                title: "課程管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "course-list": {
+                title: "課程列表",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          },
+          memberManagement: {
+            title: "會員管理",
+            list: {
+              "member-management": {
+                title: "會員管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "member-list": {
+                title: "會員列表",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          },
+          statisticsManagement: {
+            title: "課程統計",
+            list: {
+              "course-statistics": {
+                title: "課程統計",
+                permissions: ["list"]
+              }
+            }
+          },
+          contentManagement: {
+            title: "內容管理",
+            list: {
+              "layout-banner-management": {
+                title: "首頁Banner管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "content-faq": {
+                title: "FAQ",
+                permissions: ["edit"]
+              },
+              "content-about": {
+                title: "計劃緣起",
+                permissions: ["edit"]
+              },
+              "content-privacy": {
+                title: "隱私權政策",
+                permissions: ["edit"]
+              },
+              "content-security": {
+                title: "資安政策",
+                permissions: ["edit"]
+              }
+            }
+          },
+          permissionManagement: {
+            title: "權限管理",
+            list: {
+              "permissions_group": {
+                title: "角色權限",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          }
         };
+
+        permissionStructure.value = mockPermissionStructure;
       } catch (error) {
         console.error("Error fetching permission options:", error);
       }
@@ -46,15 +110,31 @@ export default {
 
     const fetchPermissionData = async () => {
       try {
-        const response = await apiService.getPermission(permissionId);
-        permissionData.value = {
-          id: response.id,
-          name: response.name,
+        // 模擬 API 響應數據
+        const mockData = {
+          id: permissionId,
+          name: "測試權限組",
           permissions: {
-            ...permissionData.value.permissions,
-            ...response.permissions
+            "course-management": ["list", "create"],
+            "course-list": ["list"],
+            "member-management": ["list", "edit"],
+            "member-list": ["list"],
+            "course-statistics": ["list"],
+            "layout-banner-management": ["list", "edit"],
+            "content-faq": ["edit"],
+            "permissions_group": ["list"]
           }
         };
+
+        permissionData.value = {
+          id: mockData.id,
+          name: mockData.name,
+          permissions: {
+            ...permissionData.value.permissions,
+            ...mockData.permissions
+          }
+        };
+
         // Ensure all permission keys exist and are arrays
         Object.keys(permissionStructure.value).forEach(categoryKey => {
           Object.keys(permissionStructure.value[categoryKey].list).forEach(itemKey => {
@@ -63,7 +143,6 @@ export default {
             }
           });
         });
-        console.log("Updated permissionData:", permissionData.value);
       } catch (error) {
         console.error("Error fetching permission data:", error);
       }

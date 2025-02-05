@@ -27,23 +27,23 @@ export default {
     const modalTitle = ref('');
     const errors = ref({});
 
-    const registerAdmin = () => {
-      if (!validateForm()) {
-        return;
-      }
-      apiService.registerAdmin(userData.value)
-      .then(response => {
-        showModalMessage('成功', '管理員已成功新增');
-        router.push('/admins'); // 新增成功後導向管理員列表
-      })
-      .catch(error => {
-        console.error('Error registering admin:', error);
-        if (error.response && error.response.data) {
-          errors.value = error.response.data.content || {};
-        }
-        showModalMessage('錯誤', '新增管理員失敗，請檢查輸入並再試一次');
-      });
-    }
+    // const registerAdmin = () => {
+    //   if (!validateForm()) {
+    //     return;
+    //   }
+    //   apiService.registerAdmin(userData.value)
+    //   .then(response => {
+    //     showModalMessage('成功', '管理員已成功新增');
+    //     router.push('/admins'); // 新增成功後導向管理員列表
+    //   })
+    //   .catch(error => {
+    //     console.error('Error registering admin:', error);
+    //     if (error.response && error.response.data) {
+    //       errors.value = error.response.data.content || {};
+    //     }
+    //     showModalMessage('錯誤', '新增管理員失敗，請檢查輸入並再試一次');
+    //   });
+    // }
 
     const validateForm = () => {
       errors.value = {};
@@ -77,13 +77,29 @@ export default {
 
     const fetchPermissionList = async () => {
       try {
-        const response = await apiService.getPermissions();
-        permissionList.value = response.data;
+        // 模擬權限群組數據
+        const mockPermissions = [
+          { id: 1, name: '超級管理員' },
+          { id: 2, name: '內容管理員' },
+          { id: 3, name: '一般管理員' }
+        ];
+        permissionList.value = mockPermissions;
       } catch (error) {
         console.error('Error fetching permission list:', error);
         showModalMessage('錯誤', '獲取權限列表失敗，請再試一次');
       }
     };
+
+    const registerAdmin = () => {
+      if (!validateForm()) {
+        return;
+      }
+      // 模擬註冊成功
+      setTimeout(() => {
+        showModalMessage('成功', '管理員已成功新增');
+        router.push('/admins');
+      }, 500);
+    }
 
     onMounted(() => {
       fetchPermissionList();

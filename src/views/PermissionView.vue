@@ -37,18 +37,22 @@ export default {
 
     const fetchTableData = async (page = 1, pageSize = 10, search = "") => {
       try {
-        // Fetch data from API with pagination parameters
-        const response = await apiService.getPermissions({
-          page,
-          pageSize,
-          search
-        });
+        // 模擬 API 響應數據
+        const mockData = {
+          data: [
+            { id: 1, name: "超級管理員" },
+            { id: 2, name: "課程管理員" },
+            { id: 3, name: "會員管理員" },
+            { id: 4, name: "內容管理員" },
+            { id: 5, name: "一般管理員" }
+          ],
+          recordsTotal: 5
+        };
 
-        tableData.value = response.data;
-        totalRecords.value = response.recordsTotal;
+        tableData.value = mockData.data;
+        totalRecords.value = mockData.recordsTotal;
       } catch (error) {
         console.error("Failed to fetch permission data:", error);
-        // Handle error (e.g., show error message to user)
       }
     };
 

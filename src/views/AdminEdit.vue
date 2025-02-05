@@ -29,26 +29,26 @@ export default {
     const modalTitle = ref('');
     const errors = ref({});
 
-    const adminEdit = () => {
-      if (!validateForm()) {
-        return;
-      }
-      apiService.updateAdmin(userData.value)
-      .then(response => {
-        // Show success message
-        showModalMessage('成功', '管理員資料已成功更新');
-        router.push('/admins'); // 新增成功後導向管理員列表
+    // const adminEdit = () => {
+    //   if (!validateForm()) {
+    //     return;
+    //   }
+    //   apiService.updateAdmin(userData.value)
+    //   .then(response => {
+    //     // Show success message
+    //     showModalMessage('成功', '管理員資料已成功更新');
+    //     router.push('/admins'); // 新增成功後導向管理員列表
 
-      })
-      .catch(error => {
-        console.error('Error updating admin data:', error);
-        if (error.response && error.response.data) {
-          errors.value = error.response.data.content || {};
-        }
-        // Show error message
-        showModalMessage('錯誤', '更新管理員資料失敗，請檢查輸入並再試一次');
-      });
-    }
+    //   })
+    //   .catch(error => {
+    //     console.error('Error updating admin data:', error);
+    //     if (error.response && error.response.data) {
+    //       errors.value = error.response.data.content || {};
+    //     }
+    //     // Show error message
+    //     showModalMessage('錯誤', '更新管理員資料失敗，請檢查輸入並再試一次');
+    //   });
+    // }
 
     const validateForm = () => {
       errors.value = {};
@@ -76,8 +76,13 @@ export default {
 
     const fetchPermissionList = async () => {
       try {
-        const response = await apiService.getPermissions();
-        permissionList.value = response.data;
+        // 模擬權限群組數據
+        const mockPermissions = [
+          { id: 1, name: '超級管理員' },
+          { id: 2, name: '內容管理員' },
+          { id: 3, name: '一般管理員' }
+        ];
+        permissionList.value = mockPermissions;
       } catch (error) {
         console.error('Error fetching permission list:', error);
         showModalMessage('錯誤', '獲取權限列表失敗，請再試一次');
@@ -86,14 +91,30 @@ export default {
 
     const fetchAdminData = async () => {
       try {
-        const adminId = route.params.id;
-        const response = await apiService.getAdmin(adminId);
-        userData.value = { ...response, password: '', password_confirmation: '' };
+        // 模擬管理員數據
+        const mockAdminData = {
+          id: route.params.id,
+          name: '管理員A',
+          email: 'admin_a@example.com',
+          permission_group_id: 1
+        };
+        userData.value = { ...mockAdminData, password: '', password_confirmation: '' };
       } catch (error) {
         console.error('Error fetching admin data:', error);
         showModalMessage('錯誤', '獲取管理員資料失敗，請再試一次');
       }
     };
+
+    const adminEdit = () => {
+      if (!validateForm()) {
+        return;
+      }
+      // 模擬更新成功
+      setTimeout(() => {
+        showModalMessage('成功', '管理員資料已成功更新');
+        router.push('/admins');
+      }, 500);
+    }
 
     onMounted(() => {
       fetchPermissionList();

@@ -27,10 +27,84 @@ export default {
 
     const fetchPermissionOptions = async () => {
       try {
-        const response = await apiService.getPermissionOptions();
-        permissionStructure.value = response;
-        permissionData.value.permissions = Object.keys(response).reduce((acc, key) => {
-          acc[key] = [];
+        // 模擬權限結構數據
+        const mockPermissionStructure = {
+          courseManagement: {
+            title: "課程管理",
+            list: {
+              "course-management": {
+                title: "課程管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "course-list": {
+                title: "課程列表",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          },
+          memberManagement: {
+            title: "會員管理",
+            list: {
+              "member-management": {
+                title: "會員管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "member-list": {
+                title: "會員列表",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          },
+          statisticsManagement: {
+            title: "課程統計",
+            list: {
+              "course-statistics": {
+                title: "課程統計",
+                permissions: ["list"]
+              }
+            }
+          },
+          contentManagement: {
+            title: "內容管理",
+            list: {
+              "layout-banner-management": {
+                title: "首頁Banner管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "content-faq": {
+                title: "FAQ",
+                permissions: ["edit"]
+              },
+              "content-about": {
+                title: "計劃緣起",
+                permissions: ["edit"]
+              },
+              "content-privacy": {
+                title: "隱私權政策",
+                permissions: ["edit"]
+              },
+              "content-security": {
+                title: "資安政策",
+                permissions: ["edit"]
+              }
+            }
+          },
+          permissionManagement: {
+            title: "權限管理",
+            list: {
+              "permissions_group": {
+                title: "角色權限",
+                permissions: ["list", "create", "edit", "del"]
+              }
+            }
+          }
+        };
+
+        permissionStructure.value = mockPermissionStructure;
+        permissionData.value.permissions = Object.keys(mockPermissionStructure).reduce((acc, key) => {
+          Object.keys(mockPermissionStructure[key].list).forEach(itemKey => {
+            acc[itemKey] = [];
+          });
           return acc;
         }, {});
       } catch (error) {
