@@ -8,8 +8,8 @@ export default {
     const router = useRouter();
 
     const userData = ref({
-      name: '',
-      email: ''
+      name: 'Admin User',
+      email: 'user@user.com'
     });
 
     const notifications = ref([]);
@@ -137,8 +137,7 @@ export default {
             aria-haspopup="true"
             aria-expanded="false"
           >
-          <!-- {{ userData.name }} -->
-          user@user.com
+          {{ userData.name }}
           </a>
           <div class="dropdown-menu p-0" aria-labelledby="profileDropdown">
             <div
