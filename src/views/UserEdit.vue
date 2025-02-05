@@ -31,21 +31,20 @@ export default {
       if (!validateForm()) {
         return;
       }
-      apiService.adminEdit(userData.value)
-      .then(response => {
-        // Update the user data in sessionStorage
-        sessionStorage.setItem('userData', JSON.stringify(response));
-        // Show success message
+      // 模擬 API 響應
+      const mockResponse = {
+        ...userData.value,
+        id: 1
+      };
+      
+      try {
+        // 模擬成功響應
+        sessionStorage.setItem('userData', JSON.stringify(mockResponse));
         showModalMessage('成功', '使用者資料已成功更新');
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error updating user data:', error);
-        if (error.response && error.response.data) {
-          errors.value = error.response.data.content || {};
-        }
-        // Show error message
         showModalMessage('錯誤', '更新使用者資料失敗，請檢查輸入並再試一次');
-      });
+      }
     }
 
     const validateForm = () => {
@@ -74,8 +73,13 @@ export default {
 
     const fetchPermissionList = async () => {
       try {
-        const response = await apiService.getPermissions();
-        permissionList.value = response.data;
+        // 模擬權限列表數據
+        const mockPermissions = [
+          { id: 1, name: '系統管理員' },
+          { id: 2, name: '一般管理員' },
+          { id: 3, name: '客服人員' }
+        ];
+        permissionList.value = mockPermissions;
       } catch (error) {
         console.error('Error fetching permission list:', error);
         showModalMessage('錯誤', '獲取權限列表失敗，請再試一次');
