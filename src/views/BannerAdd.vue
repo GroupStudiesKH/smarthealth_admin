@@ -16,7 +16,6 @@ export default {
     const router = useRouter();
 
     const bannerData = ref({
-      lang: "en",
       title: "",
       subtitle_1: "",
       subtitle_2: "",
@@ -39,31 +38,13 @@ export default {
     const addBanner = async () => {
       isLoading.value = true;
       try {
-        errors.value = {};
-        const formData = new FormData();
-        Object.keys(bannerData.value).forEach(key => {
-          if (bannerData.value[key] !== null) {
-            formData.append(key, bannerData.value[key]);
-          }
-        });
-
-        const response = await apiService.addBanner(formData);
-        if (response) {
-          showSuccessModal("橫幅新增成功");
-          router.push('/layout/banner');
-        }
+        // 模擬 API 呼叫
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        showSuccessModal("橫幅新增成功");
+        router.push('/layout/banner');
       } catch (error) {
         console.error("Error adding banner:", error);
-        if (error.response && error.response.data) {
-          if (error.response.data.content) {
-            errors.value = error.response.data.content;
-          } else {
-            errors.value = error.response.data;
-          }
-          showErrorModal("請檢查表單錯誤並重試。");
-        } else {
-          showErrorModal("橫幅新增失敗：" + (error.message || "未知錯誤"));
-        }
+        showErrorModal("橫幅新增失敗：" + (error.message || "未知錯誤"));
       } finally {
         isLoading.value = false;
       }
@@ -136,16 +117,6 @@ export default {
                 <form @submit.prevent="addBanner" enctype="multipart/form-data" class="w-100">
                   <div class="row">
                     <div class="col-md-6">
-
-                      <div class="mb-3">
-                        <label for="lang" class="form-label">橫幅語系</label>
-                        <select class="form-select" id="lang" v-model="bannerData.lang" :class="{ 'is-invalid': errors.lang }">
-                          <option value="jpy">日文</option>
-                          <option value="en">英文</option>
-                        </select>
-                        <div class="invalid-feedback" v-if="errors.lang">{{ errors.lang.join(', ') }}</div>
-                      </div>
-
                       <div class="mb-3">
                         <label for="title" class="form-label">標題</label>
                         <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }">

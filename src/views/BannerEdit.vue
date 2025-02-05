@@ -39,10 +39,21 @@ export default {
 
     const fetchBannerData = async () => {
       try {
-        const response = await apiService.bannerShow(bannerId);
-        bannerData.value = response;
-        if (response.img_url) {
-          imagePreview.value = response.img_url;
+        // 使用假資料
+        const mockData = {
+          title: "夏季健康特惠活動",
+          subtitle_1: "早鳥優惠",
+          subtitle_2: "限時折扣",
+          content: "立即註冊即可享受專業健康諮詢服務",
+          status: "active",
+          img_url: "https://picsum.photos/800/400",
+          action_link_href: "#",
+          action_link_text: "立即報名",
+          sort: 1
+        };
+        bannerData.value = mockData;
+        if (mockData.img_url) {
+          imagePreview.value = mockData.img_url;
         }
       } catch (error) {
         console.error("Error fetching banner data:", error);
@@ -54,31 +65,13 @@ export default {
       isLoading.value = true;
       try {
         errors.value = {};
-        const formData = new FormData();
-        Object.keys(bannerData.value).forEach(key => {
-          if (bannerData.value[key] !== null) {
-            formData.append(key, bannerData.value[key]);
-          }
-        });
-
-
-        const response = await apiService.editBanner(bannerId, formData);
-        if (response) {
-          showSuccessModal("橫幅更新成功");
-          router.push('/layout/banner');
-        }
+        // 模擬 API 呼叫
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        showSuccessModal("橫幅更新成功");
+        router.push('/layout/banner');
       } catch (error) {
         console.error("Error updating banner:", error);
-        if (error.response && error.response.data) {
-          if (error.response.data.content) {
-            errors.value = error.response.data.content;
-          } else {
-            errors.value = error.response.data;
-          }
-          showErrorModal("請檢查表單錯誤並重試。");
-        } else {
-          showErrorModal("橫幅更新失敗：" + (error.message || "未知錯誤"));
-        }
+        showErrorModal("橫幅更新失敗：" + (error.message || "未知錯誤"));
       } finally {
         isLoading.value = false;
       }
@@ -155,17 +148,6 @@ export default {
                 <form @submit.prevent="updateBanner" enctype="multipart/form-data" class="w-100">
                   <div class="row">
                     <div class="col-md-6">
-
-                      <div class="mb-3">
-                        <label for="lang" class="form-label">橫幅語系</label>
-                        <select class="form-select" id="lang" v-model="bannerData.lang" :class="{ 'is-invalid': errors.lang }">
-                          <option value="en">英文</option>
-                          <option value="jpy">日文</option>
-                        </select>
-                        <div class="invalid-feedback" v-if="errors.lang">{{ errors.lang.join(', ') }}</div>
-                      </div>
-
-                        
                       <div class="mb-3">
                         <label for="title" class="form-label">標題</label>
                         <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }">

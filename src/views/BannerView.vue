@@ -14,11 +14,47 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const tableData = ref([]);
+    const tableData = ref([
+      {
+        id: 1,
+        title: "夏季健康特惠活動",
+        subtitle_1: "早鳥優惠",
+        subtitle_2: "限時折扣",
+        content: "立即註冊即可享受專業健康諮詢服務",
+        status: "active",
+        img_url: "https://picsum.photos/800/400",
+        action_link_href: "#",
+        action_link_text: "立即報名",
+        sort: 1
+      },
+      {
+        id: 2,
+        title: "健康講座系列",
+        subtitle_1: "專家分享",
+        subtitle_2: "健康生活",
+        content: "每週線上健康講座，名額有限",
+        status: "active",
+        img_url: "https://picsum.photos/800/400",
+        action_link_href: "#",
+        action_link_text: "查看詳情",
+        sort: 2
+      },
+      {
+        id: 3,
+        title: "會員專屬優惠",
+        subtitle_1: "限時特價",
+        subtitle_2: "會員獨享",
+        content: "會員專屬健康課程優惠",
+        status: "inactive",
+        img_url: "https://picsum.photos/800/400",
+        action_link_href: "#",
+        action_link_text: "了解更多",
+        sort: 3
+      }
+    ]);
 
     const tableColumns = reactive([
       { key: "id", label: "編號" },
-      { key: "lang", label: "語系" },
       { key: "title", label: "主要標題" },
       { key: "status", label: "狀態" },
       { key: "img_url", label: "圖片" },
@@ -26,22 +62,15 @@ export default {
     ]);
 
     const fetchTableData = async () => {
-      try {
-        const response = await apiService.listBanners();
-        tableData.value = response;
-      } catch (error) {
-        console.error("Failed to fetch banner data:", error);
-      }
+      // 使用假資料，不需要實際呼叫 API
+      console.log("Using mock data instead of API call");
     };
 
     const deleteBanner = async (bannerId) => {
       if (confirm("確定要刪除這個 Banner 嗎？")) {
-        try {
-          await apiService.deleteBanner(bannerId);
-          fetchTableData(); // 重新獲取數據以更新列表
-        } catch (error) {
-          console.error("Failed to delete banner:", error);
-        }
+        // 模擬刪除操作
+        tableData.value = tableData.value.filter(item => item.id !== bannerId);
+        console.log(`Banner ${bannerId} deleted`);
       }
     };
 
@@ -88,7 +117,7 @@ export default {
                       <tr v-for="(row, index) in tableData" :key="index">
                         <td v-for="column in tableColumns" :key="column.key">
                           <template v-if="column.key === 'img_url'">
-                            <img :src="row.img_url" alt="Banner Image" class="img-fluid rounded-0">
+                            <img :src="row.img_url" alt="Banner Image" class="img-fluid rounded-0" style="max-width: 100px;">
                           </template>
                           <template v-else-if="column.key === 'actions'">
                             <a :href="`/layout/banner/edit/${row.id}`" class="btn btn-link p-0 me-2">
@@ -100,9 +129,6 @@ export default {
                           </template>
                           <template v-else-if="column.key === 'status'">
                             {{ row.status === 'active' ? '啟用' : '未啟用' }}
-                          </template>
-                          <template v-else-if="column.key === 'lang'">
-                            {{ row.lang === 'en' ? '英文' : '日文' }}
                           </template>
                           <template v-else>
                             {{ row[column.key] }}
