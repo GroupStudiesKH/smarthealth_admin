@@ -88,6 +88,11 @@ export default {
       router.push(`/exam/edit/${examId}`)
     }
 
+    // 檢視測驗結果方法
+    const viewResult = (examId) => {
+      router.push(`/exam/result/${examId}`)
+    }
+
     return {
       examData: examData,
       currentPageExams,
@@ -97,6 +102,7 @@ export default {
       currentPage,
       totalPages,
       editExam,
+      viewResult,
       goToPage
     }
   }
@@ -155,8 +161,11 @@ export default {
                         <td>{{ exam.averageScore }}</td>
                         <td>{{ exam.participantsCount }}</td>
                         <td>
-                          <button class="btn btn-primary btn-sm" @click="editExam(exam.id)">
+                          <button class="btn btn-primary btn-sm me-2" @click="editExam(exam.id)">
                             編輯題目
+                          </button>
+                          <button class="btn btn-info btn-sm" @click="viewResult(exam.id)">
+                            檢視結果
                           </button>
                         </td>
                       </tr>

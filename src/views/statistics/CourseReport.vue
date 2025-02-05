@@ -5,6 +5,7 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import StudentDetailModal from "@/components/StudentDetailModal.vue";
+import ExamReviewModal from "@/components/ExamReviewModal.vue";
 
 export default {
   components: {
@@ -12,6 +13,7 @@ export default {
     Navbar,
     Sidebar,
     StudentDetailModal,
+    ExamReviewModal,
   },
   setup() {
     const router = useRouter();
@@ -21,6 +23,10 @@ export default {
     // 學生詳細資料模態框狀態
     const showStudentModal = ref(false)
     const selectedStudent = ref(null)
+
+    // 閱卷模態框狀態
+    const showExamModal = ref(false)
+    const selectedExamData = ref(null)
 
     // 模擬課程詳細資料
     const courseDetail = ref({
@@ -82,6 +88,35 @@ export default {
       currentPage.value = page
     }
 
+    const viewExam = (studentId) => {
+      const student = courseDetail.value.students.find(s => s.id === studentId)
+      if (student) {
+        selectedExamData.value = {
+          examTime: '2023-12-20 14:30',
+          score: 85,
+          answers: [
+            {
+              questionId: 1,
+              question: '什麼是基礎生命徵象？',
+              studentAnswer: '體溫、脈搏、呼吸、血壓',
+              correctAnswer: '體溫、脈搏、呼吸、血壓',
+              isCorrect: true,
+              answerTime: '14:35'
+            },
+            {
+              questionId: 2,
+              question: '正常成人的體溫範圍是多少？',
+              studentAnswer: '36-37度',
+              correctAnswer: '36.1-37.2度',
+              isCorrect: false,
+              answerTime: '14:37'
+            }
+          ]
+        }
+        showExamModal.value = true
+      }
+    }
+
     const viewStudent = (studentId) => {
       const student = courseDetail.value.students.find(s => s.id === studentId)
       if (student) {
@@ -114,7 +149,10 @@ export default {
       handlePageChange,
       viewStudent,
       showStudentModal,
-      selectedStudent
+      selectedStudent,
+      showExamModal,
+      selectedExamData,
+      viewExam
     }
   }
 }
@@ -223,12 +261,20 @@ export default {
                         <td>{{ student.name }}</td>
                         <td>{{ student.email }}</td>
                         <td>
-                          <button
-                            class="btn btn-primary btn-sm"
-                            @click="viewStudent(student.id)"
-                          >
-                            檢視
-                          </button>
+                          <div class="btn-group">
+                            <button
+                              class="btn btn-primary btn-sm"
+                              @click="viewStudent(student.id)"
+                            >
+                              檢視
+                            </button>
+                            <button
+                              class="btn btn-info btn-sm"
+                              @click="viewExam(student.id)"
+                            >
+                              閱卷
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
@@ -265,6 +311,12 @@ export default {
                 <StudentDetailModal
                   v-model:show="showStudentModal"
                   :student="selectedStudent"
+                />
+
+                <!-- 閱卷詳情模態框 -->
+                <ExamReviewModal
+                  v-model:show="showExamModal"
+                  :examData="selectedExamData"
                 />
               </div>
             </div>

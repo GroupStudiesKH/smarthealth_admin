@@ -6,6 +6,12 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: "/exam/result/:id",
+      name: "examResult",
+      component: () => import("../views/exam/ExamResult.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
       path: "/member/edit/:id",
       name: "memberEdit",
       component: () => import("../views/MemberEdit.vue"),
