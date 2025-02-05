@@ -113,7 +113,7 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">測驗統計</h6>
+                <h6 class="card-title">課程測驗列表</h6>
                 <!-- 篩選區域 -->
                 <div class="row mb-3">
                   <div class="col-md-6">

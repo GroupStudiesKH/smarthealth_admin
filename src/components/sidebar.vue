@@ -134,11 +134,8 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="examManagement">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('exam-edit', 'list') || true">
-                <a href="/exam/edit" class="nav-link" :class="{ active: $route.path === '/exam/edit' }">測驗編輯</a>
-              </li>
               <li class="nav-item" v-if="hasPermission('exam-statistics', 'list') || true">
-                <a href="/exam/statistics" class="nav-link" :class="{ active: $route.path === '/exam/statistics' }">測驗統計</a>
+                <a href="/exam/statistics" class="nav-link" :class="{ active: $route.path === '/exam/statistics' }">課程測驗列表</a>
               </li>
             </ul>
           </div>

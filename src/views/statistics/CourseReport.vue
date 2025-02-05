@@ -36,10 +36,28 @@ export default {
         { name: '第四章：常見疾病預防', completionRate: 78 }
       ],
       students: [
-        { name: '張小明', email: 'zhang@example.com', id: 1 },
-        { name: '李小華', email: 'li@example.com', id: 2 },
-        { name: '王大文', email: 'wang@example.com', id: 3 },
-        { name: '陳小芳', email: 'chen@example.com', id: 4 }
+        { 
+          name: '張小明', 
+          email: 'zhang@example.com', 
+          id: 1,
+          totalTime: '25小時',
+          lastAccess: '2023-12-01',
+          progress: 85,
+          chapterProgress: [
+            { name: '第一章：醫療保健概論', progress: 100, score: 85 },
+            { name: '第二章：基礎醫療知識', progress: 90, score: 88 },
+            { name: '第三章：健康評估方法', progress: 80, score: 92 },
+            { name: '第四章：常見疾病預防', progress: 70, score: 78 }
+          ],
+          quizResults: [
+            { name: '第一章測驗', score: 85, date: '2023-11-01', isExam: false },
+            { name: '第二章測驗', score: 88, date: '2023-11-15', isExam: false },
+            { name: '第三章測驗', score: 92, date: '2023-11-30', isExam: false },
+            { name: '第四章測驗', score: 78, date: '2023-12-01', isExam: false },
+            { name: '期中考試', score: 86, date: '2023-11-20', isExam: true },
+            { name: '期末考試', score: 90, date: '2023-12-15', isExam: true }
+          ]
+        }
       ]
     })
 

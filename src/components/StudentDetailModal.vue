@@ -19,8 +19,15 @@ export default {
       emit('update:show', false)
     }
 
+    const downloadCertificate = () => {
+      // 這裡可以實作下載證明的邏輯
+      console.log('下載結訓證明', props.student)
+      // TODO: 實作與後端 API 的串接
+    }
+
     return {
-      closeModal
+      closeModal,
+      downloadCertificate
     }
   }
 }
@@ -92,23 +99,36 @@ export default {
                 <table class="table">
                   <thead>
                     <tr>
+                      <th>測驗類型</th>
                       <th>測驗名稱</th>
                       <th>分數</th>
                       <th>完成日期</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="quiz in student.quizResults" :key="quiz.name">
-                      <td>{{ quiz.name }}</td>
-                      <td>{{ quiz.score }}</td>
-                      <td>{{ quiz.date }}</td>
-                    </tr>
+                    <template v-if="student.quizResults">
+                      <!-- 章節測驗 -->
+                      <tr v-for="quiz in student.quizResults.filter(q => !q.isExam)" :key="quiz.name">
+                        <td>章節測驗</td>
+                        <td>{{ quiz.name }}</td>
+                        <td>{{ quiz.score }}</td>
+                        <td>{{ quiz.date }}</td>
+                      </tr>
+                      <!-- 大考成績 -->
+                      <tr v-for="quiz in student.quizResults.filter(q => q.isExam)" :key="quiz.name" class="table-primary">
+                        <td>大考</td>
+                        <td>{{ quiz.name }}</td>
+                        <td>{{ quiz.score }}</td>
+                        <td>{{ quiz.date }}</td>
+                      </tr>
+                    </template>
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
           <div class="modal-footer">
+            <button type="button" class="btn btn-primary me-2" @click="downloadCertificate">結訓證明下載</button>
             <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
           </div>
         </div>

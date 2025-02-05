@@ -172,11 +172,16 @@ export default {
                       progress: chapter.completion ? 100 : 0,
                       score: chapter.score
                     })) : [],
-                    quizResults: selectedCourse ? selectedCourse.chapters.filter(chapter => chapter.score).map(chapter => ({
-                      name: `${chapter.name}測驗`,
-                      score: chapter.score,
-                      date: '-'
-                    })) : []
+                    quizResults: selectedCourse ? [
+                      ...selectedCourse.chapters.filter(chapter => chapter.score).map(chapter => ({
+                        name: `${chapter.name}測驗`,
+                        score: chapter.score,
+                        date: '-',
+                        isExam: false
+                      })),
+                      { name: '期中考試', score: 85, date: '2023-12-01', isExam: true },
+                      { name: '期末考試', score: 90, date: '2023-12-15', isExam: true }
+                    ] : []
                   }"
                 />
               </div>
