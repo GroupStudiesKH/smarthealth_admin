@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -19,7 +19,7 @@ export default {
       content: "",
       order: 0
     });
-    const isEditing = ref(false);
+    const showModal = ref(false);
     const editor = ref(null);
 
     const addFaq = () => {
@@ -29,15 +29,24 @@ export default {
         content: "",
         order: faqList.value.length + 1
       };
-      isEditing.value = true;
+      showModal.value = true;
     };
 
     const editFaq = (faq) => {
       currentFaq.value = { ...faq };
-      isEditing.value = true;
+      showModal.value = true;
+      // 使用 nextTick 確保 DOM 更新後再設定編輯器內容
+      nextTick(() => {
+        if (editor.value) {
+          editor.value.setData(faq.content);
+        }
+      });
     };
 
     const saveFaq = () => {
+      if (editor.value) {
+        currentFaq.value.content = editor.value.getData();
+      }
       if (!currentFaq.value.id) {
         faqList.value.push({ ...currentFaq.value });
       } else {
@@ -46,7 +55,7 @@ export default {
           faqList.value[index] = { ...currentFaq.value };
         }
       }
-      isEditing.value = false;
+      showModal.value = false;
       currentFaq.value = { id: null, title: "", content: "", order: 0 };
     };
 
@@ -63,30 +72,15 @@ export default {
       }
     };
 
-    const moveUp = (index) => {
-      if (index > 0) {
-        const temp = faqList.value[index];
-        faqList.value[index] = faqList.value[index - 1];
-        faqList.value[index - 1] = temp;
-        // 更新排序
-        faqList.value.forEach((faq, idx) => {
-          faq.order = idx + 1;
+    onMounted(async () => {
+      editor.value = await ClassicEditor
+        .create(document.querySelector('#editor'), {
+          minHeight: '500px',
+          height: '500px'
+        })
+        .catch(error => {
+          console.error(error);
         });
-      }
-    };
-
-    const moveDown = (index) => {
-      if (index < faqList.value.length - 1) {
-        const temp = faqList.value[index];
-        faqList.value[index] = faqList.value[index + 1];
-        faqList.value[index + 1] = temp;
-        // 更新排序
-        faqList.value.forEach((faq, idx) => {
-          faq.order = idx + 1;
-        });
-      }
-    };
-    onMounted(() => {
       faqList.value = [
         {
           id: 1,
@@ -119,19 +113,18 @@ export default {
           order: 5
         }
       ];
+
     });
 
     return {
       faqList,
       currentFaq,
-      isEditing,
+      showModal,
       editor,
       addFaq,
       editFaq,
       saveFaq,
-      deleteFaq,
-      moveUp,
-      moveDown
+      deleteFaq
     };
   }
 };
@@ -153,25 +146,16 @@ export default {
                 </div>
 
                 <!-- FAQ 列表 -->
-                <div class="table-responsive" v-if="!isEditing">
+                <div class="table-responsive">
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>排序</th>
                         <th>標題</th>
                         <th>操作</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="sortable-list">
                       <tr v-for="(faq, index) in faqList" :key="faq.id">
-                        <td>
-                          <button class="btn btn-sm btn-outline-secondary me-1" @click="moveUp(index)" :disabled="index === 0">
-                            ↑
-                          </button>
-                          <button class="btn btn-sm btn-outline-secondary" @click="moveDown(index)" :disabled="index === faqList.length - 1">
-                            ↓
-                          </button>
-                        </td>
                         <td>{{ faq.title }}</td>
                         <td>
                           <button class="btn btn-sm btn-primary me-2" @click="editFaq(faq)">編輯</button>
@@ -182,25 +166,35 @@ export default {
                   </table>
                 </div>
 
-                <!-- FAQ 編輯表單 -->
-                <div v-if="isEditing" class="mt-3">
-                  <div class="mb-3">
-                    <label class="form-label">標題</label>
-                    <input type="text" class="form-control" v-model="currentFaq.title" />
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">內容</label>
-                    <ckeditor
-                      :editor="editor"
-                      v-model="currentFaq.content"
-                      :config="{ toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'] }"
-                    ></ckeditor>
-                  </div>
-                  <div class="d-flex justify-content-end">
-                    <button class="btn btn-secondary me-2" @click="isEditing = false">取消</button>
-                    <button class="btn btn-primary" @click="saveFaq">儲存</button>
+                <!-- FAQ 編輯模態框 -->
+                <div class="modal fade" :class="{ 'show': showModal }" tabindex="-1" :style="{ display: showModal ? 'block' : 'none' }">
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">{{ currentFaq.id ? '編輯' : '新增' }} FAQ</h5>
+                        <button type="button" class="btn-close" @click="showModal = false"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="mb-3">
+                          <label class="form-label">標題</label>
+                          <input type="text" class="form-control" v-model="currentFaq.title" />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">內容</label>
+                          <textarea
+                            id="editor"
+                            v-model="currentFaq.content"
+                          ></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="showModal = false">取消</button>
+                        <button type="button" class="btn btn-primary" @click="saveFaq">儲存</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
+                <div class="modal-backdrop fade show" v-if="showModal"></div>
               </div>
             </div>
           </div>
@@ -210,3 +204,21 @@ export default {
     </div>
   </div>
 </template>
+
+<style scoped>
+.cursor-move {
+  cursor: move;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+.modal {
+  z-index: 1050;
+}
+</style>
