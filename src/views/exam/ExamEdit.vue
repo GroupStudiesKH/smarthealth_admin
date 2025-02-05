@@ -4,12 +4,14 @@ import { useRoute } from 'vue-router'
 import Footer from "@/components/Footer.vue"
 import Navbar from "@/components/Navbar.vue"
 import Sidebar from "@/components/Sidebar.vue"
+import QuestionModal from "@/components/QuestionModal.vue"
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    QuestionModal
   },
   setup() {
     const route = useRoute()
@@ -118,16 +120,45 @@ export default {
       }
     }
 
-    // 編輯題目
-    const editQuestion = (questionId) => {
-      // 導航到題目編輯頁面
-      console.log('編輯題目:', questionId)
-    }
+
+    // 控制 Modal 顯示
+    const showQuestionModal = ref(false)
+    const currentQuestion = ref(null)
+    const isEditMode = ref(false)
 
     // 新增題目
     const addQuestion = () => {
-      // 導航到新增題目頁面
-      console.log('新增題目')
+      currentQuestion.value = null
+      isEditMode.value = false
+      showQuestionModal.value = true
+    }
+
+    // 編輯題目
+    const editQuestion = (questionId) => {
+      const question = questions.value.find(q => q.id === questionId)
+      if (question) {
+        currentQuestion.value = { ...question }
+        isEditMode.value = true
+        showQuestionModal.value = true
+      }
+    }
+
+    // 保存題目
+    const saveQuestion = (questionData) => {
+      if (isEditMode.value) {
+        // 更新現有題目
+        const index = questions.value.findIndex(q => q.id === questionData.id)
+        if (index !== -1) {
+          questions.value[index] = questionData
+        }
+      } else {
+        // 新增題目
+        const newId = Math.max(...questions.value.map(q => q.id), 0) + 1
+        questions.value.push({
+          ...questionData,
+          id: newId
+        })
+      }
     }
 
     return {
@@ -138,7 +169,11 @@ export default {
       formatAnswer,
       deleteQuestion,
       editQuestion,
-      addQuestion
+      addQuestion,
+      showQuestionModal,
+      currentQuestion,
+      isEditMode,
+      saveQuestion
     }
   }
 }
@@ -231,6 +266,14 @@ export default {
         </div>
       </div>
       <Footer />
+
+      <!-- 題目編輯 Modal -->
+      <QuestionModal
+        v-model:show="showQuestionModal"
+        :questionData="currentQuestion"
+        :isEdit="isEditMode"
+        @save="saveQuestion"
+      />
     </div>
   </div>
 </template>
