@@ -27,7 +27,17 @@ export default {
       registrationDate: "",
       lastLoginDate: "",
       registrationSource: "",
-      lastLoginIp: ""
+      lastLoginIp: "",
+      identity: "",
+      identityOptions: [
+        { value: "doctor", label: "醫生" },
+        { value: "pharmacist", label: "藥師" },
+        { value: "nurse", label: "護理師" },
+        { value: "civil_servant", label: "公務人員" },
+        { value: "other", label: "其他" }
+      ],
+      phone: "",
+      gender: ""
     });
 
     const errors = ref({});
@@ -46,7 +56,10 @@ export default {
           registrationDate: "2023-01-01",
           lastLoginDate: "2023-12-01",
           registrationSource: "網站註冊",
-          lastLoginIp: "192.168.1.1"
+          lastLoginIp: "192.168.1.1",
+          identity: "一般會員",
+          phone: "0912345678",
+          gender: "male"
         };
 
         Object.assign(formData, mockData);
@@ -64,6 +77,24 @@ export default {
         // 基本驗證
         if (!formData.name) {
           errors.value.name = "請輸入會員名稱";
+          return;
+        }
+
+        if (!formData.identity) {
+          errors.value.identity = "請選擇身份別";
+          return;
+        }
+
+        if (!formData.phone) {
+          errors.value.phone = "請輸入手機號碼";
+          return;
+        } else if (!/^[0-9]{10}$/.test(formData.phone)) {
+          errors.value.phone = "請輸入有效的手機號碼";
+          return;
+        }
+
+        if (!formData.gender) {
+          errors.value.gender = "請選擇性別";
           return;
         }
 
@@ -170,6 +201,65 @@ export default {
                     />
                     <div class="invalid-feedback" v-if="errors.confirmPassword">
                       {{ errors.confirmPassword }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">身份別</label>
+                    <select
+                      class="form-select"
+                      :class="{ 'is-invalid': errors.identity }"
+                      v-model="formData.identity"
+                    >
+                      <option value="">請選擇身份別</option>
+                      <option v-for="option in formData.identityOptions" 
+                              :key="option.value" 
+                              :value="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <div class="invalid-feedback" v-if="errors.identity">
+                      {{ errors.identity }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">手機</label>
+                    <input
+                      type="tel"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.phone }"
+                      v-model="formData.phone"
+                    />
+                    <div class="invalid-feedback" v-if="errors.phone">
+                      {{ errors.phone }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">性別</label>
+                    <div class="form-check">
+                      <input
+                        type="radio"
+                        class="form-check-input"
+                        id="male"
+                        value="male"
+                        v-model="formData.gender"
+                      />
+                      <label class="form-check-label" for="male">男性</label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        type="radio"
+                        class="form-check-input"
+                        id="female"
+                        value="female"
+                        v-model="formData.gender"
+                      />
+                      <label class="form-check-label" for="female">女性</label>
+                    </div>
+                    <div class="invalid-feedback" v-if="errors.gender">
+                      {{ errors.gender }}
                     </div>
                   </div>
 
