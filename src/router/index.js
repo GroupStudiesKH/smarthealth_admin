@@ -247,7 +247,25 @@ const router = createRouter({
       name: "tagEdit",
       component: () => import("../views/course/TagEdit.vue"),
       meta: { requiresAuth: true }
-    }
+    },
+    {
+      path: "/course/instructor",
+      name: "instructorList",
+      component: () => import("../views/course/InstructorList.vue"),
+      meta: { requiresAuth: true }
+    },
+    // {
+    //   path: "/course/instructor/add",
+    //   name: "instructorAdd",
+    //   component: () => import("../views/course/InstructorAdd.vue"),
+    //   meta: { requiresAuth: true }
+    // },
+    // {
+    //   path: "/course/instructor/edit/:id",
+    //   name: "instructorEdit",
+    //   component: () => import("../views/course/InstructorEdit.vue"),
+    //   meta: { requiresAuth: true }
+    // }
   ],
 });
 
