@@ -12,21 +12,21 @@ export default {
   data() {
     return {
       tags: [
-        { id: 1, name: '基礎', useCount: 15, createdAt: '2024-01-15' },
-        { id: 2, name: '進階', useCount: 12, createdAt: '2024-01-16' },
-        { id: 3, name: '專業', useCount: 8, createdAt: '2024-01-17' },
-        { id: 4, name: '入門', useCount: 20, createdAt: '2024-01-18' },
-        { id: 5, name: '高階', useCount: 6, createdAt: '2024-01-19' },
-        { id: 6, name: '實務', useCount: 14, createdAt: '2024-01-20' },
-        { id: 7, name: '理論', useCount: 9, createdAt: '2024-01-21' },
-        { id: 8, name: '認證', useCount: 11, createdAt: '2024-01-22' },
-        { id: 9, name: '熱門', useCount: 25, createdAt: '2024-01-23' },
-        { id: 10, name: '推薦', useCount: 18, createdAt: '2024-01-24' },
-        { id: 11, name: '精選', useCount: 16, createdAt: '2024-01-25' },
-        { id: 12, name: '新手', useCount: 22, createdAt: '2024-01-26' },
-        { id: 13, name: '進修', useCount: 7, createdAt: '2024-01-27' },
-        { id: 14, name: '特色', useCount: 13, createdAt: '2024-01-28' },
-        { id: 15, name: '必修', useCount: 19, createdAt: '2024-01-29' }
+        { id: 1, name: '基礎', courseCount: 15, createdAt: '2024-01-15' },
+        { id: 2, name: '進階', courseCount: 12, createdAt: '2024-01-16' },
+        { id: 3, name: '專業', courseCount: 8, createdAt: '2024-01-17' },
+        { id: 4, name: '入門', courseCount: 20, createdAt: '2024-01-18' },
+        { id: 5, name: '高階', courseCount: 6, createdAt: '2024-01-19' },
+        { id: 6, name: '實務', courseCount: 14, createdAt: '2024-01-20' },
+        { id: 7, name: '理論', courseCount: 9, createdAt: '2024-01-21' },
+        { id: 8, name: '認證', courseCount: 11, createdAt: '2024-01-22' },
+        { id: 9, name: '熱門', courseCount: 25, createdAt: '2024-01-23' },
+        { id: 10, name: '推薦', courseCount: 18, createdAt: '2024-01-24' },
+        { id: 11, name: '精選', courseCount: 16, createdAt: '2024-01-25' },
+        { id: 12, name: '新手', courseCount: 22, createdAt: '2024-01-26' },
+        { id: 13, name: '進修', courseCount: 7, createdAt: '2024-01-27' },
+        { id: 14, name: '特色', courseCount: 13, createdAt: '2024-01-28' },
+        { id: 15, name: '必修', courseCount: 19, createdAt: '2024-01-29' }
       ],
       searchQuery: '',
       currentPage: 1,
@@ -93,7 +93,7 @@ export default {
                     <thead>
                       <tr>
                         <th>標籤名稱</th>
-                        <th>使用次數</th>
+                        <th>課程數量</th>
                         <th>建立日期</th>
                         <th>操作</th>
                       </tr>
@@ -101,7 +101,7 @@ export default {
                     <tbody>
                       <tr v-for="tag in paginatedTags" :key="tag.id">
                         <td>{{ tag.name }}</td>
-                        <td>{{ tag.useCount }}</td>
+                        <td>{{ tag.courseCount }}</td>
                         <td>{{ tag.createdAt }}</td>
                         <td>
                           <button class="btn btn-sm btn-outline-primary me-2" @click="handleEdit(tag.id)">
