@@ -47,6 +47,10 @@ export default {
               "course-tag": {
                 title: "標籤管理",
                 permissions: ["list", "create", "edit", "del"]
+              },
+              "course-instructor": {
+                title: "講師管理",
+                permissions: ["list", "create", "edit", "del"]
               }
             }
           },
