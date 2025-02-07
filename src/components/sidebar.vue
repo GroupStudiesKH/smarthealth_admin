@@ -56,6 +56,9 @@ defineExpose({ hasPermission });
               <li class="nav-item" v-if="hasPermission('course-list', 'list') || true">
                 <a href="/course" class="nav-link" :class="{ active: $route.path === '/course/list' }">課程列表</a>
               </li>
+              <li class="nav-item" v-if="hasPermission('course-category', 'list') || true">
+                <a href="/course/category" class="nav-link" :class="{ active: $route.path === '/course/category' }">分類管理</a>
+              </li>
             </ul>
           </div>
         </li>

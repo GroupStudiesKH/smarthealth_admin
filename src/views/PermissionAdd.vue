@@ -39,6 +39,10 @@ export default {
               "course-list": {
                 title: "課程列表",
                 permissions: ["list", "create", "edit", "del"]
+              },
+              "course-category": {
+                title: "分類管理",
+                permissions: ["list", "create", "edit", "del"]
               }
             }
           },
@@ -61,11 +65,45 @@ export default {
               "course-statistics": {
                 title: "課程統計",
                 permissions: ["list"]
+              },
+              "course-progress": {
+                title: "學習進度統計",
+                permissions: ["list"]
               }
             }
           },
-          contentManagement: {
-            title: "內容管理",
+          examManagement: {
+            title: "測驗管理",
+            list: {
+              "exam-management": {
+                title: "測驗管理",
+                permissions: ["list", "create", "edit", "del"]
+              },
+              "exam-statistics": {
+                title: "課程測驗列表",
+                permissions: ["list"]
+              }
+            }
+          },
+          siteSettings: {
+            title: "網站基本設定",
+            list: {
+              "site-settings": {
+                title: "網站基本設定",
+                permissions: ["list", "edit"]
+              },
+              "site-brand": {
+                title: "品牌設定",
+                permissions: ["list", "edit"]
+              },
+              "site-social": {
+                title: "社群設定",
+                permissions: ["list", "edit"]
+              }
+            }
+          },
+          layoutManagement: {
+            title: "介紹頁面管理",
             list: {
               "layout-banner-management": {
                 title: "首頁Banner管理",
@@ -93,7 +131,7 @@ export default {
             title: "權限管理",
             list: {
               "permissions_group": {
-                title: "角色權限",
+                title: "角色管理",
                 permissions: ["list", "create", "edit", "del"]
               }
             }

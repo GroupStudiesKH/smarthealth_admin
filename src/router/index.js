@@ -197,6 +197,19 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
 
+    {
+      path: '/course/category/add',
+      name: 'course-category-add',
+      component: () => import('../views/course/CategoryAdd.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/course/category/edit/:id',
+      name: 'course-category-edit',
+      component: () => import('../views/course/CategoryEdit.vue'),
+      meta: { requiresAuth: true }
+    },
+
     // /statistics/course-report
 
     {
@@ -211,12 +224,12 @@ const router = createRouter({
       component: () => import("../views/exam/Statistics.vue"),
       meta: { requiresAuth: true }
     },
-    // {
-    //   path: "/exam/edit/:id",
-    //   name: "examEdit",
-    //   component: () => import("../views/exam/ExamEdit.vue"),
-    //   meta: { requiresAuth: true }
-    // },
+    {
+      path: "/course/category",
+      name: "category-list",
+      component: () => import("../views/course/CategoryList.vue"),
+      meta: { requiresAuth: true }
+    },
   ],
 });
 
