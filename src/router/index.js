@@ -230,6 +230,24 @@ const router = createRouter({
       component: () => import("../views/course/CategoryList.vue"),
       meta: { requiresAuth: true }
     },
+    {
+      path: "/course/tag",
+      name: "tagList",
+      component: () => import("../views/course/TagList.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/course/tag/add",
+      name: "tagAdd",
+      component: () => import("../views/course/TagAdd.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/course/tag/edit/:id",
+      name: "tagEdit",
+      component: () => import("../views/course/TagEdit.vue"),
+      meta: { requiresAuth: true }
+    }
   ],
 });
 
