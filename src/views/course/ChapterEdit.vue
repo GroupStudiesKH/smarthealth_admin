@@ -45,10 +45,10 @@ export default {
         // 模擬 API 回傳數據
         chapter.value = {
           title: "第一章：健康管理概論",
-          content: "本章節將介紹健康管理的基本概念，包含健康的定義、健康管理的重要性、健康管理的範疇等。透過本章節的學習，學員將能夠理解健康管理的核心理念，並了解如何將這些概念應用於日常生活中。",
+          content: "本章節將介紹健康管理的基本概念，包含健康的定義、健康管理的重要性、健康管理的範疇等。透過本章節的學習，學員將能夠理解健康管理的核心理念，並了解如何將這些概念應用於日常生活。",
           status: "草稿",
           pdfFile: null,
-          videoFile: null,
+          videoFile: "https://google.com/123.mp4",
           notes: [
             { time: "02:30", content: "健康的定義與概念" },
             { time: "05:45", content: "WHO對健康的詮釋" },
@@ -191,6 +191,18 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">影片檔案</label>
+                    <div v-if="chapter.videoFile" class="video-preview mb-3">
+                      <div class="video-player">
+                        <video
+                          ref="videoPlayer"
+                          class="w-100"
+                          controls
+                          style="max-height: 300px; background-color: #000;"
+                          :src="typeof chapter.videoFile === 'string' ? chapter.videoFile : URL.createObjectURL(chapter.videoFile)"
+                        ></video>
+                        <div class="video-title mt-2">{{ typeof chapter.videoFile === 'string' ? chapter.videoFile.split('/').pop() : chapter.videoFile.name }}</div>
+                      </div>
+                    </div>
                     <input
                       type="file"
                       class="form-control"
@@ -198,10 +210,9 @@ export default {
                       @change="handleVideoUpload"
                     />
                     <div v-if="chapter.videoFile" class="mt-2">
-                      <span>{{ chapter.videoFile.name }}</span>
                       <button
                         type="button"
-                        class="btn btn-danger btn-sm ms-2"
+                        class="btn btn-danger btn-sm"
                         @click="removeVideo"
                       >
                         移除
@@ -319,5 +330,31 @@ export default {
 <style>
 .modal.show {
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.video-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 1rem;
+  background-color: #f8f9fa;
+}
+
+.video-player {
+  width: 100%;
+}
+
+.video-title {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.video-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.volume-control {
+  cursor: pointer;
 }
 </style>
