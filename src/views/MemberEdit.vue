@@ -22,7 +22,7 @@ export default {
       name: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      showPassword: false,
       status: true,
       registrationDate: "",
       lastLoginDate: "",
@@ -30,12 +30,17 @@ export default {
       lastLoginIp: "",
       identity: "",
       identityOptions: [
-        { value: "doctor", label: "醫生" },
-        { value: "pharmacist", label: "藥師" },
-        { value: "nurse", label: "護理師" },
-        { value: "civil_servant", label: "公務人員" },
+        { value: "student", label: "學生" },
+        { value: "teacher", label: "老師" },
+        { value: "doctor", label: "醫師" },
+        { value: "nurse", label: "護理人員" },
+        { value: "vendor", label: "廠商" },
         { value: "other", label: "其他" }
       ],
+      otherIdentity: "",
+      organization: "",
+      idNumber: "",
+      address: "",
       phone: "",
       gender: ""
     });
@@ -80,8 +85,33 @@ export default {
           return;
         }
 
+        if (!formData.email) {
+          errors.value.email = "請輸入Email";
+          return;
+        }
+
         if (!formData.identity) {
           errors.value.identity = "請選擇身份別";
+          return;
+        }
+
+        if (formData.identity === "other" && !formData.otherIdentity) {
+          errors.value.otherIdentity = "請填寫其他身份";
+          return;
+        }
+
+        if (!formData.organization) {
+          errors.value.organization = "請輸入任職單位";
+          return;
+        }
+
+        if (!isEdit && !formData.password) {
+          errors.value.password = "請輸入密碼";
+          return;
+        }
+
+        if (formData.password && (formData.password.length < 8 || !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(formData.password))) {
+          errors.value.password = "密碼需要至少八碼及英數混合";
           return;
         }
 
@@ -103,10 +133,7 @@ export default {
           return;
         }
 
-        if (!isEdit && formData.password && formData.password !== formData.confirmPassword) {
-          errors.value.confirmPassword = "密碼與確認密碼不相符";
-          return;
-        }
+
 
         // 模擬 API 請求
         await new Promise(resolve => setTimeout(resolve, 500));
@@ -178,34 +205,29 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">密碼</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.password }"
-                      v-model="formData.password"
-                      :placeholder="isEdit ? '不修改請留空' : ''"
-                    />
-                    <div class="invalid-feedback" v-if="errors.password">
-                      {{ errors.password }}
+                    <div class="input-group">
+                      <input
+                        :type="formData.showPassword ? 'text' : 'password'"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.password }"
+                        v-model="formData.password"
+                        :placeholder="isEdit ? '不修改請留空' : ''"
+                      />
+                      <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        @click="formData.showPassword = !formData.showPassword"
+                      >
+                        <i class="material-icons">{{ formData.showPassword ? 'visibility_off' : 'visibility' }}</i>
+                      </button>
+                      <div class="invalid-feedback" v-if="errors.password">
+                        {{ errors.password }}
+                      </div>
                     </div>
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">確認密碼</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.confirmPassword }"
-                      v-model="formData.confirmPassword"
-                      :placeholder="isEdit ? '不修改請留空' : ''"
-                    />
-                    <div class="invalid-feedback" v-if="errors.confirmPassword">
-                      {{ errors.confirmPassword }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">身份別</label>
+                    <label class="form-label">身份別 <span class="text-danger">*</span></label>
                     <select
                       class="form-select"
                       :class="{ 'is-invalid': errors.identity }"
@@ -221,6 +243,52 @@ export default {
                     <div class="invalid-feedback" v-if="errors.identity">
                       {{ errors.identity }}
                     </div>
+                  </div>
+
+                  <div class="mb-3" v-if="formData.identity === 'other'">
+                    <label class="form-label">其他身份 <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.otherIdentity }"
+                      v-model="formData.otherIdentity"
+                    />
+                    <div class="invalid-feedback" v-if="errors.otherIdentity">
+                      {{ errors.otherIdentity }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">任職單位 <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.organization }"
+                      v-model="formData.organization"
+                    />
+                    <div class="invalid-feedback" v-if="errors.organization">
+                      {{ errors.organization }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">身分證字號</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.idNumber }"
+                      v-model="formData.idNumber"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">地址</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      :class="{ 'is-invalid': errors.address }"
+                      v-model="formData.address"
+                    />
                   </div>
 
                   <div class="mb-3">

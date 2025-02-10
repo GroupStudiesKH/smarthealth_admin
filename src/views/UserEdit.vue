@@ -19,9 +19,9 @@ export default {
       name: '',
       email: '',
       permission_group_id: '',
-      password: '',
-      password_confirmation: ''
+      new_password: ''
     });
+    const showPassword = ref(false);
     const showModal = ref(false);
     const modalMessage = ref('');
     const modalTitle = ref('');
@@ -55,8 +55,8 @@ export default {
       if (!userData.value.permission_group_id) {
         errors.value.permission_group_id = ['請選擇權限群組'];
       }
-      if (userData.value.password !== userData.value.password_confirmation) {
-        errors.value.password = ['兩次輸入的密碼不一致'];
+      if (userData.value.new_password && userData.value.new_password.length < 6) {
+        errors.value.password = ['密碼長度至少需要6個字元'];
       }
       return Object.keys(errors.value).length === 0;
     }
@@ -169,29 +169,25 @@ export default {
                     </div>
                   </div>
                   <div class="mb-3">
-                    <label for="password" class="form-label">密碼</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="password"
-                      v-model="userData.password"
-                      :class="{ 'is-invalid': errors.password }"
-                    >
-                    <div v-if="errors.password" class="invalid-feedback">
-                      {{ errors.password[0] }}
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="password_confirmation" class="form-label">確認密碼</label>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="password_confirmation"
-                      v-model="userData.password_confirmation"
-                      :class="{ 'is-invalid': errors.password }"
-                    >
-                    <div v-if="errors.password" class="invalid-feedback">
-                      {{ errors.password[0] }}
+                    <label for="new_password" class="form-label">更改密碼</label>
+                    <div class="input-group">
+                      <input
+                        :type="showPassword ? 'text' : 'password'"
+                        class="form-control"
+                        id="new_password"
+                        v-model="userData.new_password"
+                        :class="{ 'is-invalid': errors.password }"
+                      >
+                      <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        @click="showPassword = !showPassword"
+                      >
+                        <i :class="showPassword ? 'material-icons' : 'material-icons'">{{ showPassword ? 'visibility_off' : 'visibility' }}</i>
+                      </button>
+                      <div v-if="errors.password" class="invalid-feedback">
+                        {{ errors.password[0] }}
+                      </div>
                     </div>
                   </div>
                   <button type="submit" class="btn btn-primary">更新資料</button>

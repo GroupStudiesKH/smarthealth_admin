@@ -122,6 +122,7 @@ export default {
       if (student) {
         selectedStudent.value = {
           ...student,
+          courseName: courseDetail.value.name,
           progress: 75,
           totalTime: '12小時30分鐘',
           lastAccess: '2023-12-20',

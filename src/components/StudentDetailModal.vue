@@ -25,9 +25,16 @@ export default {
       // TODO: 實作與後端 API 的串接
     }
 
+    const downloadLearningRecord = () => {
+      // 這裡可以實作下載學習紀錄的邏輯
+      console.log('下載學習紀錄', props.student)
+      // TODO: 實作與後端 API 的串接
+    }
+
     return {
       closeModal,
-      downloadCertificate
+      downloadCertificate,
+      downloadLearningRecord
     }
   }
 }
@@ -50,6 +57,7 @@ export default {
                 <div class="col-md-6">
                   <p><strong>學生姓名：</strong>{{ student.name }}</p>
                   <p><strong>電子郵件：</strong>{{ student.email }}</p>
+                  <p><strong>課程名稱：</strong>{{ student.courseName }}</p>
                 </div>
                 <div class="col-md-6">
                   <p><strong>總學習時數：</strong>{{ student.totalTime }}</p>
@@ -128,6 +136,7 @@ export default {
             </div>
           </div>
           <div class="modal-footer">
+            <button type="button" class="btn btn-primary me-2" @click="downloadLearningRecord">學習紀錄下載</button>
             <button type="button" class="btn btn-primary me-2" @click="downloadCertificate">結訓證明下載</button>
             <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
           </div>
