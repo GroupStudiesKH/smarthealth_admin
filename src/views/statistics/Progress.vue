@@ -166,6 +166,34 @@ export default {
       return [...new Set(courses.value.map(course => course.category))]
     })
 
+    // 排序相關狀態
+    const sortField = ref('')
+    const sortOrder = ref('asc')
+
+    // 排序方法
+    const sortCourses = (a, b) => {
+      if (!sortField.value) return 0
+      
+      const aValue = a[sortField.value]
+      const bValue = b[sortField.value]
+      
+      if (sortOrder.value === 'asc') {
+        return aValue - bValue
+      } else {
+        return bValue - aValue
+      }
+    }
+
+    // 切換排序
+    const toggleSort = (field) => {
+      if (sortField.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+      } else {
+        sortField.value = field
+        sortOrder.value = 'asc'
+      }
+    }
+
     // 篩選後的課程列表
     const filteredCourses = computed(() => {
       const filtered = courses.value.filter(course => {
@@ -175,6 +203,11 @@ export default {
         const matchCategory = !selectedCategory.value || course.category === selectedCategory.value
         return matchQuery && matchCategory
       })
+      
+      // 應用排序
+      if (sortField.value) {
+        filtered.sort(sortCourses)
+      }
       
       // 計算總頁數
       totalPages.value = Math.ceil(filtered.length / pageSize.value)
@@ -206,7 +239,10 @@ export default {
       viewDetails,
       currentPage,
       totalPages,
-      goToPage
+      goToPage,
+      toggleSort,
+      sortField,
+      sortOrder
     }
   }
 }
@@ -255,9 +291,24 @@ export default {
                         <th>課程名稱</th>
                         <th>課程講師</th>
                         <th>分類</th>
-                        <th>完課率</th>
-                        <th>平均分數</th>
-                        <th>上課人數</th>
+                        <th @click="toggleSort('completionRate')" style="cursor: pointer">
+                          完課率
+                          <i v-if="sortField === 'completionRate'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
+                        <th @click="toggleSort('averageScore')" style="cursor: pointer">
+                          平均分數
+                          <i v-if="sortField === 'averageScore'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
+                        <th @click="toggleSort('students_count')" style="cursor: pointer">
+                          上課人數
+                          <i v-if="sortField === 'students_count'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
                         <th>操作</th>
                       </tr>
                     </thead>
@@ -266,35 +317,15 @@ export default {
                         <td>{{ course.name }}</td>
                         <td>{{ course.instructor }}</td>
                         <td>{{ course.category }}</td>
-                        <td>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-success"
-                              role="progressbar"
-                              :style="{ width: course.completionRate + '%' }"
-                            >
-                              {{ course.completionRate }}%
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <div class="progress">
-                            <div
-                              class="progress-bar bg-info"
-                              role="progressbar"
-                              :style="{ width: course.averageScore + '%' }"
-                            >
-                              {{ course.averageScore }}分
-                            </div>
-                          </div>
-                        </td>
+                        <td>{{ course.completionRate }}%</td>
+                        <td>{{ course.averageScore }}分</td>
                         <td>{{ course.students_count }}人</td>
                         <td>
                           <button
                             class="btn btn-primary btn-sm"
                             @click="viewDetails(course.id)"
                           >
-                            檢視
+                            檢視詳細
                           </button>
                         </td>
                       </tr>
