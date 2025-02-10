@@ -19,6 +19,34 @@ export default {
       router.push(`/exam/edit/${examId}`);
     };
 
+    // 排序相關狀態
+    const sortField = ref('')
+    const sortOrder = ref('asc')
+
+    // 排序方法
+    const sortExams = (a, b) => {
+      if (!sortField.value) return 0
+      
+      const aValue = a[sortField.value]
+      const bValue = b[sortField.value]
+      
+      if (sortOrder.value === 'asc') {
+        return aValue - bValue
+      } else {
+        return bValue - aValue
+      }
+    }
+
+    // 切換排序
+    const toggleSort = (field) => {
+      if (sortField.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+      } else {
+        sortField.value = field
+        sortOrder.value = 'asc'
+      }
+    }
+
     // 模擬測驗統計數據
     const examData = ref([
       { id: 1, courseName: '基礎醫療保健課程', instructor: '王大明', category: '醫療保健', averageScore: 85, participantsCount: 156 },
@@ -67,13 +95,20 @@ export default {
 
     // 篩選後的測驗列表
     const filteredExams = computed(() => {
-      return examData.value.filter(exam => {
+      let filtered = examData.value.filter(exam => {
         const matchQuery = 
           exam.courseName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
           exam.instructor.toLowerCase().includes(searchQuery.value.toLowerCase())
         const matchCategory = selectedCategory.value === '全部' || exam.category === selectedCategory.value
         return matchQuery && matchCategory
       })
+
+      // 應用排序
+      if (sortField.value) {
+        filtered.sort(sortExams)
+      }
+
+      return filtered
     })
 
     // 當前頁面的測驗列表
@@ -109,7 +144,10 @@ export default {
       editExam,
       viewResult,
       goToPage,
-      goToExamEdit
+      goToExamEdit,
+      toggleSort,
+      sortField,
+      sortOrder
     }
   }
 }
@@ -154,8 +192,18 @@ export default {
                         <th>課程名稱</th>
                         <th>課程講師</th>
                         <th>分類</th>
-                        <th>平均分數</th>
-                        <th>參加測驗人數</th>
+                        <th @click="toggleSort('averageScore')" style="cursor: pointer">
+                          平均分數
+                          <i v-if="sortField === 'averageScore'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
+                        <th @click="toggleSort('participantsCount')" style="cursor: pointer">
+                          參加測驗人數
+                          <i v-if="sortField === 'participantsCount'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
                         <th>操作</th>
                       </tr>
                     </thead>

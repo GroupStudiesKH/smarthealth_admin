@@ -92,6 +92,7 @@ export default {
       const student = courseDetail.value.students.find(s => s.id === studentId)
       if (student) {
         selectedExamData.value = {
+          examName: '期末考試',  // 添加測驗名稱
           examTime: '2023-12-20 14:30',
           score: 85,
           answers: [

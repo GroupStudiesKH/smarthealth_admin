@@ -39,6 +39,7 @@ export default {
           <div class="exam-info mb-4">
             <div class="row">
               <div class="col-md-6">
+                <p><strong>測驗名稱：</strong>{{ examData.examName }}</p>
                 <p><strong>測驗時間：</strong>{{ examData.examTime }}</p>
                 <p><strong>考試分數：</strong>{{ examData.score }}分</p>
               </div>
