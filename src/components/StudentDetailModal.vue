@@ -46,7 +46,7 @@ export default {
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">學生學習詳細資料</h5>
+            <h5 class="modal-title"> {{ student.name }} 學習詳細資料</h5>
             <button type="button" class="btn-close" @click="closeModal"></button>
           </div>
           <div class="modal-body" v-if="student">
