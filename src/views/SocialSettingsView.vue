@@ -17,9 +17,9 @@ export default {
       phone: '02-2345-6789',
       email: 'contact@smarthealth.com',
       facebook: 'https://facebook.com/smarthealth',
-      instagram: 'https://instagram.com/smarthealth',
       line: '@smarthealth',
-      lineUrl: 'https://line.me/ti/p/@smarthealth'
+      twitter: 'https://twitter.com/smarthealth',
+      youtube: 'https://youtube.com/@smarthealth'
     });
 
     const errors = ref({});
@@ -124,13 +124,24 @@ export default {
                   </div>
 
                   <div class="mb-3">
-                    <label for="instagram" class="form-label">Instagram 連結</label>
+                    <label for="twitter" class="form-label">Twitter(X) 連結</label>
                     <input
                       type="url"
                       class="form-control"
-                      id="instagram"
-                      v-model="socialSettings.instagram"
-                      placeholder="https://instagram.com/your-account"
+                      id="twitter"
+                      v-model="socialSettings.twitter"
+                      placeholder="https://twitter.com/your-account"
+                    >
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="youtube" class="form-label">YouTube 連結</label>
+                    <input
+                      type="url"
+                      class="form-control"
+                      id="youtube"
+                      v-model="socialSettings.youtube"
+                      placeholder="https://youtube.com/@your-channel"
                     >
                   </div>
 
@@ -145,16 +156,7 @@ export default {
                     >
                   </div>
 
-                  <div class="mb-3">
-                    <label for="lineUrl" class="form-label">LINE 官方帳號連結</label>
-                    <input
-                      type="url"
-                      class="form-control"
-                      id="lineUrl"
-                      v-model="socialSettings.lineUrl"
-                      placeholder="https://line.me/ti/p/@your-line-id"
-                    >
-                  </div>
+
 
                   <button type="submit" class="btn btn-primary me-2">儲存設定</button>
                 </form>

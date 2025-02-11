@@ -128,8 +128,13 @@ export default {
           return;
         }
 
-        if (!isEdit && !formData.email) {
-          errors.value.email = "請輸入Email";
+        if (!formData.idNumber) {
+          errors.value.idNumber = "請輸入身分證字號";
+          return;
+        }
+
+        if (!formData.address) {
+          errors.value.address = "請輸入地址";
           return;
         }
 
@@ -176,214 +181,216 @@ export default {
                 <h6 class="card-title">{{ isEdit ? '編輯會員' : '新增會員' }}</h6>
 
                 <form @submit.prevent="handleSubmit">
-                  <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input
-                      type="email"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.email }"
-                      v-model="formData.email"
-                      :disabled="isEdit"
-                    />
-                    <div class="invalid-feedback" v-if="errors.email">
-                      {{ errors.email }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">會員名稱</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.name }"
-                      v-model="formData.name"
-                    />
-                    <div class="invalid-feedback" v-if="errors.name">
-                      {{ errors.name }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">密碼</label>
-                    <div class="input-group">
+                  <div class="row">
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">Email <span class="text-danger">*</span></label>
                       <input
-                        :type="formData.showPassword ? 'text' : 'password'"
+                        type="email"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.password }"
-                        v-model="formData.password"
-                        :placeholder="isEdit ? '不修改請留空' : ''"
+                        :class="{ 'is-invalid': errors.email }"
+                        v-model="formData.email"
+                        :disabled="isEdit"
                       />
-                      <button
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        @click="formData.showPassword = !formData.showPassword"
-                      >
-                        <i class="material-icons">{{ formData.showPassword ? 'visibility_off' : 'visibility' }}</i>
-                      </button>
-                      <div class="invalid-feedback" v-if="errors.password">
-                        {{ errors.password }}
+                      <div class="invalid-feedback" v-if="errors.email">
+                        {{ errors.email }}
                       </div>
                     </div>
-                  </div>
 
-                  <div class="mb-3">
-                    <label class="form-label">身份別 <span class="text-danger">*</span></label>
-                    <select
-                      class="form-select"
-                      :class="{ 'is-invalid': errors.identity }"
-                      v-model="formData.identity"
-                    >
-                      <option value="">請選擇身份別</option>
-                      <option v-for="option in formData.identityOptions" 
-                              :key="option.value" 
-                              :value="option.value">
-                        {{ option.label }}
-                      </option>
-                    </select>
-                    <div class="invalid-feedback" v-if="errors.identity">
-                      {{ errors.identity }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3" v-if="formData.identity === 'other'">
-                    <label class="form-label">其他身份 <span class="text-danger">*</span></label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.otherIdentity }"
-                      v-model="formData.otherIdentity"
-                    />
-                    <div class="invalid-feedback" v-if="errors.otherIdentity">
-                      {{ errors.otherIdentity }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">任職單位 <span class="text-danger">*</span></label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.organization }"
-                      v-model="formData.organization"
-                    />
-                    <div class="invalid-feedback" v-if="errors.organization">
-                      {{ errors.organization }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">身分證字號</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.idNumber }"
-                      v-model="formData.idNumber"
-                    />
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">地址</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.address }"
-                      v-model="formData.address"
-                    />
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">手機</label>
-                    <input
-                      type="tel"
-                      class="form-control"
-                      :class="{ 'is-invalid': errors.phone }"
-                      v-model="formData.phone"
-                    />
-                    <div class="invalid-feedback" v-if="errors.phone">
-                      {{ errors.phone }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">性別</label>
-                    <div class="form-check">
-                      <input
-                        type="radio"
-                        class="form-check-input"
-                        id="male"
-                        value="male"
-                        v-model="formData.gender"
-                      />
-                      <label class="form-check-label" for="male">男性</label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        type="radio"
-                        class="form-check-input"
-                        id="female"
-                        value="female"
-                        v-model="formData.gender"
-                      />
-                      <label class="form-check-label" for="female">女性</label>
-                    </div>
-                    <div class="invalid-feedback" v-if="errors.gender">
-                      {{ errors.gender }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">狀態</label>
-                    <div class="form-check form-switch">
-                      <input
-                        type="checkbox"
-                        class="form-check-input"
-                        v-model="formData.status"
-                      />
-                      <label class="form-check-label">
-                        {{ formData.status ? '啟用' : '停用' }}
-                      </label>
-                    </div>
-                  </div>
-
-                  <div v-if="isEdit">
-                    <div class="mb-3">
-                      <label class="form-label">註冊日期</label>
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">會員名稱 <span class="text-danger">*</span></label>
                       <input
                         type="text"
                         class="form-control"
-                        v-model="formData.registrationDate"
-                        disabled
+                        :class="{ 'is-invalid': errors.name }"
+                        v-model="formData.name"
                       />
+                      <div class="invalid-feedback" v-if="errors.name">
+                        {{ errors.name }}
+                      </div>
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">上次登入日期</label>
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">密碼 <span class="text-danger">*</span></label>
+                      <div class="input-group">
+                        <input
+                          :type="formData.showPassword ? 'text' : 'password'"
+                          class="form-control"
+                          :class="{ 'is-invalid': errors.password }"
+                          v-model="formData.password"
+                          :placeholder="isEdit ? '不修改請留空' : ''"
+                        />
+                        <button
+                          class="btn btn-outline-secondary"
+                          type="button"
+                          @click="formData.showPassword = !formData.showPassword"
+                        >
+                          <i class="material-icons">{{ formData.showPassword ? 'visibility_off' : 'visibility' }}</i>
+                        </button>
+                        <div class="invalid-feedback" v-if="errors.password">
+                          {{ errors.password }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">身份別 <span class="text-danger">*</span></label>
+                      <select
+                        class="form-select"
+                        :class="{ 'is-invalid': errors.identity }"
+                        v-model="formData.identity"
+                      >
+                        <option value="">請選擇身份別</option>
+                        <option v-for="option in formData.identityOptions" 
+                                :key="option.value" 
+                                :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                      <div class="invalid-feedback" v-if="errors.identity">
+                        {{ errors.identity }}
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3" v-if="formData.identity === 'other'">
+                      <label class="form-label">其他身份 <span class="text-danger">*</span></label>
                       <input
                         type="text"
                         class="form-control"
-                        v-model="formData.lastLoginDate"
-                        disabled
+                        :class="{ 'is-invalid': errors.otherIdentity }"
+                        v-model="formData.otherIdentity"
                       />
+                      <div class="invalid-feedback" v-if="errors.otherIdentity">
+                        {{ errors.otherIdentity }}
+                      </div>
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">註冊來源</label>
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">任職單位 <span class="text-danger">*</span></label>
                       <input
                         type="text"
                         class="form-control"
-                        v-model="formData.registrationSource"
-                        disabled
+                        :class="{ 'is-invalid': errors.organization }"
+                        v-model="formData.organization"
                       />
+                      <div class="invalid-feedback" v-if="errors.organization">
+                        {{ errors.organization }}
+                      </div>
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">上次登入IP</label>
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">身分證字號 <span class="text-danger">*</span></label>
                       <input
                         type="text"
                         class="form-control"
-                        v-model="formData.lastLoginIp"
-                        disabled
+                        :class="{ 'is-invalid': errors.idNumber }"
+                        v-model="formData.idNumber"
                       />
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">地址 <span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.address }"
+                        v-model="formData.address"
+                      />
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">手機 <span class="text-danger">*</span></label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.phone }"
+                        v-model="formData.phone"
+                      />
+                      <div class="invalid-feedback" v-if="errors.phone">
+                        {{ errors.phone }}
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">性別 <span class="text-danger">*</span></label>
+                      <div class="form-check">
+                        <input
+                          type="radio"
+                          class="form-check-input"
+                          id="male"
+                          value="male"
+                          v-model="formData.gender"
+                        />
+                        <label class="form-check-label" for="male">男性</label>
+                      </div>
+                      <div class="form-check">
+                        <input
+                          type="radio"
+                          class="form-check-input"
+                          id="female"
+                          value="female"
+                          v-model="formData.gender"
+                        />
+                        <label class="form-check-label" for="female">女性</label>
+                      </div>
+                      <div class="invalid-feedback" v-if="errors.gender">
+                        {{ errors.gender }}
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">狀態</label>
+                      <div class="form-check form-switch">
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          v-model="formData.status"
+                        />
+                        <label class="form-check-label">
+                          {{ formData.status ? '啟用' : '停用' }}
+                        </label>
+                      </div>
+                    </div>
+
+                    <div v-if="isEdit">
+                      <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">註冊日期</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="formData.registrationDate"
+                          disabled
+                        />
+                      </div>
+
+                      <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">上次登入日期</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="formData.lastLoginDate"
+                          disabled
+                        />
+                      </div>
+
+                      <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">註冊來源</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="formData.registrationSource"
+                          disabled
+                        />
+                      </div>
+
+                      <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">上次登入IP</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="formData.lastLoginIp"
+                          disabled
+                        />
+                      </div>
                     </div>
                   </div>
 
