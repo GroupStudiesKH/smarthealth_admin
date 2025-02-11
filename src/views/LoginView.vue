@@ -143,6 +143,11 @@ export default {
                           記住我
                         </label>
                       </div>
+                      <div class="mb-3">
+                        <router-link to="/forgot-password" class="text-primary text-decoration-none">
+                          忘記密碼？
+                        </router-link>
+                      </div>
                       <div>
                         <button
                           type="submit"

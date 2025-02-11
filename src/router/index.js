@@ -265,7 +265,19 @@ const router = createRouter({
       name: "instructorEdit",
       component: () => import("../views/course/InstructorEdit.vue"),
       meta: { requiresAuth: true }
-    }
+    },
+    {
+      path: "/forgot-password",
+      name: "forgotPassword",
+      component: () => import("../views/ForgotPasswordView.vue"),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: "/reset-password",
+      name: "resetPassword",
+      component: () => import("../views/ResetPasswordView.vue"),
+      meta: { requiresAuth: false }
+    },
   ],
 });
 
