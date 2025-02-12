@@ -30,6 +30,14 @@ export default {
       const aValue = a[sortField.value]
       const bValue = b[sortField.value]
       
+      if (sortField.value === 'createdAt') {
+        if (sortOrder.value === 'asc') {
+          return new Date(aValue) - new Date(bValue)
+        } else {
+          return new Date(bValue) - new Date(aValue)
+        }
+      }
+      
       if (sortOrder.value === 'asc') {
         return aValue - bValue
       } else {
@@ -49,21 +57,21 @@ export default {
 
     // 模擬測驗統計數據
     const examData = ref([
-      { id: 1, courseName: '基礎醫療保健課程', instructor: '王大明', category: '醫療保健', averageScore: 85, participantsCount: 156 },
-      { id: 2, courseName: '進階護理實務', instructor: '李美玲', category: '護理照護', averageScore: 88, participantsCount: 142 },
-      { id: 3, courseName: '緊急醫療救護訓練', instructor: '張志豪', category: '急救訓練', averageScore: 82, participantsCount: 128 },
-      { id: 4, courseName: '長期照護實務', instructor: '陳雅琪', category: '長照服務', averageScore: 85, participantsCount: 115 },
-      { id: 5, courseName: '心理健康諮詢', instructor: '林心理', category: '心理健康', averageScore: 90, participantsCount: 98 },
-      { id: 6, courseName: '營養學基礎', instructor: '黃營養師', category: '營養學', averageScore: 87, participantsCount: 165 },
-      { id: 7, courseName: '復健治療入門', instructor: '吳物理治療師', category: '復健醫學', averageScore: 84, participantsCount: 112 },
-      { id: 8, courseName: '中醫養生保健', instructor: '張中醫師', category: '中醫保健', averageScore: 89, participantsCount: 145 },
-      { id: 9, courseName: '運動傷害防護', instructor: '劉教練', category: '運動醫學', averageScore: 86, participantsCount: 134 },
-      { id: 10, courseName: '老年照護實務', instructor: '謝護理師', category: '長照服務', averageScore: 83, participantsCount: 108 },
-      { id: 11, courseName: '兒童保健指南', instructor: '李兒科醫師', category: '醫療保健', averageScore: 91, participantsCount: 176 },
-      { id: 12, courseName: '精神衛生護理', instructor: '陳心理師', category: '心理健康', averageScore: 88, participantsCount: 122 },
-      { id: 13, courseName: '急診醫學概論', instructor: '王急診醫師', category: '急救訓練', averageScore: 85, participantsCount: 148 },
-      { id: 14, courseName: '居家照護技巧', instructor: '林護理師', category: '護理照護', averageScore: 87, participantsCount: 132 },
-      { id: 15, courseName: '運動營養學', instructor: '陳營養師', category: '營養學', averageScore: 89, participantsCount: 155 }
+      { id: 1, courseName: '基礎醫療保健課程', instructor: '王大明', category: '醫療保健', averageScore: 85, participantsCount: 156, createdAt: '2023-12-01' },
+      { id: 2, courseName: '進階護理實務', instructor: '李美玲', category: '護理照護', averageScore: 88, participantsCount: 142, createdAt: '2023-12-02' },
+      { id: 3, courseName: '緊急醫療救護訓練', instructor: '張志豪', category: '急救訓練', averageScore: 82, participantsCount: 128, createdAt: '2023-12-03' },
+      { id: 4, courseName: '長期照護實務', instructor: '陳雅琪', category: '長照服務', averageScore: 85, participantsCount: 115, createdAt: '2023-12-04' },
+      { id: 5, courseName: '心理健康諮詢', instructor: '林心理', category: '心理健康', averageScore: 90, participantsCount: 98, createdAt: '2023-12-05' },
+      { id: 6, courseName: '營養學基礎', instructor: '黃營養師', category: '營養學', averageScore: 87, participantsCount: 165, createdAt: '2023-12-06' },
+      { id: 7, courseName: '復健治療入門', instructor: '吳物理治療師', category: '復健醫學', averageScore: 84, participantsCount: 112, createdAt: '2023-12-07' },
+      { id: 8, courseName: '中醫養生保健', instructor: '張中醫師', category: '中醫保健', averageScore: 89, participantsCount: 145, createdAt: '2023-12-08' },
+      { id: 9, courseName: '運動傷害防護', instructor: '劉教練', category: '運動醫學', averageScore: 86, participantsCount: 134, createdAt: '2023-12-09' },
+      { id: 10, courseName: '老年照護實務', instructor: '謝護理師', category: '長照服務', averageScore: 83, participantsCount: 108, createdAt: '2023-12-10' },
+      { id: 11, courseName: '兒童保健指南', instructor: '李兒科醫師', category: '醫療保健', averageScore: 91, participantsCount: 176, createdAt: '2023-12-11' },
+      { id: 12, courseName: '精神衛生護理', instructor: '陳心理師', category: '心理健康', averageScore: 88, participantsCount: 122, createdAt: '2023-12-12' },
+      { id: 13, courseName: '急診醫學概論', instructor: '王急診醫師', category: '急救訓練', averageScore: 85, participantsCount: 148, createdAt: '2023-12-13' },
+      { id: 14, courseName: '居家照護技巧', instructor: '林護理師', category: '護理照護', averageScore: 87, participantsCount: 132, createdAt: '2023-12-14' },
+      { id: 15, courseName: '運動營養學', instructor: '陳營養師', category: '營養學', averageScore: 89, participantsCount: 155, createdAt: '2023-12-15' }
     ])
 
     // 分類選項
@@ -204,6 +212,12 @@ export default {
                             {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
                           </i>
                         </th>
+                        <th @click="toggleSort('createdAt')" style="cursor: pointer">
+                          創建時間
+                          <i v-if="sortField === 'createdAt'" class="material-icons align-middle" style="font-size: 16px">
+                            {{ sortOrder === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                          </i>
+                        </th>
                         <th>操作</th>
                       </tr>
                     </thead>
@@ -214,6 +228,7 @@ export default {
                         <td>{{ exam.category }}</td>
                         <td>{{ exam.averageScore }}</td>
                         <td>{{ exam.participantsCount }}</td>
+                        <td>{{ exam.createdAt }}</td>
                         <td>
                           <button class="btn btn-primary btn-sm me-2" @click="goToExamEdit(exam.id)">
                             編輯題目

@@ -274,7 +274,7 @@ export default {
                               class="btn btn-info btn-sm"
                               @click="viewExam(student.id)"
                             >
-                              閱卷
+                              測驗閱卷詳情
                             </button>
                           </div>
                         </td>
