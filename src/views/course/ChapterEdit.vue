@@ -217,6 +217,14 @@ export default {
                       >
                         移除
                       </button>
+
+                      <button 
+                        class="m-2 btn btn-info btn-sm"
+                      >
+                        <i class="material-icons align-middle me-1">edit</i>
+                        Vimeo編輯
+                      </button>
+
                     </div>
                   </div>
 
