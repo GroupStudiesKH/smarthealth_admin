@@ -15,21 +15,93 @@ export default {
     const courses = ref([
       {
         id: 1,
-        title: "基礎健康管理課程",
+        title: "除了資料統一，規則統一，還要有應用程式市集",
         publishDate: "2023-12-01",
         instructor: "王大明",
-        category: "健康管理",
-        tags: ["基礎", "入門"],
+        category: "醫療資訊系統",
+        tags: ["FHIR", "系統整合", "實務應用"],
         status: "已上架",
       },
       {
         id: 2,
-        title: "進階營養學",
+        title: "統一台灣電子病歷的策略思考",
         publishDate: "2023-12-05",
         instructor: "李小華",
-        category: "營養學",
-        tags: ["進階", "專業"],
-        status: "未上架",
+        category: "電子病歷",
+        tags: ["標準規範", "資料交換"],
+        status: "已上架",
+      },
+      {
+        id: 3,
+        title: "開發FHIR工具，FHIR資料中臺實現互通",
+        publishDate: "2023-12-10",
+        instructor: "張醫師",
+        category: "醫療資料交換",
+        tags: ["FHIR", "資料交換", "系統整合"],
+        status: "已上架",
+      },
+      {
+        id: 4,
+        title: "臺灣醫中電子病歷資料統一的架構",
+        publishDate: "2023-12-15",
+        instructor: "陳工程師",
+        category: "電子病歷",
+        tags: ["標準規範", "系統整合"],
+        status: "已上架",
+      },
+      {
+        id: 5,
+        title: "FHIR 統一資料，但是沒有統一規則",
+        publishDate: "2023-12-20",
+        instructor: "王大明",
+        category: "醫療標準規範",
+        tags: ["FHIR", "標準規範"],
+        status: "已上架",
+      },
+      {
+        id: 6,
+        title: "FHIR 統一資料",
+        publishDate: "2023-12-25",
+        instructor: "李小華",
+        category: "醫療資料交換",
+        tags: ["FHIR", "資料交換"],
+        status: "已上架",
+      },
+      {
+        id: 7,
+        title: "LOINC標準碼",
+        publishDate: "2023-12-30",
+        instructor: "張醫師",
+        category: "醫療標準規範",
+        tags: ["標準規範", "實務應用"],
+        status: "已上架",
+      },
+      {
+        id: 8,
+        title: "RxNorm",
+        publishDate: "2024-01-05",
+        instructor: "陳工程師",
+        category: "醫療標準規範",
+        tags: ["標準規範", "實務應用"],
+        status: "已上架",
+      },
+      {
+        id: 9,
+        title: "SNOMED CT",
+        publishDate: "2024-01-10",
+        instructor: "王大明",
+        category: "醫療標準規範",
+        tags: ["標準規範", "實務應用"],
+        status: "已上架",
+      },
+      {
+        id: 10,
+        title: "TW CDI",
+        publishDate: "2024-01-15",
+        instructor: "李小華",
+        category: "醫療標準規範",
+        tags: ["標準規範", "實務應用"],
+        status: "已上架",
       },
     ]);
     const router = useRouter();
@@ -38,7 +110,7 @@ export default {
     const selectedCategory = ref("");
     const selectedStatus = ref("");
 
-    const categories = ["健康管理", "營養學", "運動科學", "心理健康"];
+    const categories = ["醫療資訊系統", "電子病歷", "醫療標準規範", "醫療資料交換"];
     const statuses = ["已上架", "未上架", "審核中"];
 
     const filteredCourses = computed(() => {

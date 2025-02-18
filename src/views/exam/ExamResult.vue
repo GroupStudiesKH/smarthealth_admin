@@ -18,38 +18,38 @@ export default {
 
     // 模擬測驗結果數據
     const examResult = ref({
-      courseName: '基礎醫療保健課程',
-      averageScore: 85,
-      totalParticipants: 156,
+      courseName: '除了資料統一，規則統一，還要有應用程式市集',
+      averageScore: 88,
+      totalParticipants: 180,
       questions: [
         {
           id: 1,
           type: '是非題',
-          question: '人體正常體溫是37度',
+          question: 'FHIR是一種醫療資訊交換標準',
           correctAnswer: true,
-          correctCount: 142,
-          incorrectCount: 14,
-          chapter: '第一章：健康生活概論'
+          correctCount: 165,
+          incorrectCount: 15,
+          chapter: '第一章：FHIR基礎概念'
         },
         {
           id: 2,
           type: '單選題',
-          question: '下列哪個是正確的CPR壓胸位置？',
-          options: ['胸骨上端', '胸骨中下段', '左胸', '右胸'],
-          correctAnswer: 1,
-          correctCount: 138,
-          incorrectCount: 18,
-          chapter: '期中考試'
+          question: '下列哪個不是FHIR的主要目標？',
+          options: ['資料互通性', '系統整合', '資料加密', '標準化'],
+          correctAnswer: 2,
+          correctCount: 158,
+          incorrectCount: 22,
+          chapter: '第二章：FHIR應用'
         },
         {
           id: 3,
           type: '多選題',
-          question: '以下哪些是中暑的症狀？',
-          options: ['頭暈', '噁心', '體溫升高', '皮膚發紅'],
+          question: '以下哪些是電子病歷系統的優點？',
+          options: ['資料標準化', '跨院所互通', '即時更新', '降低錯誤'],
           correctAnswer: [0, 1, 2, 3],
-          correctCount: 125,
-          incorrectCount: 31,
-          chapter: '期末考試'
+          correctCount: 145,
+          incorrectCount: 35,
+          chapter: '第三章：電子病歷系統'
         }
       ]
     })

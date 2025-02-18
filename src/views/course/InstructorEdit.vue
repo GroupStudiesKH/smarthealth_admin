@@ -30,9 +30,9 @@ export default {
       // 模擬 API 載入資料
       instructor.value = {
         name: "王大明",
-        title: "健康管理專家",
-        description: "擁有多年健康管理經驗...",
-        note: "特殊備註",
+        title: "醫療資訊系統架構師",
+        description: "擁有超過15年的醫療資訊系統開發和架構設計經驗，專精於醫院資訊系統(HIS)、電子病歷系統(EMR)的規劃與建置。曾主導多家大型醫院的系統整合專案，對FHIR標準的實務應用有豐富經驗。",
+        note: "醫療資訊系統架構認證、HL7 FHIR認證專家",
         image: null
       };
     });

@@ -26,6 +26,8 @@ export default {
       status: "草稿",
       pdfFile: null,
       videoFile: null,
+      videoPath: "",
+      videoPreview: null,
       notes: [{ time: "", content: "" }]
     });
 
@@ -40,15 +42,30 @@ export default {
       chapter.value.notes.splice(index, 1);
     };
 
+    const handleVideoUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        chapter.value.videoFile = file;
+        chapter.value.videoPath = URL.createObjectURL(file);
+        chapter.value.videoPreview = URL.createObjectURL(file);
+      }
+    };
+
+    const removeVideo = () => {
+      chapter.value.videoFile = null;
+      chapter.value.videoPath = "";
+      chapter.value.videoPreview = null;
+    };
+
     const fetchChapter = async (chapterId) => {
       try {
         // 模擬 API 回傳數據
         chapter.value = {
-          title: "第一章：健康管理概論",
-          content: "本章節將介紹健康管理的基本概念，包含健康的定義、健康管理的重要性、健康管理的範疇等。透過本章節的學習，學員將能夠理解健康管理的核心理念，並了解如何將這些概念應用於日常生活。",
-          status: "草稿",
+          title: "除了資料統一，規則統一，還要有應用程式市集",
+          content: "本章節將介紹醫療資訊系統中資料統一和規則統一的重要性，以及應用程式市集在整體生態系統中的角色。透過實際案例分析，學員將了解如何建立完整的醫療資訊應用生態系統。",
+          status: "已發布",
           pdfFile: null,
-          videoFile: "https://google.com/123.mp4",
+          videoFile: "/assets/video/除了資料統一，規則統一，還要有應用程式市集.mov",
           notes: [
             { time: "02:30", content: "健康的定義與概念" },
             { time: "05:45", content: "WHO對健康的詮釋" },
@@ -90,24 +107,10 @@ export default {
       }
     };
 
-    const handleVideoUpload = (event) => {
-      const file = event.target.files[0];
-      if (file && (file.type === 'video/mp4' || file.type === 'video/quicktime')) {
-        chapter.value.videoFile = file;
-      } else {
-        modalMessage.value = "請上傳MP4或MOV格式的影片";
-        showModal.value = true;
-        event.target.value = '';
-      }
-    };
-
     const removePdf = () => {
       chapter.value.pdfFile = null;
     };
 
-    const removeVideo = () => {
-      chapter.value.videoFile = null;
-    };
 
     onMounted(async () => {
       editor.value = await ClassicEditor

@@ -26,60 +26,38 @@ export default {
       {
         id: 1,
         type: '是非題',
-        content: '每天運動30分鐘有助於身體健康',
-        chapter: '第一章：健康生活概論',
+        content: 'FHIR是一種醫療資訊交換標準',
+        chapter: '第一章：FHIR基礎概念',
         answer: true,
-        explanation: '規律運動確實有助於維持身體健康'
+        explanation: 'FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通'
       },
       {
         id: 2,
         type: '單選題',
-        content: '以下哪個不是健康飲食的原則？',
-        chapter: '第二章：營養與健康',
+        content: '下列哪個不是FHIR的主要目標？',
+        chapter: '第二章：FHIR應用',
         options: [
-          '均衡飲食',
-          '定時定量',
-          '多吃高熱量食物',
-          '注意營養成分'
+          '資料互通性',
+          '系統整合',
+          '資料加密',
+          '標準化'
         ],
         answer: 2,
-        explanation: '健康飲食應該避免過度攝入高熱量食物'
+        explanation: 'FHIR的主要目標是實現醫療資訊的互通性、系統整合和標準化，而不是專注於資料加密'
       },
       {
         id: 3,
         type: '多選題',
-        content: '以下哪些是良好的運動習慣？',
-        chapter: '第三章：運動與保健',
+        content: '以下哪些是電子病歷系統的優點？',
+        chapter: '第三章：電子病歷系統',
         options: [
-          '運動前熱身',
-          '運動後伸展',
-          '適度休息',
-          '注意安全'
+          '資料標準化',
+          '跨院所互通',
+          '即時更新',
+          '降低錯誤'
         ],
         answer: [0, 1, 2, 3],
-        explanation: '這些都是正確的運動習慣'
-      },
-      {
-        id: 4,
-        type: '是非題',
-        content: '吸菸對健康無害',
-        chapter: '期中考試',
-        answer: false,
-        explanation: '吸菸會導致多種疾病'
-      },
-      {
-        id: 5,
-        type: '單選題',
-        content: '以下哪個是最好的運動時間？',
-        chapter: '期末考試',
-        options: [
-          '清晨',
-          '中午',
-          '傍晚',
-          '睡前'
-        ],
-        answer: 0,
-        explanation: '清晨運動可以提升一天的精神狀態'
+        explanation: '電子病歷系統具有資料標準化、跨院所互通、即時更新和降低錯誤等多項優點'
       }
     ])
 

@@ -17,16 +17,74 @@ export default {
     const chapters = ref([
       {
         id: 1,
-        title: "第一章：健康管理概論",
+        title: "除了資料統一，規則統一，還要有應用程式市集",
         status: "已發布",
         lastModified: "2023-12-15",
+        videoPath: "assets/video/除了資料統一，規則統一，還要有應用程式市集.mov"
       },
       {
         id: 2,
-        title: "第二章：健康評估方法",
-        status: "草稿",
+        title: "統一台灣電子病歷的策略思考",
+        status: "已發布",
         lastModified: "2023-12-14",
+        videoPath: "assets/video/統一台灣電子病歷的策略思考.mov"
       },
+      {
+        id: 3,
+        title: "開發FHIR工具，FHIR資料中臺實現互通",
+        status: "已發布",
+        lastModified: "2023-12-13",
+        videoPath: "assets/video/開發FHIR工具，FHIR資料中臺實現互通.mov"
+      },
+      {
+        id: 4,
+        title: "臺灣醫中電子病歷資料統一的架構",
+        status: "已發布",
+        lastModified: "2023-12-12",
+        videoPath: "assets/video/臺灣醫中電子病歷資料統一的架構.mov"
+      },
+      {
+        id: 5,
+        title: "FHIR 統一資料，但是沒有統一規則",
+        status: "已發布",
+        lastModified: "2023-12-11",
+        videoPath: "assets/video/FHIR 統一資料，但是沒有統一規則.mov"
+      },
+      {
+        id: 6,
+        title: "FHIR 統一資料",
+        status: "已發布",
+        lastModified: "2023-12-10",
+        videoPath: "assets/video/FHIR 統一資料.mov"
+      },
+      {
+        id: 7,
+        title: "LOINC標準碼",
+        status: "已發布",
+        lastModified: "2023-12-09",
+        videoPath: "assets/video/LOINC標準碼.mov"
+      },
+      {
+        id: 8,
+        title: "RxNorm",
+        status: "已發布",
+        lastModified: "2023-12-08",
+        videoPath: "assets/video/RxNorm.mov"
+      },
+      {
+        id: 9,
+        title: "SNOMED CT",
+        status: "已發布",
+        lastModified: "2023-12-07",
+        videoPath: "assets/video/SNOMED CT.mov"
+      },
+      {
+        id: 10,
+        title: "TW CDI",
+        status: "已發布",
+        lastModified: "2023-12-06",
+        videoPath: "assets/video/TW CDI.mov"
+      }
     ]);
 
     const addChapter = () => {

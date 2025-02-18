@@ -28,13 +28,19 @@ export default {
       coverImage: null
     });
 
-    const categories = ["健康管理", "營養學", "運動科學", "心理健康"];
-    const availableTags = ["基礎", "入門", "進階", "專業", "實務"];
+    const categories = ["醫療資訊系統", "電子病歷", "醫療標準規範", "醫療資料交換"];
+    const availableTags = ["FHIR", "標準規範", "資料交換", "系統整合", "實務應用"];
     const availableChapters = ref([
-      { id: 1, title: "第一章：健康管理概論" },
-      { id: 2, title: "第二章：健康評估方法" },
-      { id: 3, title: "第三章：健康計劃制定" },
-      { id: 4, title: "第四章：健康監測與追蹤" },
+      { id: 1, title: "除了資料統一，規則統一，還要有應用程式市集" },
+      { id: 2, title: "統一台灣電子病歷的策略思考" },
+      { id: 3, title: "開發FHIR工具，FHIR資料中臺實現互通"},
+      { id: 4, title: "臺灣醫中電子病歷資料統一的架構" },
+      { id: 5, title: "FHIR 統一資料，但是沒有統一規則" },
+      { id: 6, title: "FHIR 統一資料" },
+      { id: 7, title: "LOINC標準碼" },
+      { id: 8, title: "RxNorm" },
+      { id: 9, title: "SNOMED CT" },
+      { id: 10, title: "TW CDI" }
     ]);
 
     const selectedTags = ref([]);
@@ -43,10 +49,10 @@ export default {
 
     // 模擬的講師列表
     const availableInstructors = ref([
-      { id: 1, name: "王大明", specialty: "健康管理" },
-      { id: 2, name: "李小華", specialty: "營養學" },
-      { id: 3, name: "張美玲", specialty: "運動科學" },
-      { id: 4, name: "陳建國", specialty: "心理健康" },
+      { id: 1, name: "王教授", specialty: "醫療資訊系統" },
+      { id: 2, name: "李博士", specialty: "電子病歷" },
+      { id: 3, name: "張醫師", specialty: "醫療標準規範" },
+      { id: 4, name: "陳工程師", specialty: "醫療資料交換" },
     ]);
 
     // 過濾講師列表

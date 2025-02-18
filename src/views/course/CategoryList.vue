@@ -12,21 +12,16 @@ export default {
   data() {
     return {
       categories: [
-        { id: 1, name: '心理健康', courseCount: 15, createdAt: '2024-01-15' },
-        { id: 2, name: '營養保健', courseCount: 12, createdAt: '2024-01-16' },
-        { id: 3, name: '運動健身', courseCount: 8, createdAt: '2024-01-17' },
-        { id: 4, name: '瑜珈冥想', courseCount: 10, createdAt: '2024-01-18' },
-        { id: 5, name: '體重管理', courseCount: 6, createdAt: '2024-01-19' },
-        { id: 6, name: '睡眠改善', courseCount: 4, createdAt: '2024-01-20' },
-        { id: 7, name: '壓力管理', courseCount: 9, createdAt: '2024-01-21' },
-        { id: 8, name: '飲食營養', courseCount: 11, createdAt: '2024-01-22' },
-        { id: 9, name: '運動訓練', courseCount: 7, createdAt: '2024-01-23' },
-        { id: 10, name: '健康生活', courseCount: 13, createdAt: '2024-01-24' },
-        { id: 11, name: '心靈成長', courseCount: 5, createdAt: '2024-01-25' },
-        { id: 12, name: '體適能', courseCount: 14, createdAt: '2024-01-26' },
-        { id: 13, name: '營養補充', courseCount: 3, createdAt: '2024-01-27' },
-        { id: 14, name: '運動恢復', courseCount: 6, createdAt: '2024-01-28' },
-        { id: 15, name: '健康檢測', courseCount: 8, createdAt: '2024-01-29' }
+        { id: 1, name: '醫療資訊系統', courseCount: 15, createdAt: '2024-01-15' },
+        { id: 2, name: '電子病歷', courseCount: 12, createdAt: '2024-01-16' },
+        { id: 3, name: '醫療標準規範', courseCount: 8, createdAt: '2024-01-17' },
+        { id: 4, name: '醫療資料交換', courseCount: 10, createdAt: '2024-01-18' },
+        { id: 5, name: '醫療系統整合', courseCount: 6, createdAt: '2024-01-19' },
+        { id: 6, name: '醫療資訊安全', courseCount: 4, createdAt: '2024-01-20' },
+        { id: 7, name: '醫療數據分析', courseCount: 9, createdAt: '2024-01-21' },
+        { id: 8, name: '醫療雲端應用', courseCount: 11, createdAt: '2024-01-22' },
+        { id: 9, name: '遠距醫療', courseCount: 7, createdAt: '2024-01-23' },
+        { id: 10, name: '智慧醫療', courseCount: 13, createdAt: '2024-01-24' }
       ],
       searchQuery: '',
       currentPage: 1,
@@ -151,7 +146,6 @@ export default {
     </div>
   </div>
 </template>
-
 <style scoped>
 .page-content {
   padding: 2rem;

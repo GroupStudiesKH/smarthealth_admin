@@ -30,38 +30,38 @@ export default {
 
     // 模擬課程詳細資料
     const courseDetail = ref({
-      name: '基礎醫療保健課程',
+      name: '開發FHIR工具，FHIR資料中臺實現互通',
       instructor: '王大明',
-      category: '醫療保健',
-      completionRate: 85,
-      averageScore: 78,
+      category: '醫療標準規範',
+      completionRate: 92,
+      averageScore: 88,
       chapters: [
-        { name: '第一章：醫療保健概論', completionRate: 90 },
-        { name: '第二章：基礎醫療知識', completionRate: 85 },
-        { name: '第三章：健康評估方法', completionRate: 82 },
-        { name: '第四章：常見疾病預防', completionRate: 78 }
+        { name: '第一章：FHIR標準介紹與應用', completionRate: 95 },
+        { name: '第二章：資料中臺架構設計', completionRate: 92 },
+        { name: '第三章：FHIR API開發實務', completionRate: 90 },
+        { name: '第四章：系統整合與測試', completionRate: 88 }
       ],
       students: [
         { 
           name: '張小明', 
           email: 'zhang@example.com', 
           id: 1,
-          totalTime: '25小時',
-          lastAccess: '2023-12-01',
-          progress: 85,
+          totalTime: '32小時',
+          lastAccess: '2024-01-15',
+          progress: 92,
           chapterProgress: [
-            { name: '第一章：醫療保健概論', progress: 100, score: 85 },
-            { name: '第二章：基礎醫療知識', progress: 90, score: 88 },
-            { name: '第三章：健康評估方法', progress: 80, score: 92 },
-            { name: '第四章：常見疾病預防', progress: 70, score: 78 }
+            { name: '第一章：FHIR標準介紹與應用', progress: 100, score: 92 },
+            { name: '第二章：資料中臺架構設計', progress: 95, score: 88 },
+            { name: '第三章：FHIR API開發實務', progress: 85, score: 90 },
+            { name: '第四章：系統整合與測試', progress: 80, score: 85 }
           ],
           quizResults: [
-            { name: '第一章測驗', score: 85, date: '2023-11-01', isExam: false },
-            { name: '第二章測驗', score: 88, date: '2023-11-15', isExam: false },
-            { name: '第三章測驗', score: 92, date: '2023-11-30', isExam: false },
-            { name: '第四章測驗', score: 78, date: '2023-12-01', isExam: false },
-            { name: '期中考試', score: 86, date: '2023-11-20', isExam: true },
-            { name: '期末考試', score: 90, date: '2023-12-15', isExam: true }
+            { name: '第一章測驗', score: 92, date: '2024-01-05', isExam: false },
+            { name: '第二章測驗', score: 88, date: '2024-01-08', isExam: false },
+            { name: '第三章測驗', score: 90, date: '2024-01-12', isExam: false },
+            { name: '第四章測驗', score: 85, date: '2024-01-15', isExam: false },
+            { name: '期中考試', score: 89, date: '2024-01-10', isExam: true },
+            { name: '期末考試', score: 91, date: '2024-01-20', isExam: true }
           ]
         }
       ]
@@ -92,23 +92,23 @@ export default {
       const student = courseDetail.value.students.find(s => s.id === studentId)
       if (student) {
         selectedExamData.value = {
-          examName: '期末考試',  // 添加測驗名稱
-          examTime: '2023-12-20 14:30',
-          score: 85,
+          examName: '期末考試',
+          examTime: '2024-01-20 14:30',
+          score: 91,
           answers: [
             {
               questionId: 1,
-              question: '什麼是基礎生命徵象？',
-              studentAnswer: '體溫、脈搏、呼吸、血壓',
-              correctAnswer: '體溫、脈搏、呼吸、血壓',
+              question: '什麼是FHIR（Fast Healthcare Interoperability Resources）？',
+              studentAnswer: 'FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通',
+              correctAnswer: 'FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通',
               isCorrect: true,
               answerTime: '14:35'
             },
             {
               questionId: 2,
-              question: '正常成人的體溫範圍是多少？',
-              studentAnswer: '36-37度',
-              correctAnswer: '36.1-37.2度',
+              question: 'FHIR的主要優勢是什麼？',
+              studentAnswer: 'RESTful API支援、現代網路技術整合',
+              correctAnswer: 'RESTful API支援、現代網路技術整合、彈性的資料模型',
               isCorrect: false,
               answerTime: '14:37'
             }
@@ -124,19 +124,20 @@ export default {
         selectedStudent.value = {
           ...student,
           courseName: courseDetail.value.name,
-          progress: 75,
-          totalTime: '12小時30分鐘',
-          lastAccess: '2023-12-20',
+          progress: 92,
+          totalTime: '32小時',
+          lastAccess: '2024-01-15',
           chapterProgress: [
-            { name: '第一章：醫療保健概論', progress: 100, score: 90 },
-            { name: '第二章：基礎醫療知識', progress: 85, score: 88 },
-            { name: '第三章：健康評估方法', progress: 65, score: 78 },
-            { name: '第四章：常見疾病預防', progress: 50, score: null }
+            { name: '第一章：FHIR標準介紹與應用', progress: 100, score: 92 },
+            { name: '第二章：資料中臺架構設計', progress: 95, score: 88 },
+            { name: '第三章：FHIR API開發實務', progress: 85, score: 90 },
+            { name: '第四章：系統整合與測試', progress: 80, score: 85 }
           ],
           quizResults: [
-            { name: '第一章測驗', score: 90, date: '2023-12-01' },
-            { name: '第二章測驗', score: 88, date: '2023-12-10' },
-            { name: '第三章測驗', score: 78, date: '2023-12-15' }
+            { name: '第一章測驗', score: 92, date: '2024-01-05' },
+            { name: '第二章測驗', score: 88, date: '2024-01-08' },
+            { name: '第三章測驗', score: 90, date: '2024-01-12' },
+            { name: '第四章測驗', score: 85, date: '2024-01-15' }
           ]
         }
         showStudentModal.value = true

@@ -18,138 +18,48 @@ export default {
     const courses = ref([
       {
         id: 1,
-        name: '基礎醫療保健課程',
+        name: '除了資料統一，規則統一，還要有應用程式市集',
         instructor: '王大明',
-        category: '醫療保健',
-        completionRate: 85,
-        averageScore: 78,
-        students_count: 156
+        category: '醫療資訊系統',
+        completionRate: 88,
+        averageScore: 85,
+        students_count: 180
       },
       {
         id: 2,
-        name: '進階護理實務',
-        instructor: '李美玲',
-        category: '護理照護',
+        name: '統一台灣電子病歷的策略思考',
+        instructor: '李小華',
+        category: '電子病歷',
         completionRate: 92,
         averageScore: 88,
-        students_count: 142
+        students_count: 165
       },
       {
         id: 3,
-        name: '緊急醫療救護訓練',
-        instructor: '張志豪',
-        category: '急救訓練',
-        completionRate: 75,
-        averageScore: 82,
-        students_count: 128
+        name: '開發FHIR工具，FHIR資料中臺實現互通',
+        instructor: '張醫師',
+        category: '醫療標準規範',
+        completionRate: 95,
+        averageScore: 92,
+        students_count: 150
       },
       {
         id: 4,
-        name: '長期照護實務',
-        instructor: '陳雅琪',
-        category: '長照服務',
-        completionRate: 88,
+        name: '臺灣醫中電子病歷資料統一的架構',
+        instructor: '陳工程師',
+        category: '醫療資料交換',
+        completionRate: 87,
         averageScore: 85,
-        students_count: 115
+        students_count: 142
       },
       {
         id: 5,
-        name: '心理健康諮詢基礎',
-        instructor: '林心理',
-        category: '心理健康',
+        name: 'FHIR 統一資料，但是沒有統一規則',
+        instructor: '林教授',
+        category: '醫療標準規範',
         completionRate: 90,
-        averageScore: 92,
+        averageScore: 89,
         students_count: 98
-      },
-      {
-        id: 6,
-        name: '老年照護專業課程',
-        instructor: '黃醫師',
-        category: '長照服務',
-        completionRate: 82,
-        averageScore: 85,
-        students_count: 10
-      },
-      {
-        id: 7,
-        name: '兒童醫療照護',
-        instructor: '周醫師',
-        category: '醫療保健',
-        completionRate: 88,
-        averageScore: 90,
-        students_count: 10
-      },
-      {
-        id: 8,
-        name: '急診室緊急救護',
-        instructor: '劉醫師',
-        category: '急救訓練',
-        completionRate: 95,
-        averageScore: 89,
-        students_count: 10
-      },
-      {
-        id: 9,
-        name: '居家護理實務',
-        instructor: '吳護理師',
-        category: '護理照護',
-        completionRate: 87,
-        averageScore: 84,
-        students_count: 10
-      },
-      {
-        id: 10,
-        name: '壓力管理與調適',
-        instructor: '謝心理師',
-        category: '心理健康',
-        completionRate: 91,
-        averageScore: 88,
-        students_count: 10
-      },
-      {
-        id: 11,
-        name: '高齡者營養照護',
-        instructor: '楊營養師',
-        category: '長照服務',
-        completionRate: 89,
-        averageScore: 86,
-        students_count: 10
-      },
-      {
-        id: 12,
-        name: '社區醫療服務',
-        instructor: '鄭醫師',
-        category: '醫療保健',
-        completionRate: 84,
-        averageScore: 83,
-        students_count: 10
-      },
-      {
-        id: 13,
-        name: '災難醫療應變',
-        instructor: '蔡醫師',
-        category: '急救訓練',
-        completionRate: 93,
-        averageScore: 91,
-        students_count: 10
-      },
-      {
-        id: 14,
-        name: '精神科護理實務',
-        instructor: '趙護理師',
-        category: '護理照護',
-        completionRate: 86,
-        averageScore: 87,
-        students_count: 10
-      },
-      {
-        id: 15,
-        name: '情緒管理與輔導',
-        instructor: '孫心理師',
-        category: '心理健康',
-        completionRate: 88,
-        averageScore: 89,
-        students_count: 10
       }
     ])
 
