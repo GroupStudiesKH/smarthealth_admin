@@ -41,12 +41,10 @@ export default {
         const mockData = {
           data: [
             { id: 1, name: "超級管理員" },
-            { id: 2, name: "課程管理員" },
-            { id: 3, name: "會員管理員" },
-            { id: 4, name: "內容管理員" },
-            { id: 5, name: "一般管理員" }
+            { id: 2, name: "教師" },
+            { id: 3, name: "小編" },
           ],
-          recordsTotal: 5
+          recordsTotal: 3
         };
 
         tableData.value = mockData.data;

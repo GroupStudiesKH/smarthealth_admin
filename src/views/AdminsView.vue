@@ -24,11 +24,11 @@ export default {
         // 模擬數據
         const mockData = {
           data: [
-            { id: 1, name: '管理員A', email: 'admin_a@example.com', permission_group: { name: '超級管理員' } },
-            { id: 2, name: '管理員B', email: 'admin_b@example.com', permission_group: { name: '內容管理員' } },
-            { id: 3, name: '管理員C', email: 'admin_c@example.com', permission_group: { name: '一般管理員' } },
+            { id: 1, name: '管理員A', email: 'admin_a@example.com', permission_group: { name: '教師' } },
+            { id: 2, name: '管理員B', email: 'admin_b@example.com', permission_group: { name: '小編' } },
+            { id: 3, name: '管理員C', email: 'admin_c@example.com', permission_group: { name: '超級管理員' } },
             { id: 4, name: '管理員D', email: 'admin_d@example.com', permission_group: { name: '超級管理員' } },
-            { id: 5, name: '管理員E', email: 'admin_e@example.com', permission_group: { name: '內容管理員' } }
+            { id: 5, name: '管理員E', email: 'admin_e@example.com', permission_group: { name: '教師' } }
           ],
           total: 15
         };

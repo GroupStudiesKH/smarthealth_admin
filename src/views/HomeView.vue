@@ -19,26 +19,26 @@ export default {
     const router = useRouter();
 
     const memberStats = ref({
-      totalMembers: 12456,
-      newMonthlyMembers: 245,
-      totalCourses: 389,
-      publicCourses: 156
+      totalMembers: 8756,
+      newMonthlyMembers: 183,
+      totalCourses: 245,
+      publicCourses: 128
     });
 
     const popularCourses = ref([
-      { name: '健康飲食入門', enrollments: 156, rating: 4.8 },
-      { name: '運動科學基礎', enrollments: 142, rating: 4.7 },
-      { name: '心理健康與壓力管理', enrollments: 128, rating: 4.9 },
-      { name: '瑜伽與冥想課程', enrollments: 115, rating: 4.6 },
-      { name: '營養學概論', enrollments: 98, rating: 4.5 }
+      { name: 'FHIR標準與實作', enrollments: 245, rating: 4.8 },
+      { name: '電子病歷系統設計', enrollments: 198, rating: 4.9 },
+      { name: '醫療資訊標準規範', enrollments: 176, rating: 4.7 },
+      { name: '醫療數據分析基礎', enrollments: 165, rating: 4.8 },
+      { name: '醫療資訊安全實務', enrollments: 142, rating: 4.6 }
     ]);
 
     const popularTeachers = ref([
-      { name: '王大明', courses: 12, students: 1560, rating: 4.9 },
-      { name: '李小華', courses: 8, students: 1280, rating: 4.8 },
-      { name: '張教授', courses: 10, students: 1150, rating: 4.7 },
-      { name: '陳醫師', courses: 6, students: 980, rating: 4.8 },
-      { name: '林講師', courses: 7, students: 860, rating: 4.6 }
+      { name: '陳醫資', courses: 15, students: 1850, rating: 4.9 },
+      { name: '王資訊', courses: 12, students: 1560, rating: 4.8 },
+      { name: '李教授', courses: 10, students: 1280, rating: 4.8 },
+      { name: '張醫師', courses: 8, students: 980, rating: 4.7 },
+      { name: '林工程師', courses: 7, students: 860, rating: 4.6 }
     ]);
 
     onMounted(() => {
