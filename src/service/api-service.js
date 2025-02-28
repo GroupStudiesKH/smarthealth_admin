@@ -7,9 +7,9 @@ let apiUrl, homeUrl;
 if (currentHost === 'localhost') {
   apiUrl = "http://localhost:8000/api/";
   homeUrl = "http://localhost:5173/";
-} else if (currentHost.endsWith('.gs.hanyuan.info')) {
-  apiUrl = "https://api.gs.hanyuan.info/api/";
-  homeUrl = "https://admin.gs.hanyuan.info/";
+} else if (currentHost.endsWith('.hanyuan.info')) {
+  apiUrl = "https://api.smarthealth.hanyuan.info/api/";
+  homeUrl = "https://admin.smarthealth.hanyuan.info/";
 } else {
   // Default fallback, you might want to adjust this
   apiUrl = "http://localhost:8000/api/";
