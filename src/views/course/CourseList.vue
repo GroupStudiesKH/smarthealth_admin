@@ -32,15 +32,11 @@ export default {
     });
 
     // 修改过滤逻辑
-    const filteredCourses = computed(() => {
-      return courses.value.filter(course => {
-        const matchCategory = selectedCategory.value ? course.category === selectedCategory.value : true;
-        const matchStatus = selectedStatus.value ? course.status_raw === selectedStatus.value : true;
-        const matchQuery = course.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-          course.instructor.toLowerCase().includes(searchQuery.value.toLowerCase());
-        return matchCategory && matchStatus && matchQuery;
-      });
-    });
+    const handleFilter = async () => {
+      loading.value = true;
+      await fetchCourses();
+      loading.value = false;
+    };
 
     const router = useRouter();
     const route = useRoute();
@@ -100,9 +96,10 @@ export default {
       selectedCategory,
       selectedStatus,
       statuses,
-      filteredCourses,
+      handleFilter,
       handleEdit,
-      handleDelete
+      handleDelete,
+      loading
     };
   },
 };
@@ -137,19 +134,22 @@ export default {
                             </option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <select class="form-select" v-model="selectedStatus">
-                            <option value="">所有狀態</option>
-                            <option v-for="status in statuses" :key="status.value" :value="status.value">
-                                {{ status.label }}
-                            </option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <router-link to="/course/add" class="btn btn-primary">
-                            新增課程
-                            </router-link>
-                        </div>
+                          <div class="col-md-3">
+                              <select class="form-select" v-model="selectedStatus">
+                              <option value="">所有狀態</option>
+                              <option v-for="status in statuses" :key="status.value" :value="status.value">
+                                  {{ status.label }}
+                              </option>
+                              </select>
+                          </div>
+                          <div class="col-md-2">
+                              <button class="btn btn-primary mx-2" @click="handleFilter" :disabled="loading">
+                              篩選
+                              </button> 
+                              <router-link to="/course/add" class="btn btn-secondary">
+                              新增課程
+                              </router-link>
+                          </div>
                         </div>
                     </div>
                     </div>
@@ -175,7 +175,7 @@ export default {
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="course in filteredCourses" :key="course.id">
+                            <tr v-for="course in courses" :key="course.id">
                                 <td>{{ course.title }}</td>
                                 <td>{{ course.publishDate }}</td>
                                 <td>{{ course.instructor }}</td>
