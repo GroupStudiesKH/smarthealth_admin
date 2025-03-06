@@ -484,6 +484,18 @@ const objectToQueryString = (obj) => {
 
 
 
+const getCourses = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/course?${queryString}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   getServerToken,
@@ -491,6 +503,7 @@ export default {
   adminLogout,
   adminMe,
   adminEdit,
+  getCourses,
   getPlayers,
   getPlayer,
   updatePlayer,

@@ -1,5 +1,6 @@
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import apiService from "@/service/api-service";
 import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
@@ -12,123 +13,74 @@ export default {
     Sidebar,
   },
   setup() {
-    const courses = ref([
-      {
-        id: 1,
-        title: "除了資料統一，規則統一，還要有應用程式市集",
-        publishDate: "2023-12-01",
-        instructor: "王大明",
-        category: "醫療資訊系統",
-        tags: ["FHIR", "系統整合", "實務應用"],
-        status: "已上架",
-      },
-      {
-        id: 2,
-        title: "統一台灣電子病歷的策略思考",
-        publishDate: "2023-12-05",
-        instructor: "李小華",
-        category: "電子病歷",
-        tags: ["標準規範", "資料交換"],
-        status: "已上架",
-      },
-      {
-        id: 3,
-        title: "開發FHIR工具，FHIR資料中臺實現互通",
-        publishDate: "2023-12-10",
-        instructor: "張醫師",
-        category: "醫療資料交換",
-        tags: ["FHIR", "資料交換", "系統整合"],
-        status: "已上架",
-      },
-      {
-        id: 4,
-        title: "臺灣醫中電子病歷資料統一的架構",
-        publishDate: "2023-12-15",
-        instructor: "陳工程師",
-        category: "電子病歷",
-        tags: ["標準規範", "系統整合"],
-        status: "已上架",
-      },
-      {
-        id: 5,
-        title: "FHIR 統一資料，但是沒有統一規則",
-        publishDate: "2023-12-20",
-        instructor: "王大明",
-        category: "醫療標準規範",
-        tags: ["FHIR", "標準規範"],
-        status: "已上架",
-      },
-      {
-        id: 6,
-        title: "FHIR 統一資料",
-        publishDate: "2023-12-25",
-        instructor: "李小華",
-        category: "醫療資料交換",
-        tags: ["FHIR", "資料交換"],
-        status: "已上架",
-      },
-      {
-        id: 7,
-        title: "LOINC標準碼",
-        publishDate: "2023-12-30",
-        instructor: "張醫師",
-        category: "醫療標準規範",
-        tags: ["標準規範", "實務應用"],
-        status: "已上架",
-      },
-      {
-        id: 8,
-        title: "RxNorm",
-        publishDate: "2024-01-05",
-        instructor: "陳工程師",
-        category: "醫療標準規範",
-        tags: ["標準規範", "實務應用"],
-        status: "已上架",
-      },
-      {
-        id: 9,
-        title: "SNOMED CT",
-        publishDate: "2024-01-10",
-        instructor: "王大明",
-        category: "醫療標準規範",
-        tags: ["標準規範", "實務應用"],
-        status: "已上架",
-      },
-      {
-        id: 10,
-        title: "TW CDI",
-        publishDate: "2024-01-15",
-        instructor: "李小華",
-        category: "醫療標準規範",
-        tags: ["標準規範", "實務應用"],
-        status: "已上架",
-      },
-    ]);
+    const courses = ref([]);
+    const loading = ref(true);
+    const categories = ref([]);
+
+    const fetchCategories = async () => {
+      try {
+        const response = await apiService.getCategories();
+        categories.value = response.categories.map(c => c.name);
+      } catch (error) {
+        console.error('獲取分類失敗:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchCourses();
+      fetchCategories();
+    });
+
+    // 修改过滤逻辑
+    const filteredCourses = computed(() => {
+      return courses.value.filter(course => {
+        const matchCategory = selectedCategory.value ? course.category === selectedCategory.value : true;
+        const matchStatus = selectedStatus.value ? course.status_raw === selectedStatus.value : true;
+        const matchQuery = course.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          course.instructor.toLowerCase().includes(searchQuery.value.toLowerCase());
+        return matchCategory && matchStatus && matchQuery;
+      });
+    });
+
     const router = useRouter();
     const route = useRoute();
     const searchQuery = ref("");
     const selectedCategory = ref("");
     const selectedStatus = ref("");
 
-    const categories = ["醫療資訊系統", "電子病歷", "醫療標準規範", "醫療資料交換"];
-    const statuses = ["已上架", "未上架", "審核中"];
+    // 修改状态筛选参数映射
+    const statuses = ref([
+      { label: '已上架', value: 'publish' },
+      { label: '未上架', value: 'draft' },
+      { label: '審核中', value: 'pending' }
+    ]);
 
-    const filteredCourses = computed(() => {
-      return courses.value.filter((course) => {
-        const matchQuery =
-          course.title
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase()) ||
-          course.instructor
-            .toLowerCase()
-            .includes(searchQuery.value.toLowerCase());
-        const matchCategory =
-          !selectedCategory.value || course.category === selectedCategory.value;
-        const matchStatus =
-          !selectedStatus.value || course.status === selectedStatus.value;
-        return matchQuery && matchCategory && matchStatus;
-      });
-    });
+    // 修改API请求参数
+    const fetchCourses = async () => {
+      try {
+        const params = {
+          category: selectedCategory.value,
+          status: selectedStatus.value,
+          search: searchQuery.value,
+          pageSize: 99
+        };
+        const response = await apiService.getCourses(params);
+        courses.value = response.courses.map(course => ({
+          id: course.id,
+          title: course.title,
+          tags: course.tags,
+          category: course.categories[0] || '',
+          instructor: course.instructors.join(','),
+          status_raw: course.status, // 保留原始狀態值
+          status: statuses.value.find(s => s.value === course.status)?.label || course.status,
+          publishDate: new Date(course.created_at).toISOString().split('T')[0]
+        }));
+      } catch (error) {
+        console.error('获取课程失败:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     const handleEdit = (courseId) => {
       router.push(`/course/edit/${courseId}`);
@@ -147,7 +99,6 @@ export default {
       searchQuery,
       selectedCategory,
       selectedStatus,
-      categories,
       statuses,
       filteredCourses,
       handleEdit,
@@ -189,8 +140,8 @@ export default {
                         <div class="col-md-3">
                             <select class="form-select" v-model="selectedStatus">
                             <option value="">所有狀態</option>
-                            <option v-for="status in statuses" :key="status" :value="status">
-                                {{ status }}
+                            <option v-for="status in statuses" :key="status.value" :value="status.value">
+                                {{ status.label }}
                             </option>
                             </select>
                         </div>
