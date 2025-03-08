@@ -91,7 +91,7 @@ export default {
 
 
     onMounted(() => {
-      // checkAdminStatus();
+      checkAdminStatus();
       initMobileMenu();
     });
 
