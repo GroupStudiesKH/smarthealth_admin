@@ -496,6 +496,40 @@ const getCourses = async (params) => {
   }
 };
 
+const getCourse = async (id) => {
+  const requestConfig = scGet(`${apiUrl}admin/course/${id}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getTags = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getTagsOption = async (type) => {
+  const requestConfig = scGet(`${apiUrl}admin/tag/listall?type=${type}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   getServerToken,
@@ -504,6 +538,8 @@ export default {
   adminMe,
   adminEdit,
   getCourses,
+  getCourse,
+  getTagsOption,
   getPlayers,
   getPlayer,
   updatePlayer,
@@ -528,5 +564,6 @@ export default {
   getAdmin,
   deleteAdmin,
   updateAdmin,
-  registerAdmin
+  registerAdmin,
+  getTags
 };

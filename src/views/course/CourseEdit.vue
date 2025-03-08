@@ -5,6 +5,7 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import apiService from "@/service/api-service.js";
 
 export default {
   components: {
@@ -30,18 +31,6 @@ export default {
 
     const categories = ["醫療資訊系統", "電子病歷", "醫療標準規範", "醫療資料交換"];
     const availableTags = ["FHIR", "標準規範", "資料交換", "系統整合", "實務應用"];
-    const availableChapters = ref([
-      { id: 1, title: "除了資料統一，規則統一，還要有應用程式市集" },
-      { id: 2, title: "統一台灣電子病歷的策略思考" },
-      { id: 3, title: "開發FHIR工具，FHIR資料中臺實現互通"},
-      { id: 4, title: "臺灣醫中電子病歷資料統一的架構" },
-      { id: 5, title: "FHIR 統一資料，但是沒有統一規則" },
-      { id: 6, title: "FHIR 統一資料" },
-      { id: 7, title: "LOINC標準碼" },
-      { id: 8, title: "RxNorm" },
-      { id: 9, title: "SNOMED CT" },
-      { id: 10, title: "TW CDI" }
-    ]);
 
     const selectedTags = ref([]);
     const instructorSearchQuery = ref("");
@@ -64,45 +53,11 @@ export default {
       );
     });
 
-    // 過濾章節列表
-    const filteredChapters = computed(() => {
-      const query = chapterSearchQuery.value.toLowerCase();
-      return availableChapters.value.filter(chapter =>
-        chapter.title.toLowerCase().includes(query)
-      );
-    });
+
 
     const selectInstructor = (instructor) => {
       course.value.instructor = instructor.name;
       instructorSearchQuery.value = "";
-    };
-
-    const addChapter = () => {
-      course.value.chapters.push({
-        id: null,
-        title: "",
-        order: course.value.chapters.length + 1,
-      });
-    };
-
-    const removeChapter = (index) => {
-      course.value.chapters.splice(index, 1);
-      // 重新排序
-      course.value.chapters.forEach((chapter, idx) => {
-        chapter.order = idx + 1;
-      });
-    };
-
-    const getFilteredChapters = (query) => {
-      return availableChapters.value.filter(chapter =>
-        chapter.title.toLowerCase().includes(query.toLowerCase())
-      );
-    };
-
-    const selectChapter = (index, selectedChapter) => {
-      course.value.chapters[index].id = selectedChapter.id;
-      course.value.chapters[index].title = selectedChapter.title;
-      course.value.chapters[index].searchQuery = selectedChapter.title;
     };
 
     const saveCourse = () => {
@@ -162,8 +117,6 @@ export default {
       categories,
       availableTags,
       selectedTags,
-      addChapter,
-      removeChapter,
       saveCourse,
       route,
       handleCoverImageUpload,
@@ -173,10 +126,7 @@ export default {
       instructorSearchQuery,
       chapterSearchQuery,
       filteredInstructors,
-      filteredChapters,
-      selectInstructor,
-      getFilteredChapters,
-      selectChapter
+      selectInstructor
     };
   },
 };

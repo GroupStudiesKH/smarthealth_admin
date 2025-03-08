@@ -1,7 +1,10 @@
 <script>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service";
 
 export default {
   components: {
@@ -9,50 +12,78 @@ export default {
     Navbar,
     Sidebar
   },
-  data() {
-    return {
-      categories: [
-        { id: 1, name: '醫療資訊系統', courseCount: 15, createdAt: '2024-01-15' },
-        { id: 2, name: '電子病歷', courseCount: 12, createdAt: '2024-01-16' },
-        { id: 3, name: '醫療標準規範', courseCount: 8, createdAt: '2024-01-17' },
-        { id: 4, name: '醫療資料交換', courseCount: 10, createdAt: '2024-01-18' },
-        { id: 5, name: '醫療系統整合', courseCount: 6, createdAt: '2024-01-19' },
-        { id: 6, name: '醫療資訊安全', courseCount: 4, createdAt: '2024-01-20' },
-        { id: 7, name: '醫療數據分析', courseCount: 9, createdAt: '2024-01-21' },
-        { id: 8, name: '醫療雲端應用', courseCount: 11, createdAt: '2024-01-22' },
-        { id: 9, name: '遠距醫療', courseCount: 7, createdAt: '2024-01-23' },
-        { id: 10, name: '智慧醫療', courseCount: 13, createdAt: '2024-01-24' }
-      ],
-      searchQuery: '',
-      currentPage: 1,
-      pageSize: 10
+  setup() {
+    const router = useRouter();
+    const categories = ref([]);
+    const searchQuery = ref('');
+    const currentPage = ref(1);
+    const pageSize = ref(10);
+    const loading = ref(false);
+    const totalPages = ref(0)
+
+    
+    const fetchCategories = async () => {
+      loading.value = true;
+      try {
+        const response = await apiService.getTags({
+          type: 'category',
+          page: currentPage.value,
+          per_page: pageSize.value,
+          search: searchQuery.value
+        });
+        categories.value = response.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          courseCount: item.courses_count,
+          createdAt: item.created_at
+        }));
+
+        // 從 API 回應取得分頁資訊
+        pageSize.value = response.pagination.per_page;
+        totalPages.value = response.pagination.last_page;
+        currentPage.value = response.pagination.current_page;
+
+      } catch (error) {
+        console.error('獲取分類失敗:', error);
+      } finally {
+        loading.value = false;
+      }
     };
-  },
-  computed: {
-    filteredCategories() {
-      return this.categories.filter(category =>
-        category.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-    paginatedCategories() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      return this.filteredCategories.slice(start, end);
-    },
-    totalPages() {
-      return Math.ceil(this.filteredCategories.length / this.pageSize);
-    }
-  },
-  methods: {
-    handleEdit(id) {
-      this.$router.push(`/course/category/edit/${id}`);
-    },
-    handleDelete(id) {
+
+    const handleEdit = (id) => {
+      router.push(`/course/category/edit/${id}`);
+    };
+
+    const handleDelete = (id) => {
       console.log('刪除分類:', id);
-    },
-    changePage(page) {
-      this.currentPage = page;
-    }
+    };
+
+    const changePage = async (page) => {
+      currentPage.value = page;
+      await fetchCategories()
+    };
+
+    const handleSearch = () => {
+      currentPage.value = 1
+      fetchCategories()
+    };
+
+    onMounted(() => {
+      fetchCategories();
+    });
+
+    return {
+      categories,
+      searchQuery,
+      currentPage,
+      pageSize,
+      loading,
+      totalPages,
+      handleEdit,
+      handleDelete,
+      changePage,
+      handleSearch
+    };
   }
 };
 </script>
@@ -74,13 +105,20 @@ export default {
                 </div>
 
                 <!-- 搜尋欄位 -->
-                <div class="mb-3">
-                  <input
-                    type="text"
-                    class="form-control"
-                    v-model="searchQuery"
-                    placeholder="搜尋分類名稱"
-                  />
+                <div class="mb-3 d-flex row gap-2">
+                  <div class="col-auto">
+                    <input
+                        type="text"
+                        class="form-control"
+                        v-model="searchQuery"
+                        placeholder="搜尋分類名稱"
+                      />
+                    </div>
+                    <div class="col-auto">
+                      <button class="btn btn-primary" @click="handleSearch">
+                      搜尋
+                    </button>
+                  </div>
                 </div>
 
                 <div class="table-responsive">
@@ -94,7 +132,7 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="category in paginatedCategories" :key="category.id">
+                      <tr v-for="category in categories" :key="category.id">
                         <td>{{ category.name }}</td>
                         <td>{{ category.courseCount }}</td>
                         <td>{{ category.createdAt }}</td>
@@ -112,10 +150,10 @@ export default {
                 </div>
 
                 <!-- 分頁導航 -->
-                <nav class="mt-4" v-if="totalPages > 1">
+                <nav class="mt-4" v-if="totalPages > 0">
                   <ul class="pagination justify-content-center">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">
+                      <a class="page-link" href="#" @click.prevent="changePage(currentPage > 1 ? currentPage - 1 : 1)">
                         上一頁
                       </a>
                     </li>
@@ -130,7 +168,7 @@ export default {
                       </a>
                     </li>
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">
+                      <a class="page-link" href="#" @click.prevent="changePage(currentPage < totalPages ? currentPage + 1 : totalPages)">
                         下一頁
                       </a>
                     </li>
