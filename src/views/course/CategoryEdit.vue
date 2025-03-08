@@ -4,6 +4,8 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { useRouter, useRoute } from "vue-router";
+import apiService from "@/service/api-service.js";
+
 
 export default {
   components: {
@@ -16,18 +18,31 @@ export default {
     const route = useRoute();
     const categoryName = ref("");
 
-    onMounted(() => {
-      // 這裡之後可以加入 API 呼叫來獲取分類資料
-      // 目前先使用模擬資料
-      const categoryId = route.params.id;
-      console.log('載入分類:', categoryId);
-      categoryName.value = '模擬分類名稱';
+    const loading = ref(true);
+    const error = ref(null);
+
+    onMounted(async () => {
+      try {
+        const categoryId = route.params.id;
+        const response = await apiService.getTag(categoryId);
+        categoryName.value = response.name;
+      } catch (err) {
+        console.error('獲取分類失敗:', err);
+        error.value = '無法載入分類資料';
+      } finally {
+        loading.value = false;
+      }
     });
 
-    const handleSubmit = () => {
-      // 這裡之後可以加入 API 呼叫
-      console.log('更新分類:', route.params.id, categoryName.value);
-      router.push('/course/category');
+    const handleSubmit = async () => {
+      try {
+        const categoryId = route.params.id;
+        await apiService.editTag(categoryId, { name: categoryName.value });
+        router.push({name: 'category-list'});
+      } catch (err) {
+        console.error('更新失敗:', err);
+        error.value = '儲存分類時發生錯誤';
+      }
     };
 
     return {
@@ -64,13 +79,12 @@ export default {
                   </div>
 
                   <div class="d-flex justify-content-end">
-                    <button
-                      type="button"
+                    <router-link
                       class="btn btn-secondary me-2"
-                      @click="router.push('/course/category')"
+                      :to="{name: 'category-list'}"
                     >
                       取消
-                    </button>
+                    </router-link>
                     <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>

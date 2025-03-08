@@ -51,7 +51,7 @@ export default {
     };
 
     const handleEdit = (id) => {
-      router.push(`/course/category/edit/${id}`);
+      router.push(`/course/tag/edit/${id}`);
     };
 
     const handleDelete = (id) => {

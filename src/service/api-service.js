@@ -519,6 +519,41 @@ const getTags = async (params) => {
   }
 };
 
+const getTag = async (id) => {
+  const requestConfig = scGet(`${apiUrl}admin/tag/${id}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const addTag = async (formData) => {
+  const requestConfig = scPost(`${apiUrl}admin/tag`, formData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
+const editTag = async (id, formData) => {
+  const requestConfig = scPost(`${apiUrl}admin/tag/${id}`, formData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 const getTagsOption = async (type) => {
   const requestConfig = scGet(`${apiUrl}admin/tag/listall?type=${type}`);
 
@@ -565,5 +600,8 @@ export default {
   deleteAdmin,
   updateAdmin,
   registerAdmin,
-  getTags
+  getTags,
+  getTag,
+  addTag,
+  editTag
 };
