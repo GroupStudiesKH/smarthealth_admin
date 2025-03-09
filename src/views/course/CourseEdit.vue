@@ -28,6 +28,7 @@ export default {
       category: "",
       tags: [],
       chapters: [],
+      status: "",
       coverImage: null,
     });
 
@@ -60,6 +61,7 @@ export default {
           description: res.description,
           category: res.categories,
           tags: res.tags,
+          status: res.status,
         };
       } catch (error) {
         console.log(error);
@@ -106,9 +108,11 @@ export default {
     };
 
     const saveCourse = () => {
-      // 這裡實作儲存課程的邏輯
-      console.log("儲存課程", course.value);
-      router.push("/course/list");
+      try {
+        console.log(course.value)
+      } catch (error) {
+        console.log(error)
+      }
     };
 
     const handleCoverImageUpload = (event) => {
@@ -241,6 +245,15 @@ export default {
 
                   <div class="row">
                     <div class="col">
+
+                      <label class="form-label">狀態</label>
+                      <div class="d-flex flex-wrap gap-2">
+                        <select class="form-control" v-model="course.status">
+                          <option value="publish" >公開</option>
+                          <option value="unpublish">非公開</option>
+                        </select>
+                      </div>
+                      
                       <label class="form-label">課程標籤</label>
                       <div class="d-flex flex-wrap gap-2">
                         <multiselect
