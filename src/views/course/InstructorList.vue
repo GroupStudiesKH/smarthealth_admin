@@ -1,8 +1,9 @@
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service.js";
 
 export default {
   components: {
@@ -11,111 +12,21 @@ export default {
     Sidebar,
   },
   setup() {
-    const instructors = ref([
-      {
-        id: 1,
-        name: "王大明",
-        note: "醫療資訊系統架構師",
-        created_at: "2023-12-01",
-      },
-      {
-        id: 2,
-        name: "李小華",
-        note: "FHIR標準規範專家",
-        created_at: "2023-12-05",
-      },
-      {
-        id: 3,
-        name: "張醫師",
-        note: "資深臨床醫師兼醫資顧問",
-        created_at: "2023-12-08",
-      },
-      {
-        id: 4,
-        name: "陳工程師",
-        note: "醫療系統整合專家",
-        created_at: "2023-12-10",
-      },
-      {
-        id: 5,
-        name: "林博士",
-        note: "醫療資訊標準研究員",
-        created_at: "2023-12-15",
-      },
-      {
-        id: 6,
-        name: "黃教授",
-        note: "醫療資訊學系教授",
-        created_at: "2023-12-18",
-      },
-      {
-        id: 7,
-        name: "吳資訊長",
-        note: "醫院資訊部主管",
-        created_at: "2023-12-20",
-      },
-      {
-        id: 8,
-        name: "周顧問",
-        note: "醫療資訊安全顧問",
-        created_at: "2023-12-22",
-      },
-      {
-        id: 9,
-        name: "楊工程師",
-        note: "電子病歷系統開發者",
-        created_at: "2023-12-25",
-      },
-      {
-        id: 10,
-        name: "謝專家",
-        note: "醫療數據分析專家",
-        created_at: "2023-12-28",
-      },
-      {
-        id: 11,
-        name: "劉博士",
-        note: "醫療AI研究員",
-        created_at: "2024-01-02",
-      },
-      {
-        id: 12,
-        name: "鄭經理",
-        note: "醫療軟體產品經理",
-        created_at: "2024-01-05",
-      },
-      {
-        id: 13,
-        name: "蔡醫師",
-        note: "臨床資訊系統顧問",
-        created_at: "2024-01-08",
-      },
-      {
-        id: 14,
-        name: "許工程師",
-        note: "醫療介面設計專家",
-        created_at: "2024-01-10",
-      }
-    ]);
+    const instructors = ref([]);
+    const pagination = ref({
+      current_page: 1,
+      total: 0,
+      per_page: 10
+    });
 
     const searchQuery = ref("");
     const currentPage = ref(1);
-    const pageSize = 10;
+    const totalPages = ref(0)
 
     const filteredInstructors = computed(() => {
       return instructors.value.filter((instructor) =>
         instructor.name.toLowerCase().includes(searchQuery.value.toLowerCase())
       );
-    });
-
-    const paginatedInstructors = computed(() => {
-      const start = (currentPage.value - 1) * pageSize;
-      const end = start + pageSize;
-      return filteredInstructors.value.slice(start, end);
-    });
-
-    const totalPages = computed(() => {
-      return Math.ceil(filteredInstructors.value.length / pageSize);
     });
 
     const deleteInstructor = (id) => {
@@ -127,18 +38,48 @@ export default {
     };
 
     const changePage = (page) => {
-      currentPage.value = page;
+      pagination.value.current_page = page;
+      fetchInstructors();
     };
+
+    const fetchInstructors = async () => {
+      try {
+        const response = await apiService.getInstructors({
+          page: pagination.value.current_page,
+          per_page: pagination.value.per_page,
+          search: searchQuery.value
+        });
+        
+        instructors.value = response.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          note: item.note,
+          created_at: item.created_at
+        }));
+
+    
+        pagination.value.total = response.pagination.total;
+        pagination.value.per_page = response.pagination.per_page;
+        totalPages.value = response.pagination.last_page
+        currentPage.value = response.pagination.current_page;
+      } catch (error) {
+        console.error('獲取講師列表失敗:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchInstructors();
+    });
 
     return {
       instructors,
       searchQuery,
       filteredInstructors,
-      paginatedInstructors,
       currentPage,
       totalPages,
       deleteInstructor,
       changePage,
+      pagination
     };
   },
 };
@@ -184,7 +125,7 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="instructor in paginatedInstructors" :key="instructor.id">
+                      <tr v-for="instructor in instructors" :key="instructor.id">
                         <td>{{ instructor.name }}</td>
                         <td>{{ instructor.note }}</td>
                         <td>{{ instructor.created_at }}</td>
@@ -226,7 +167,8 @@ export default {
                       v-for="page in totalPages"
                       :key="page"
                       class="page-item"
-                      :class="{ active: currentPage === page }"
+                      :class="{ active: pagination.current_page === page }"
+                      v-show="Math.abs(page - pagination.current_page) <= 2 || page === 1 || page === totalPages"
                     >
                       <a
                         class="page-link"

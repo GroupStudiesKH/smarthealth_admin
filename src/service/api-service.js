@@ -507,6 +507,29 @@ const getCourse = async (id) => {
   }
 };
 
+const getInstructors = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/instructor?${queryString}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getInstructorsOption = async () => {
+  const requestConfig = scGet(`${apiUrl}admin/instructor/listall`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -615,5 +638,7 @@ export default {
   getTag,
   addTag,
   editTag,
-  delTag
+  delTag,
+  getInstructors,
+  getInstructorsOption
 };
