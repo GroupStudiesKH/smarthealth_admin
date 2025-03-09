@@ -4,14 +4,16 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import apiService from "@/service/api-service.js";
+import multiselect from "vue-multiselect";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    multiselect,
   },
   setup() {
     const route = useRoute();
@@ -26,7 +28,7 @@ export default {
       category: "",
       tags: [],
       chapters: [],
-      coverImage: null
+      coverImage: null,
     });
 
     const categories = ref([]);
@@ -37,70 +39,67 @@ export default {
     const chapterSearchQuery = ref("");
 
     // 模擬的講師列表
-    const availableInstructors = ref([]);
+    const availableInstructors = ref([]); // 确保初始化为空数组
 
-    // 過濾講師列表
-    const filteredInstructors = computed(() => {
-      const query = instructorSearchQuery.value.toLowerCase();
-      return availableInstructors.value.filter(instructor =>
-        instructor.name.toLowerCase().includes(query) ||
-        instructor.position.toLowerCase().includes(query)
-      );
-    });
+    const nameWithPos  = ({name, position}) => {
+      return `${name} (${position})`
+    }
 
+    // 修改课程获取逻辑
     const getCourse = async () => {
       try {
         const courseID = route.params.id;
         const res = await apiService.getCourse(courseID);
+
+        // 等待讲师数据加载完成
+        await getInstructor();
+
         course.value = {
           title: res.title,
-          instructor: res.instructor,
+          instructors: res.instructors,
           description: res.description,
-          // category: res.category.find(item => item.id === res.category)?.id || '',
-          // tags: res.tags.map(item => item.id),
-          
-        }
+          category: res.categories,
+          tags: res.tags,
+        };
+
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
 
-    const getInstructor = async() => {
-
+    const getInstructor = async () => {
       try {
         // 獲取講師
         const instructorRes = await apiService.getInstructorsOption();
-        availableInstructors.value = instructorRes.map(item => ({
+        availableInstructors.value = instructorRes.map((item) => ({
           id: item.id,
           name: item.name,
-          position: item.position || ''
+          position: item.position || "",
         }));
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
 
-
-    const getTags = async() => {
+    const getTags = async () => {
       try {
         // 獲取標籤
-        const tagRes = await apiService.getTags({ type: 'tag' });
-        availableTags.value = tagRes.data.map(item => item.name);
+        const tagRes = await apiService.getTags({ type: "tag" });
+        availableTags.value = tagRes.data
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
 
-    const getCategory = async() => {
+    const getCategory = async () => {
       try {
         // 獲取分類
-        const categoryRes = await apiService.getTags({ type: 'category' });
-        categories.value = categoryRes.data.map(item => item.name);
+        const categoryRes = await apiService.getTags({ type: "category" });
+        categories.value = categoryRes.data;
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
-
 
     const selectInstructor = (instructor) => {
       course.value.instructor = instructor.name;
@@ -131,21 +130,19 @@ export default {
     };
 
     onMounted(async () => {
-      editor.value = ClassicEditor
-        .create(document.querySelector('#editor'))
-        .catch(error => {
-          console.error(error);
-        });
+      editor.value = ClassicEditor.create(
+        document.querySelector("#editor")
+      ).catch((error) => {
+        console.error(error);
+      });
 
       try {
-
-        getTags()
-        getCategory()
-        getInstructor()
-        await getCourse()
-
+        getTags();
+        getCategory();
+        getInstructor();
+        await getCourse();
       } catch (error) {
-        console.error('資料獲取失敗:', error);
+        console.error("資料獲取失敗:", error);
       }
     });
 
@@ -162,8 +159,9 @@ export default {
       editor,
       instructorSearchQuery,
       chapterSearchQuery,
-      filteredInstructors,
-      selectInstructor
+      selectInstructor,
+      availableInstructors,
+      nameWithPos
     };
   },
 };
@@ -197,46 +195,34 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">講師</label>
-                    <div class="position-relative">
-                      <input
-                        type="text"
-                        class="form-control"
-                        v-model="instructorSearchQuery"
-                        placeholder="搜尋講師..."
-                      />
-                      <div v-if="instructorSearchQuery && filteredInstructors.length > 0" 
-                           class="dropdown-menu show position-absolute w-100" 
-                           style="z-index: 1000;">
-                        <a v-for="instructor in filteredInstructors" 
-                           :key="instructor.id"
-                           class="dropdown-item"
-                           href="#"
-                           @click.prevent="selectInstructor(instructor)">
-                          {{ instructor.name }} ({{ instructor.position }})
-                        </a>
-                      </div>
-                    </div>
-                    <div v-if="course.instructor" class="mt-2">
-                      已選擇講師：{{ course.instructor }}
-                    </div>
+                    <multiselect
+                      v-model="course.instructors"
+                      :options="availableInstructors"
+                      :custom-label="nameWithPos"
+                      placeholder="Select one"
+                      label="name"
+                      track-by="name"
+                      aria-label="pick a value"
+                      :multiple="true"
+                    >
+                      <template v-slot:singleLabel="{ option }"
+                        ><strong>{{ option.name }}</strong> ({{ option.position }})</template>
+                    </multiselect>
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label">課程分類</label>
-                    <select
-                      class="form-select"
+                    <multiselect
                       v-model="course.category"
-                      required
+                      :options="categories"
+                      placeholder="Select one"
+                      label="name"
+                      track-by="name"
+                      aria-label="pick a value"
                     >
-                      <option value="">請選擇分類</option>
-                      <option
-                        v-for="category in categories"
-                        :key="category"
-                        :value="category"
-                      >
-                        {{ category }}
-                      </option>
-                    </select>
+                      <template v-slot:singleLabel="{ option }"
+                        ><strong>{{ option.name }}</strong></template>
+                    </multiselect>
                   </div>
 
                   <div class="mb-3">
@@ -247,22 +233,8 @@ export default {
                   <div class="mb-3">
                     <label class="form-label">課程標籤</label>
                     <div class="d-flex flex-wrap gap-2">
-                      <div
-                        v-for="tag in availableTags"
-                        :key="tag"
-                        class="form-check"
-                      >
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          :id="`tag-${tag}`"
-                          :value="tag"
-                          v-model="selectedTags"
-                        />
-                        <label class="form-check-label" :for="`tag-${tag}`">
-                          {{ tag }}
-                        </label>
-                      </div>
+                      <multiselect id="tagging" v-model="course.tags" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="name"
+                      track-by="id" :options="availableTags" :multiple="true" :taggable="true"></multiselect>
                     </div>
                   </div>
 
@@ -272,7 +244,11 @@ export default {
                     <div class="cover-image-container">
                       <div v-if="coverImagePreview" class="cover-preview">
                         <img :src="coverImagePreview" alt="課程封面預覽" />
-                        <button type="button" class="btn btn-danger btn-sm" @click="removeCoverImage">
+                        <button
+                          type="button"
+                          class="btn btn-danger btn-sm"
+                          @click="removeCoverImage"
+                        >
                           移除封面
                         </button>
                       </div>
@@ -287,12 +263,11 @@ export default {
                     </div>
                   </div>
 
-
                   <!-- 提交按鈕 -->
                   <div class="d-flex justify-content-end gap-2">
                     <router-link
                       class="btn btn-secondary me-2"
-                      :to="{name: 'courseList'}"
+                      :to="{ name: 'courseList' }"
                     >
                       取消
                     </router-link>
@@ -307,7 +282,7 @@ export default {
     </div>
   </div>
 </template>
-
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
 .cover-image-container {
   max-width: 400px;
