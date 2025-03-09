@@ -29,30 +29,60 @@ export default {
       coverImage: null
     });
 
-    const categories = ["醫療資訊系統", "電子病歷", "醫療標準規範", "醫療資料交換"];
-    const availableTags = ["FHIR", "標準規範", "資料交換", "系統整合", "實務應用"];
+    const categories = ref([]);
+    const availableTags = ref([]);
 
     const selectedTags = ref([]);
     const instructorSearchQuery = ref("");
     const chapterSearchQuery = ref("");
 
     // 模擬的講師列表
-    const availableInstructors = ref([
-      { id: 1, name: "王教授", specialty: "醫療資訊系統" },
-      { id: 2, name: "李博士", specialty: "電子病歷" },
-      { id: 3, name: "張醫師", specialty: "醫療標準規範" },
-      { id: 4, name: "陳工程師", specialty: "醫療資料交換" },
-    ]);
+    const availableInstructors = ref([]);
 
     // 過濾講師列表
     const filteredInstructors = computed(() => {
       const query = instructorSearchQuery.value.toLowerCase();
       return availableInstructors.value.filter(instructor =>
         instructor.name.toLowerCase().includes(query) ||
-        instructor.specialty.toLowerCase().includes(query)
+        instructor.title.toLowerCase().includes(query)
       );
     });
 
+    const getInstructor = async() => {
+
+      try {
+        // 獲取講師
+        const instructorRes = await apiService.getInstructorsOption();
+        availableInstructors.value = instructorRes.map(item => ({
+          id: item.id,
+          name: item.name,
+          title: item.title || ''
+        }));
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+
+    const getTags = async() => {
+      try {
+        // 獲取標籤
+        const tagRes = await apiService.getTags({ type: 'tag' });
+        availableTags.value = tagRes.data.map(item => item.name);
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+    const getCategory = async() => {
+      try {
+        // 獲取分類
+        const categoryRes = await apiService.getTags({ type: 'category' });
+        categories.value = categoryRes.data.map(item => item.name);
+      } catch (error) {
+        console.log(error)
+      }
+    };
 
 
     const selectInstructor = (instructor) => {
@@ -83,32 +113,40 @@ export default {
       course.value.coverImage = null;
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       editor.value = ClassicEditor
         .create(document.querySelector('#editor'))
         .catch(error => {
           console.error(error);
         });
 
-      const courseId = route.params.id;
-      if (courseId) {
-        // 如果是編輯模式，載入課程資料
-        // 這裡模擬從API獲取資料
-        course.value = {
-          title: "基礎健康管理課程",
-          instructor: "王大明",
-          content: "課程簡介內容...",
-          category: "健康管理",
-          tags: ["基礎", "入門"],
-          chapters: [
-            {
-              title: "第一章：健康管理概論",
-              content: "章節內容...",
-              order: 1,
-            },
-          ],
-        };
-        selectedTags.value = course.value.tags;
+      try {
+
+        getTags()
+        getCategory()
+        getInstructor()
+
+        const courseId = route.params.id;
+        if (courseId) {
+          // 這裡模擬從API獲取資料
+          course.value = {
+            title: "基礎健康管理課程",
+            instructor: "王大明",
+            content: "課程簡介內容...",
+            category: "健康管理",
+            tags: ["基礎", "入門"],
+            chapters: [
+              {
+                title: "第一章：健康管理概論",
+                content: "章節內容...",
+                order: 1,
+              },
+            ],
+          };
+          selectedTags.value = course.value.tags;
+        }
+      } catch (error) {
+        console.error('資料獲取失敗:', error);
       }
     });
 
