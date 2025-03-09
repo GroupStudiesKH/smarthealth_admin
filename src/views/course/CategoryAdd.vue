@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
+import apiService from "@/service/api-service.js";
+
 
 export default {
   components: {
@@ -15,10 +17,24 @@ export default {
     const router = useRouter();
     const categoryName = ref("");
 
-    const handleSubmit = () => {
-      // 這裡之後可以加入 API 呼叫
-      console.log('新增分類:', categoryName.value);
-      router.push('/course/category');
+    const loading = ref(false);
+    const error = ref(null);
+
+    const handleSubmit = async () => {
+      loading.value = true;
+      error.value = null;
+      try {
+        await apiService.addTag({
+          name: categoryName.value,
+          type: 'category'
+        });
+        router.push('/course/category');
+      } catch (err) {
+        console.error('新增失敗:', err);
+        error.value = '新增分類時發生錯誤，請稍後再試';
+      } finally {
+        loading.value = false;
+      }
     };
 
     return {
@@ -55,13 +71,12 @@ export default {
                   </div>
 
                   <div class="d-flex justify-content-end">
-                    <button
-                      type="button"
+                    <router-link
                       class="btn btn-secondary me-2"
-                      @click="router.push('/course/category')"
+                      :to="{name: 'category-list'}"
                     >
                       取消
-                    </button>
+                    </router-link>
                     <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>
