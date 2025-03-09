@@ -519,6 +519,17 @@ const getInstructors = async (params) => {
   }
 };
 
+const getInstructor = async (id) => {
+  const requestConfig = scGet(`${apiUrl}admin/instructor/${id}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getInstructorsOption = async () => {
   const requestConfig = scGet(`${apiUrl}admin/instructor/listall`);
 
@@ -640,5 +651,6 @@ export default {
   editTag,
   delTag,
   getInstructors,
+  getInstructor,
   getInstructorsOption
 };

@@ -4,6 +4,8 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service.js";
+
 
 export default {
   components: {
@@ -15,27 +17,45 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const imagePreview = ref(null);
+    const loading = ref(false);
+    const instructor = ref({})
 
-    const instructor = ref({
-      name: "",
-      title: "",
-      description: "",
-      note: "",
-      image: null
-    });
+    const getInstructor = async () => {
+      try {
+        loading.value = true;
+        const response = await apiService.getInstructor(route.params.id);
+        instructor.value = response
+        if (instructor.value.photo) {
+          imagePreview.value = `${import.meta.env.VITE_API_URL}/${instructor.value.photo}`;
+        }
+      } catch (error) {
+        alert('取得講師資料失敗');
+        router.push('/course/instructor');
+      } finally {
+        loading.value = false;
+      }
+    }
 
-    onMounted(() => {
-      // TODO: 根據 ID 載入講師資料
-      const instructorId = route.params.id;
-      // 模擬 API 載入資料
-      instructor.value = {
-        name: "王大明",
-        title: "醫療資訊系統架構師",
-        description: "擁有超過15年的醫療資訊系統開發和架構設計經驗，專精於醫院資訊系統(HIS)、電子病歷系統(EMR)的規劃與建置。曾主導多家大型醫院的系統整合專案，對FHIR標準的實務應用有豐富經驗。",
-        note: "醫療資訊系統架構認證、HL7 FHIR認證專家",
-        image: null
-      };
-    });
+    const saveInstructor = async () => {
+      loading.value = true;
+      try {
+        const formData = new FormData();
+        formData.append('name', instructor.value.name);
+        formData.append('position', instructor.value.title);
+        formData.append('description', instructor.value.description);
+        formData.append('note', instructor.value.note);
+        if (instructor.value.image instanceof File) {
+          formData.append('photo', instructor.value.image);
+        }
+
+        await apiService.updateInstructor(route.params.id, formData);
+        router.push('/course/instructor');
+      } catch (error) {
+        alert('更新失敗：' + error.message);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
@@ -54,11 +74,9 @@ export default {
       imagePreview.value = null;
     };
 
-    const saveInstructor = () => {
-      // TODO: 實作更新講師資料的 API 呼叫
-      console.log("更新講師資料:", instructor.value);
-      router.push("/course/instructor");
-    };
+    onMounted(() => {
+      getInstructor()
+    });
 
     return {
       instructor,
@@ -120,7 +138,7 @@ export default {
                     <input
                       type="text"
                       class="form-control"
-                      v-model="instructor.title"
+                      v-model="instructor.position"
                       required
                     />
                   </div>
