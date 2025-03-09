@@ -552,6 +552,33 @@ const delInstructor = async (id) => {
   }
 };
 
+const updateInstructor = async (id, inputData) => {
+
+  const requestConfig = scPost(`${apiUrl}admin/instructor/${id}`, inputData, false);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
+const addInstructor = async (inputData) => {
+
+  const requestConfig = scPost(`${apiUrl}admin/instructor`, inputData, false);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -664,5 +691,7 @@ export default {
   getInstructors,
   getInstructor,
   delInstructor,
-  getInstructorsOption
+  getInstructorsOption,
+  addInstructor,
+  updateInstructor
 };

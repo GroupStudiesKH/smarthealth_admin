@@ -1,9 +1,11 @@
 <script>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service.js";
+
 
 export default {
   components: {
@@ -13,8 +15,9 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const imagePreview = ref(null);
-
+    const loading = ref(false)
     const instructor = ref({
       name: "",
       title: "",
@@ -22,6 +25,27 @@ export default {
       note: "",
       image: null
     });
+
+    const saveInstructor = async () => {
+      loading.value = true;
+      try {
+        const formData = new FormData();
+        formData.append('name', instructor.value.name);
+        formData.append('position', instructor.value.title);
+        formData.append('description', instructor.value.description);
+        formData.append('note', instructor.value.note);
+        if (instructor.value.image instanceof File) {
+          formData.append('photo', instructor.value.image);
+        }
+
+        await apiService.addInstructor(formData);
+        router.push('/course/instructor');
+      } catch (error) {
+        alert('更新失敗：' + error.message);
+      } finally {
+        loading.value = false;
+      }
+    };
 
     const handleImageUpload = (event) => {
       const file = event.target.files[0];
@@ -38,12 +62,6 @@ export default {
     const removeImage = () => {
       instructor.value.image = null;
       imagePreview.value = null;
-    };
-
-    const saveInstructor = () => {
-      // TODO: 實作儲存講師資料的 API 呼叫
-      console.log("儲存講師資料:", instructor.value);
-      router.push("/course/instructor");
     };
 
     return {
@@ -134,7 +152,7 @@ export default {
                     <router-link to="/course/instructor" class="btn btn-secondary me-2">
                       取消
                     </router-link>
-                    <button type="submit" class="btn btn-primary">儲存</button>
+                    <button type="submit" class="btn btn-primary" @click="saveInstructor()">儲存</button>
                   </div>
                 </form>
               </div>

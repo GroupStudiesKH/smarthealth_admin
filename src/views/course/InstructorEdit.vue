@@ -26,7 +26,7 @@ export default {
         const response = await apiService.getInstructor(route.params.id);
         instructor.value = response
         if (instructor.value.photo) {
-          imagePreview.value = `${import.meta.env.VITE_API_URL}/${instructor.value.photo}`;
+          imagePreview.value = `${instructor.value.photo}`;
         }
       } catch (error) {
         alert('取得講師資料失敗');
@@ -41,7 +41,7 @@ export default {
       try {
         const formData = new FormData();
         formData.append('name', instructor.value.name);
-        formData.append('position', instructor.value.title);
+        formData.append('position', instructor.value.position);
         formData.append('description', instructor.value.description);
         formData.append('note', instructor.value.note);
         if (instructor.value.image instanceof File) {
