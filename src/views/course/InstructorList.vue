@@ -22,6 +22,7 @@ export default {
     const searchQuery = ref("");
     const currentPage = ref(1);
     const totalPages = ref(0)
+    const deleteID = ref('')
 
     const handleSearch = () => {
       currentPage.value = 1;
@@ -29,12 +30,17 @@ export default {
     };
 
     const deleteInstructor = (id) => {
-      if (confirm("確定要刪除此講師嗎？")) {
-        instructors.value = instructors.value.filter(
-          (instructor) => instructor.id !== id
-        );
-      }
+      deleteID.value = id
     };
+
+    const delInstructor = () => {
+      apiService.delInstructor(deleteID.value).then(response => {
+        fetchInstructors();
+        $('#delConfirmModal').modal('hide');
+      }).catch(error => {
+        console.error('刪除講師失敗:', error);
+      });
+    }
 
     const changePage = (page) => {
       currentPage.value = page;
@@ -78,7 +84,8 @@ export default {
       totalPages,
       deleteInstructor,
       changePage,
-      pagination
+      pagination,
+      delInstructor
     };
   },
 };
@@ -146,7 +153,7 @@ export default {
                           </router-link>
                           <button
                             class="btn btn-sm btn-outline-danger"
-                            @click="deleteInstructor(instructor.id)"
+                            @click="deleteInstructor(instructor.id)" data-bs-toggle="modal" data-bs-target="#delConfirmModal"
                           >
                             刪除
                           </button>
@@ -205,6 +212,26 @@ export default {
           </div>
         </div>
       </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="delConfirmModal" tabindex="-1" aria-labelledby="delConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="delConfirmModalLabel">確認刪除？</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+            </div>
+            <div class="modal-body">
+              請確認是否刪除
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+              <button type="button" class="btn btn-primary" @click="delInstructor()">確認</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   </div>

@@ -541,6 +541,17 @@ const getInstructorsOption = async () => {
   }
 };
 
+const delInstructor = async (id) => {
+  const requestConfig = scDelete(`${apiUrl}admin/instructor/${id}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -652,5 +663,6 @@ export default {
   delTag,
   getInstructors,
   getInstructor,
+  delInstructor,
   getInstructorsOption
 };
