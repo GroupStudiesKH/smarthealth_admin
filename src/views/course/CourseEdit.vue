@@ -22,7 +22,7 @@ export default {
     const course = ref({
       title: "",
       instructor: "",
-      content: "",
+      description: "",
       category: "",
       tags: [],
       chapters: [],
@@ -44,9 +44,26 @@ export default {
       const query = instructorSearchQuery.value.toLowerCase();
       return availableInstructors.value.filter(instructor =>
         instructor.name.toLowerCase().includes(query) ||
-        instructor.title.toLowerCase().includes(query)
+        instructor.position.toLowerCase().includes(query)
       );
     });
+
+    const getCourse = async () => {
+      try {
+        const courseID = route.params.id;
+        const res = await apiService.getCourse(courseID);
+        course.value = {
+          title: res.title,
+          instructor: res.instructor,
+          description: res.description,
+          // category: res.category.find(item => item.id === res.category)?.id || '',
+          // tags: res.tags.map(item => item.id),
+          
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
 
     const getInstructor = async() => {
 
@@ -56,7 +73,7 @@ export default {
         availableInstructors.value = instructorRes.map(item => ({
           id: item.id,
           name: item.name,
-          title: item.title || ''
+          position: item.position || ''
         }));
       } catch (error) {
         console.log(error)
@@ -125,26 +142,8 @@ export default {
         getTags()
         getCategory()
         getInstructor()
+        await getCourse()
 
-        const courseId = route.params.id;
-        if (courseId) {
-          // 這裡模擬從API獲取資料
-          course.value = {
-            title: "基礎健康管理課程",
-            instructor: "王大明",
-            content: "課程簡介內容...",
-            category: "健康管理",
-            tags: ["基礎", "入門"],
-            chapters: [
-              {
-                title: "第一章：健康管理概論",
-                content: "章節內容...",
-                order: 1,
-              },
-            ],
-          };
-          selectedTags.value = course.value.tags;
-        }
       } catch (error) {
         console.error('資料獲取失敗:', error);
       }
@@ -213,7 +212,7 @@ export default {
                            class="dropdown-item"
                            href="#"
                            @click.prevent="selectInstructor(instructor)">
-                          {{ instructor.name }} ({{ instructor.specialty }})
+                          {{ instructor.name }} ({{ instructor.position }})
                         </a>
                       </div>
                     </div>
@@ -242,7 +241,7 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">課程簡介</label>
-                    <div id="editor"></div>
+                    <div id="editor">{{ course.description }}</div>
                   </div>
 
                   <div class="mb-3">
@@ -291,13 +290,12 @@ export default {
 
                   <!-- 提交按鈕 -->
                   <div class="d-flex justify-content-end gap-2">
-                    <button
-                      type="button"
-                      class="btn btn-secondary"
-                      @click="router.push('/course/list')"
+                    <router-link
+                      class="btn btn-secondary me-2"
+                      :to="{name: 'courseList'}"
                     >
                       取消
-                    </button>
+                    </router-link>
                     <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>
