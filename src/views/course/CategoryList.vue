@@ -121,18 +121,18 @@ export default {
 
                 <!-- 搜尋欄位 -->
                 <div class="mb-3 d-flex row gap-2">
-                  <div class="col-auto">
-                    <input
-                        type="text"
-                        class="form-control"
-                        v-model="searchQuery"
-                        placeholder="搜尋分類名稱"
-                      />
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <input
+                          type="text"
+                          class="form-control"
+                          v-model="searchQuery"
+                          placeholder="搜尋分類名稱"
+                        />
+                        <button class="btn btn-primary" @click="handleSearch">
+                        搜尋
+                      </button>
                     </div>
-                    <div class="col-auto">
-                      <button class="btn btn-primary" @click="handleSearch">
-                      搜尋
-                    </button>
                   </div>
                 </div>
 

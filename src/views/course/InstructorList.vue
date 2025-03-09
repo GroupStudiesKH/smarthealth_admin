@@ -23,11 +23,10 @@ export default {
     const currentPage = ref(1);
     const totalPages = ref(0)
 
-    const filteredInstructors = computed(() => {
-      return instructors.value.filter((instructor) =>
-        instructor.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-      );
-    });
+    const handleSearch = () => {
+      currentPage.value = 1;
+      fetchInstructors();
+    };
 
     const deleteInstructor = (id) => {
       if (confirm("確定要刪除此講師嗎？")) {
@@ -38,14 +37,14 @@ export default {
     };
 
     const changePage = (page) => {
-      pagination.value.current_page = page;
+      currentPage.value = page;
       fetchInstructors();
     };
 
     const fetchInstructors = async () => {
       try {
         const response = await apiService.getInstructors({
-          page: pagination.value.current_page,
+          page: currentPage.value,
           per_page: pagination.value.per_page,
           search: searchQuery.value
         });
@@ -74,7 +73,7 @@ export default {
     return {
       instructors,
       searchQuery,
-      filteredInstructors,
+      handleSearch,
       currentPage,
       totalPages,
       deleteInstructor,
@@ -105,12 +104,21 @@ export default {
 
                 <div class="row mb-4">
                   <div class="col-md-4">
-                    <input
-                      type="text"
-                      class="form-control"
-                      v-model="searchQuery"
-                      placeholder="搜尋講師名稱"
-                    />
+                    <div class="input-group">
+                      <input
+                        type="text"
+                        class="form-control"
+                        v-model="searchQuery"
+                        placeholder="搜尋講師名稱"
+                      />
+                      <button
+                        class="btn btn-primary"
+                        type="button"
+                        @click="handleSearch"
+                      >
+                        搜尋
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -158,7 +166,7 @@ export default {
                       <a
                         class="page-link"
                         href="#"
-                        @click.prevent="changePage(currentPage - 1)"
+                        @click.prevent="changePage(currentPage)"
                       >
                         上一頁
                       </a>
@@ -167,7 +175,7 @@ export default {
                       v-for="page in totalPages"
                       :key="page"
                       class="page-item"
-                      :class="{ active: pagination.current_page === page }"
+                      :class="{ active: currentPage === page }"
                       v-show="Math.abs(page - pagination.current_page) <= 2 || page === 1 || page === totalPages"
                     >
                       <a
