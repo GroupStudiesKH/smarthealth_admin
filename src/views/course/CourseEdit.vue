@@ -41,9 +41,9 @@ export default {
     // 模擬的講師列表
     const availableInstructors = ref([]); // 确保初始化为空数组
 
-    const nameWithPos  = ({name, position}) => {
-      return `${name} (${position})`
-    }
+    const nameWithPos = ({ name, position }) => {
+      return `${name} (${position})`;
+    };
 
     // 修改课程获取逻辑
     const getCourse = async () => {
@@ -61,7 +61,6 @@ export default {
           category: res.categories,
           tags: res.tags,
         };
-
       } catch (error) {
         console.log(error);
       }
@@ -85,7 +84,7 @@ export default {
       try {
         // 獲取標籤
         const tagRes = await apiService.getTags({ type: "tag" });
-        availableTags.value = tagRes.data
+        availableTags.value = tagRes.data;
       } catch (error) {
         console.log(error);
       }
@@ -130,17 +129,17 @@ export default {
     };
 
     onMounted(async () => {
-      editor.value = ClassicEditor.create(
-        document.querySelector("#editor")
-      ).catch((error) => {
-        console.error(error);
-      });
-
       try {
         getTags();
         getCategory();
         getInstructor();
         await getCourse();
+
+        editor.value = ClassicEditor.create(
+          document.querySelector("#editor")
+        ).catch((error) => {
+          console.error(error);
+        });
       } catch (error) {
         console.error("資料獲取失敗:", error);
       }
@@ -161,7 +160,7 @@ export default {
       chapterSearchQuery,
       selectInstructor,
       availableInstructors,
-      nameWithPos
+      nameWithPos,
     };
   },
 };
@@ -193,36 +192,46 @@ export default {
                     />
                   </div>
 
-                  <div class="mb-3">
-                    <label class="form-label">講師</label>
-                    <multiselect
-                      v-model="course.instructors"
-                      :options="availableInstructors"
-                      :custom-label="nameWithPos"
-                      placeholder="Select one"
-                      label="name"
-                      track-by="name"
-                      aria-label="pick a value"
-                      :multiple="true"
-                    >
-                      <template v-slot:singleLabel="{ option }"
-                        ><strong>{{ option.name }}</strong> ({{ option.position }})</template>
-                    </multiselect>
-                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label">講師</label>
+                        <multiselect
+                          v-model="course.instructors"
+                          :options="availableInstructors"
+                          :custom-label="nameWithPos"
+                          placeholder="Select one"
+                          label="name"
+                          track-by="name"
+                          aria-label="pick a value"
+                          :multiple="true"
+                        >
+                          <template v-slot:singleLabel="{ option }"
+                            ><strong>{{ option.name }}</strong> ({{
+                              option.position
+                            }})</template
+                          >
+                        </multiselect>
+                      </div>
+                    </div>
 
-                  <div class="mb-3">
-                    <label class="form-label">課程分類</label>
-                    <multiselect
-                      v-model="course.category"
-                      :options="categories"
-                      placeholder="Select one"
-                      label="name"
-                      track-by="name"
-                      aria-label="pick a value"
-                    >
-                      <template v-slot:singleLabel="{ option }"
-                        ><strong>{{ option.name }}</strong></template>
-                    </multiselect>
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label">課程分類</label>
+                        <multiselect
+                          v-model="course.category"
+                          :options="categories"
+                          placeholder="Select one"
+                          label="name"
+                          track-by="name"
+                          aria-label="pick a value"
+                        >
+                          <template v-slot:singleLabel="{ option }"
+                            ><strong>{{ option.name }}</strong></template
+                          >
+                        </multiselect>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -230,35 +239,45 @@ export default {
                     <div id="editor">{{ course.description }}</div>
                   </div>
 
-                  <div class="mb-3">
-                    <label class="form-label">課程標籤</label>
-                    <div class="d-flex flex-wrap gap-2">
-                      <multiselect id="tagging" v-model="course.tags" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="name"
-                      track-by="id" :options="availableTags" :multiple="true" :taggable="true"></multiselect>
-                    </div>
-                  </div>
-
-                  <!-- 封面照片上傳 -->
-                  <div class="mb-3">
-                    <label class="form-label">課程封面照片</label>
-                    <div class="cover-image-container">
-                      <div v-if="coverImagePreview" class="cover-preview">
-                        <img :src="coverImagePreview" alt="課程封面預覽" />
-                        <button
-                          type="button"
-                          class="btn btn-danger btn-sm"
-                          @click="removeCoverImage"
-                        >
-                          移除封面
-                        </button>
+                  <div class="row">
+                    <div class="col">
+                      <label class="form-label">課程標籤</label>
+                      <div class="d-flex flex-wrap gap-2">
+                        <multiselect
+                          id="tagging"
+                          v-model="course.tags"
+                          tag-placeholder="Add this as new tag"
+                          placeholder="Search or add a tag"
+                          label="name"
+                          track-by="id"
+                          :options="availableTags"
+                          :multiple="true"
+                          :taggable="true"
+                        ></multiselect>
                       </div>
-                      <div v-else class="upload-placeholder">
-                        <input
-                          type="file"
-                          class="form-control"
-                          accept="image/*"
-                          @change="handleCoverImageUpload"
-                        />
+                    </div>
+
+                    <div class="col">
+                      <label class="form-label">課程封面照片</label>
+                      <div class="cover-image-container">
+                        <div v-if="coverImagePreview" class="cover-preview">
+                          <img :src="coverImagePreview" alt="課程封面預覽" />
+                          <button
+                            type="button"
+                            class="btn btn-danger btn-sm"
+                            @click="removeCoverImage"
+                          >
+                            移除封面
+                          </button>
+                        </div>
+                        <div v-else class="upload-placeholder">
+                          <input
+                            type="file"
+                            class="form-control"
+                            accept="image/*"
+                            @change="handleCoverImageUpload"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -313,6 +332,21 @@ export default {
 }
 .page-header {
   margin-bottom: 1.5rem;
+}
+
+/* CKEditor 高度设置 */
+::v-deep #editor {
+  min-height: 400px;
+}
+
+::v-deep .ck-editor__main {
+  height: calc(100% - 40px);
+}
+
+::v-deep .ck-editor__editable {
+  min-height: 360px !important;
+  height: auto !important;
+  overflow-y: auto;
 }
 
 .editor-container {
