@@ -106,6 +106,7 @@ export default {
                       class="form-control"
                       accept="image/*"
                       @change="handleImageUpload"
+                      required
                     />
                     <div v-if="imagePreview" class="mt-2">
                       <img :src="imagePreview" class="img-thumbnail" style="max-width: 200px" />
@@ -152,7 +153,7 @@ export default {
                     <router-link to="/course/instructor" class="btn btn-secondary me-2">
                       取消
                     </router-link>
-                    <button type="submit" class="btn btn-primary" @click="saveInstructor()">儲存</button>
+                    <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>
               </div>
