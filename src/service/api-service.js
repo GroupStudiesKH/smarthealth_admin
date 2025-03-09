@@ -530,6 +530,17 @@ const getTag = async (id) => {
   }
 };
 
+const delTag = async (id) => {
+  const requestConfig = scDelete(`${apiUrl}admin/tag/${id}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const addTag = async (formData) => {
   const requestConfig = scPost(`${apiUrl}admin/tag`, formData);
 
@@ -603,5 +614,6 @@ export default {
   getTags,
   getTag,
   addTag,
-  editTag
+  editTag,
+  delTag
 };

@@ -20,6 +20,7 @@ export default {
     const pageSize = ref(10);
     const loading = ref(false);
     const totalPages = ref(0)
+    const deleteId = ref('')
 
     
     const fetchCategories = async () => {
@@ -55,7 +56,19 @@ export default {
     };
 
     const handleDelete = (id) => {
-      console.log('刪除標籤:', id);
+      deleteId.value = id
+    };
+
+    const delTag = async () => {
+      try {
+        await apiService.delTag(deleteId.value);
+        fetchCategories();
+
+        // 關閉 Modal
+        $('#delConfirmModal').modal('hide');
+      } catch (error) {
+        console.error('刪除標籤失敗:', error);
+      }
     };
 
     const changePage = async (page) => {
@@ -82,7 +95,8 @@ export default {
       handleEdit,
       handleDelete,
       changePage,
-      handleSearch
+      handleSearch,
+      delTag
     };
   }
 };
@@ -140,7 +154,7 @@ export default {
                           <button class="btn btn-sm btn-outline-primary me-2" @click="handleEdit(category.id)">
                             編輯
                           </button>
-                          <button class="btn btn-sm btn-outline-danger" @click="handleDelete(category.id)">
+                          <button class="btn btn-sm btn-outline-danger" @click="handleDelete(category.id)" data-bs-toggle="modal" data-bs-target="#delConfirmModal">
                             刪除
                           </button>
                         </td>
@@ -179,6 +193,27 @@ export default {
           </div>
         </div>
       </div>
+
+
+      <!-- Modal -->
+      <div class="modal fade" id="delConfirmModal" tabindex="-1" aria-labelledby="delConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="delConfirmModalLabel">確認刪除？</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+            </div>
+            <div class="modal-body">
+              請確認是否刪除
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+              <button type="button" class="btn btn-primary" @click="delTag()">確認</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <Footer />
     </div>
