@@ -542,6 +542,17 @@ const updateCourse = async (id, inputData) => {
   }
 };
 
+const createCourse = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/course`, inputData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getInstructors = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/instructor?${queryString}`);
@@ -692,6 +703,7 @@ export default {
   adminEdit,
   getCourses,
   getCourse,
+  createCourse,
   updateCourse,
   getTagsOption,
   getPlayers,

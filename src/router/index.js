@@ -163,7 +163,7 @@ const router = createRouter({
     {
       path: '/course/add',
       name: 'CourseAdd',
-      component: () => import('../views/course/CourseEdit.vue'),
+      component: () => import('../views/course/CourseAdd.vue'),
       meta: {
         title: '新增課程',
         requiresAuth: true

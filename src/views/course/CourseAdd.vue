@@ -1,0 +1,393 @@
+<script>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import Footer from "@/components/Footer.vue";
+import Navbar from "@/components/Navbar.vue";
+import Sidebar from "@/components/Sidebar.vue";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import apiService from "@/service/api-service.js";
+import multiselect from "vue-multiselect";
+import UploadAdapter from "@/utils/UploadAdapter";
+
+export default {
+  components: {
+    Footer,
+    Navbar,
+    Sidebar,
+    multiselect,
+  },
+  setup() {
+    const router = useRouter();
+    const editor = ref(null);
+    const coverImagePreview = ref(null);
+    const isUploading = ref(false);
+    const uploadStatusText = ref("");
+
+    const course = ref({
+      title: "",
+      instructors: [],
+      description: "",
+      category: null,
+      tags: [],
+      status: "publish",
+      coverImage: null,
+    });
+
+    const categories = ref([]);
+    const availableTags = ref([]);
+    const availableInstructors = ref([]);
+
+    const nameWithPos = ({ name, position }) => {
+      return `${name} (${position})`;
+    };
+
+    const getInstructor = async () => {
+      try {
+        const instructorRes = await apiService.getInstructorsOption();
+        availableInstructors.value = instructorRes.map((item) => ({
+          id: item.id,
+          name: item.name,
+          position: item.position || "",
+        }));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getTags = async () => {
+      try {
+        const tagRes = await apiService.getTags({ type: "tag" });
+        availableTags.value = tagRes.data;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const getCategory = async () => {
+      try {
+        const categoryRes = await apiService.getTags({ type: "category" });
+        categories.value = categoryRes.data;
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const saveCourse = async () => {
+      try {
+        const sendForm = {
+          title: course.value.title,
+          instructors: course.value.instructors.map(
+            (instructor) => instructor.id
+          ),
+          description: course.value.description,
+          tags: course.value.tags.map((item) => item.id),
+          status: course.value.status,
+          coverImage: course.value.coverImage,
+          categories: course.value.category?.id
+            ? [course.value.category.id]
+            : [],
+        };
+
+        await apiService.createCourse(sendForm);
+        router.push({ name: "courseList" });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const handleCoverImageUpload = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        try {
+          isUploading.value = true;
+          uploadStatusText.value = "上傳中...";
+
+          const response = await apiService.courseImgUpload(file);
+          course.value.coverImage = response.url;
+          coverImagePreview.value = response.url;
+          uploadStatusText.value = "上傳完成";
+        } catch (error) {
+          uploadStatusText.value = "上傳失敗：" + error.message;
+          course.value.coverImage = "";
+          event.target.value = "";
+        } finally {
+          isUploading.value = false;
+        }
+      }
+    };
+
+    const removeCoverImage = () => {
+      coverImagePreview.value = null;
+      course.value.coverImage = null;
+    };
+
+    onMounted(async () => {
+      try {
+        getTags();
+        getCategory();
+        getInstructor();
+
+        editor.value = await ClassicEditor.create(
+          document.querySelector("#editor"),
+          {
+            removePlugins: ["Markdown"],
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+            toolbar: [
+              "heading",
+              "|",
+              "bold",
+              "italic",
+              "link",
+              "bulletedList",
+              "numberedList",
+              "blockQuote",
+              "imageUpload",
+            ],
+            heading: {
+              options: [
+                {
+                  model: "paragraph",
+                  title: "Paragraph",
+                  class: "ck-heading_paragraph",
+                },
+                {
+                  model: "heading1",
+                  view: "h2",
+                  title: "Heading 1",
+                  class: "ck-heading_heading1",
+                },
+                {
+                  model: "heading2",
+                  view: "h3",
+                  title: "Heading 2",
+                  class: "ck-heading_heading2",
+                },
+              ],
+            },
+          }
+        ).then((editorInstance) => {
+          editorInstance.model.document.on("change:data", () => {
+            course.value.description = editorInstance.getData();
+          });
+          return editorInstance;
+        });
+      } catch (error) {
+        console.error("初始化失敗:", error);
+      }
+    });
+
+    function MyCustomUploadAdapterPlugin(editor) {
+      editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+        return new UploadAdapter(loader);
+      };
+    }
+
+    return {
+      course,
+      categories,
+      availableTags,
+      saveCourse,
+      handleCoverImageUpload,
+      removeCoverImage,
+      coverImagePreview,
+      editor,
+      availableInstructors,
+      nameWithPos,
+    };
+  },
+};
+</script>
+
+<template>
+  <div class="main-wrapper">
+    <Sidebar />
+    <div class="page-wrapper">
+      <Navbar />
+
+      <div class="page-content">
+        <div class="row mb-4">
+          <div class="col-12 mx-auto stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h6 class="card-title">新增課程</h6>
+
+                <form @submit.prevent="saveCourse">
+                  <div class="mb-3">
+                    <label class="form-label">課程標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="course.title"
+                      required
+                    />
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label">講師</label>
+                        <multiselect
+                          v-model="course.instructors"
+                          :options="availableInstructors"
+                          :custom-label="nameWithPos"
+                          placeholder="選擇講師"
+                          label="name"
+                          track-by="name"
+                          :multiple="true"
+                        >
+                          <template v-slot:singleLabel="{ option }">
+                            <strong>{{ option.name }}</strong> ({{
+                              option.position
+                            }})
+                          </template>
+                        </multiselect>
+                      </div>
+                    </div>
+
+                    <div class="col">
+                      <div class="mb-3">
+                        <label class="form-label">課程分類</label>
+                        <multiselect
+                          v-model="course.category"
+                          :options="categories"
+                          placeholder="選擇分類"
+                          label="name"
+                          track-by="id"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程標籤</label>
+                    <multiselect
+                      v-model="course.tags"
+                      :options="availableTags"
+                      placeholder="選擇標籤"
+                      label="name"
+                      track-by="id"
+                      :multiple="true"
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程封面</label>
+                    <div v-if="coverImagePreview" class="mb-2">
+                      <img
+                        :src="coverImagePreview"
+                        alt="封面預覽"
+                        class="img-thumbnail"
+                        style="max-width: 200px"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-sm ms-2"
+                        @click="removeCoverImage"
+                      >
+                        移除封面
+                      </button>
+                    </div>
+                    <div class="input-group">
+                      <input
+                        type="file"
+                        class="form-control"
+                        accept="image/*"
+                        @change="handleCoverImageUpload"
+                      />
+                    </div>
+                    <div v-if="isUploading" class="text-muted mt-2">
+                      {{ uploadStatusText }}
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程描述</label>
+                    <div id="editor"></div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程狀態</label>
+                    <select
+                      class="form-select"
+                      v-model="course.status"
+                      required
+                    >
+                      <option value="publish">公開</option>
+                      <option value="unpublish">非公開</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary me-2">
+                    建立課程
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-light"
+                    @click="router.push({ name: 'courseList' })"
+                  >
+                    取消
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </div>
+  </div>
+</template>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<style scoped>
+.cover-image-container {
+  max-width: 400px;
+}
+
+.cover-preview {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.cover-preview img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.cover-preview button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.upload-placeholder {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 4px;
+}
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+/* CKEditor 高度设置 */
+::v-deep #editor {
+  min-height: 400px;
+}
+
+::v-deep .ck-editor__main {
+  height: calc(100% - 40px);
+}
+
+::v-deep .ck-editor__editable {
+  min-height: 360px !important;
+  height: auto !important;
+  overflow-y: auto;
+}
+
+.editor-container {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+</style>
