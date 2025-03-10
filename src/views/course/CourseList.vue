@@ -19,8 +19,8 @@ export default {
 
     const fetchCategories = async () => {
       try {
-        const response = await apiService.getCategories();
-        categories.value = response.categories.map(c => c.name);
+        const response = await apiService.getTagsOption('category');
+        categories.value = response
       } catch (error) {
         console.error('獲取分類失敗:', error);
       }
@@ -55,7 +55,7 @@ export default {
     const fetchCourses = async () => {
       try {
         const params = {
-          category: selectedCategory.value,
+          category_id: selectedCategory.value,
           status: selectedStatus.value,
           search: searchQuery.value,
           pageSize: 99
@@ -99,7 +99,8 @@ export default {
       handleFilter,
       handleEdit,
       handleDelete,
-      loading
+      loading,
+      categories
     };
   },
 };
@@ -129,8 +130,8 @@ export default {
                         <div class="col-md-3">
                             <select class="form-select" v-model="selectedCategory">
                             <option value="">所有分類</option>
-                            <option v-for="category in categories" :key="category" :value="category">
-                                {{ category }}
+                            <option v-for="category in categories" :key="category.id" :value="category.id">
+                                {{ category.name }}
                             </option>
                             </select>
                         </div>
