@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import apiService from "@/service/api-service.js";
 import multiselect from "vue-multiselect";
+import UploadAdapter from "@/utils/UploadAdapter";
 
 export default {
   components: {
@@ -18,11 +19,10 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const apiUrl = apiService.apiUrl;
     const editor = ref(null);
     const coverImagePreview = ref(null);
     const isUploading = ref(false);
-    const uploadStatusText = ref('');
+    const uploadStatusText = ref("");
 
     const course = ref({
       title: "",
@@ -37,7 +37,7 @@ export default {
 
     const categories = ref([]);
     const availableTags = ref([]);
-    
+
     const selectedTags = ref([]);
     const instructorSearchQuery = ref("");
     const chapterSearchQuery = ref("");
@@ -118,22 +118,24 @@ export default {
         const courseID = route.params.id;
         let sendForm = {
           title: course.value.title,
-          instructors: course.value.instructors.map((instructor) => instructor.id),
+          instructors: course.value.instructors.map(
+            (instructor) => instructor.id
+          ),
           description: course.value.description,
           tags: course.value.tags.map((item) => item.id),
           status: course.value.status,
-          coverImage: course.value.coverImage
+          coverImage: course.value.coverImage,
+        };
+
+        if (course.value.category?.id) {
+          sendForm.categories = [course.value.category.id];
         }
 
-        if(course.value.category?.id){
-          sendForm.categories = [course.value.category.id]
-        }
-
-        await apiService.updateCourse(courseID, sendForm)
+        await apiService.updateCourse(courseID, sendForm);
 
         router.push({ name: "courseList" });
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
 
@@ -142,16 +144,16 @@ export default {
       if (file) {
         try {
           isUploading.value = true;
-          uploadStatusText.value = '上傳中...';
-          
+          uploadStatusText.value = "上傳中...";
+
           const response = await apiService.courseImgUpload(file);
           course.value.coverImage = response.url;
           coverImagePreview.value = response.url;
-          uploadStatusText.value = '上傳完成';
+          uploadStatusText.value = "上傳完成";
         } catch (error) {
-          uploadStatusText.value = '上傳失敗：' + error.message;
-          course.value.coverImage = '';
-          event.target.value = '';
+          uploadStatusText.value = "上傳失敗：" + error.message;
+          course.value.coverImage = "";
+          event.target.value = "";
         } finally {
           isUploading.value = false;
         }
@@ -171,37 +173,66 @@ export default {
         await getCourse();
 
         editor.value = await ClassicEditor.create(
-          document.querySelector("#editor"), {
-            removePlugins: ['Markdown'],
-            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload'],
+          document.querySelector("#editor"),
+          {
+            removePlugins: ["Markdown"],
+            extraPlugins: [MyCustomUploadAdapterPlugin],
+            toolbar: [
+              "heading",
+              "|",
+              "bold",
+              "italic",
+              "link",
+              "bulletedList",
+              "numberedList",
+              "blockQuote",
+              "imageUpload",
+            ],
             heading: {
               options: [
-                { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                { model: 'heading1', view: 'h2', title: 'Heading 1', class: 'ck-heading_heading1' },
-                { model: 'heading2', view: 'h3', title: 'Heading 2', class: 'ck-heading_heading2' }
-              ]
+                {
+                  model: "paragraph",
+                  title: "Paragraph",
+                  class: "ck-heading_paragraph",
+                },
+                {
+                  model: "heading1",
+                  view: "h2",
+                  title: "Heading 1",
+                  class: "ck-heading_heading1",
+                },
+                {
+                  model: "heading2",
+                  view: "h3",
+                  title: "Heading 2",
+                  class: "ck-heading_heading2",
+                },
+              ],
             },
-            image: {
-              upload: {
-                types: ['jpeg', 'png', 'gif', 'bmp', 'webp'],
-                adapter: (loader) => new UploadAdapter(loader)
-              }
-            }
           }
         )
-        .then(editorInstance => {
-          editorInstance.model.document.on('change:data', () => {
-            course.value.description = editorInstance.getData();
+          .then((editorInstance) => {
+            editorInstance.model.document.on("change:data", () => {
+              course.value.description = editorInstance.getData();
+            });
+            return editorInstance;
+          })
+          .catch((error) => {
+            console.error(error);
           });
-          return editorInstance;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
       } catch (error) {
         console.error("資料獲取失敗:", error);
       }
     });
+
+
+    function MyCustomUploadAdapterPlugin(editor){
+      editor.plugins.get("FileRepository").createUploadAdapter = (
+        loader
+      ) => {
+        return new UploadAdapter(loader);
+      };
+    };
 
     return {
       course,
@@ -222,43 +253,6 @@ export default {
     };
   },
 };
-
-class UploadAdapter {
-      constructor(loader) {
-        this.loader = loader;
-        this.url = `${apiUrl}admin/course/img-upload`;
-      }
-
-      async upload() {
-        const file = await this.loader.file;
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-          const response = await fetch(this.url, {
-            method: 'POST',
-            headers: {
-              'X-CSRF-TOKEN': csrfToken,
-              'Authorization': `Bearer ${apiService.getServerToken()}`
-            },
-            body: formData
-          });
-
-          const data = await response.json();
-
-          if (!response.ok) throw new Error(data.message || '上傳失敗');
-
-          return {
-            default: data.url
-          };
-        } catch (error) {
-          console.error('上傳錯誤:', error);
-          throw error;
-        }
-      }
-    }
 </script>
 <template>
   <div class="main-wrapper">
@@ -336,15 +330,14 @@ class UploadAdapter {
 
                   <div class="row">
                     <div class="col">
-
                       <label class="form-label">狀態</label>
                       <div class="d-flex flex-wrap gap-2">
                         <select class="form-control" v-model="course.status">
-                          <option value="publish" >公開</option>
+                          <option value="publish">公開</option>
                           <option value="unpublish">非公開</option>
                         </select>
                       </div>
-                      <br>
+                      <br />
                       <label class="form-label">課程標籤</label>
                       <div class="d-flex flex-wrap gap-2">
                         <multiselect

@@ -403,7 +403,7 @@ const uploadImage = async (imageFile) => {
 
 const courseImgUpload = async (imageFile) => {
   const formData = new FormData();
-  formData.append('upload', imageFile);
+  formData.append('file', imageFile);
 
 
   try {
