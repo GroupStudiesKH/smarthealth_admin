@@ -59,7 +59,7 @@ export default {
           title: res.title,
           instructors: res.instructors,
           description: res.description,
-          category: res.categories,
+          category: res.categories[0],
           tags: res.tags,
           status: res.status,
         };
@@ -107,9 +107,24 @@ export default {
       instructorSearchQuery.value = "";
     };
 
-    const saveCourse = () => {
+    const saveCourse = async () => {
       try {
-        console.log(course.value)
+        const courseID = route.params.id;
+        let sendForm = {
+          title: course.value.title,
+          instructors: course.value.instructors.map((instructor) => instructor.id),
+          description: course.value.description,
+          tags: course.value.tags.map((item) => item.id),
+          status: course.value.status,
+        }
+
+        if(course.value.category?.id){
+          sendForm.categories = [course.value.category.id]
+        }
+
+        await apiService.updateCourse(courseID, sendForm)
+
+        // router.push({ name: "courseList" });
       } catch (error) {
         console.log(error)
       }
@@ -253,7 +268,7 @@ export default {
                           <option value="unpublish">非公開</option>
                         </select>
                       </div>
-                      
+                      <br>
                       <label class="form-label">課程標籤</label>
                       <div class="d-flex flex-wrap gap-2">
                         <multiselect
