@@ -131,7 +131,7 @@ export default {
 
         await apiService.updateCourse(courseID, sendForm)
 
-        // router.push({ name: "courseList" });
+        router.push({ name: "courseList" });
       } catch (error) {
         console.log(error)
       }
