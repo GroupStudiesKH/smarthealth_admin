@@ -154,9 +154,26 @@ export default {
         getInstructor();
         await getCourse();
 
-        editor.value = ClassicEditor.create(
-          document.querySelector("#editor")
-        ).catch((error) => {
+        editor.value = await ClassicEditor.create(
+          document.querySelector("#editor"), {
+            removePlugins: ['Markdown'],
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
+            heading: {
+              options: [
+                { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                { model: 'heading1', view: 'h2', title: 'Heading 1', class: 'ck-heading_heading1' },
+                { model: 'heading2', view: 'h3', title: 'Heading 2', class: 'ck-heading_heading2' }
+              ]
+            }
+          }
+        )
+        .then(editorInstance => {
+          editorInstance.model.document.on('change:data', () => {
+            course.value.description = editorInstance.getData();
+          });
+          return editorInstance;
+        })
+        .catch((error) => {
           console.error(error);
         });
       } catch (error) {
@@ -255,7 +272,7 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">課程簡介</label>
-                    <div id="editor">{{ course.description }}</div>
+                    <div id="editor" v-html="course.description"></div>
                   </div>
 
                   <div class="row">
