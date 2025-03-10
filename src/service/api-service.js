@@ -401,6 +401,30 @@ const uploadImage = async (imageFile) => {
   }
 }
 
+const courseImgUpload = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('upload', imageFile);
+
+
+  try {
+    const response = await axios.post(`${apiUrl}admin/course/img-upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...getServerToken() ? { 'Authorization': `Bearer ${getServerToken()}` } : {},
+      },
+    });
+
+    if (response.status === 200 && response.data && response.data.url) {
+      return response.data;
+    } else {
+      throw new Error('Invalid response from server');
+    }
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
+}
+
 const getAdmins = async () => {
   const requestConfig = scGet(`${apiUrl}admin/list`);
 
@@ -690,6 +714,7 @@ export default {
   deletePost,
   createPost,
   uploadImage,
+  courseImgUpload,
   getAdmins,
   getAdmin,
   deleteAdmin,

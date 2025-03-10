@@ -18,8 +18,11 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
+    const apiUrl = apiService.apiUrl;
     const editor = ref(null);
     const coverImagePreview = ref(null);
+    const isUploading = ref(false);
+    const uploadStatusText = ref('');
 
     const course = ref({
       title: "",
@@ -34,7 +37,7 @@ export default {
 
     const categories = ref([]);
     const availableTags = ref([]);
-
+    
     const selectedTags = ref([]);
     const instructorSearchQuery = ref("");
     const chapterSearchQuery = ref("");
@@ -62,7 +65,10 @@ export default {
           category: res.categories[0],
           tags: res.tags,
           status: res.status,
+          coverImage: res.media[0].media_url,
         };
+
+        coverImagePreview.value = course.value.coverImage;
       } catch (error) {
         console.log(error);
       }
@@ -116,6 +122,7 @@ export default {
           description: course.value.description,
           tags: course.value.tags.map((item) => item.id),
           status: course.value.status,
+          coverImage: course.value.coverImage
         }
 
         if(course.value.category?.id){
@@ -130,15 +137,24 @@ export default {
       }
     };
 
-    const handleCoverImageUpload = (event) => {
+    const handleCoverImageUpload = async (event) => {
       const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          coverImagePreview.value = e.target.result;
-          course.value.coverImage = file;
-        };
-        reader.readAsDataURL(file);
+        try {
+          isUploading.value = true;
+          uploadStatusText.value = '上傳中...';
+          
+          const response = await apiService.courseImgUpload(file);
+          course.value.coverImage = response.url;
+          coverImagePreview.value = response.url;
+          uploadStatusText.value = '上傳完成';
+        } catch (error) {
+          uploadStatusText.value = '上傳失敗：' + error.message;
+          course.value.coverImage = '';
+          event.target.value = '';
+        } finally {
+          isUploading.value = false;
+        }
       }
     };
 
@@ -157,13 +173,19 @@ export default {
         editor.value = await ClassicEditor.create(
           document.querySelector("#editor"), {
             removePlugins: ['Markdown'],
-            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote'],
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'imageUpload'],
             heading: {
               options: [
                 { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
                 { model: 'heading1', view: 'h2', title: 'Heading 1', class: 'ck-heading_heading1' },
                 { model: 'heading2', view: 'h3', title: 'Heading 2', class: 'ck-heading_heading2' }
               ]
+            },
+            image: {
+              upload: {
+                types: ['jpeg', 'png', 'gif', 'bmp', 'webp'],
+                adapter: (loader) => new UploadAdapter(loader)
+              }
             }
           }
         )
@@ -200,6 +222,43 @@ export default {
     };
   },
 };
+
+class UploadAdapter {
+      constructor(loader) {
+        this.loader = loader;
+        this.url = `${apiUrl}admin/course/img-upload`;
+      }
+
+      async upload() {
+        const file = await this.loader.file;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const response = await fetch(this.url, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': csrfToken,
+              'Authorization': `Bearer ${apiService.getServerToken()}`
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.message || '上傳失敗');
+
+          return {
+            default: data.url
+          };
+        } catch (error) {
+          console.error('上傳錯誤:', error);
+          throw error;
+        }
+      }
+    }
 </script>
 <template>
   <div class="main-wrapper">
@@ -312,7 +371,7 @@ export default {
                             class="btn btn-danger btn-sm"
                             @click="removeCoverImage"
                           >
-                            移除封面
+                            更換封面
                           </button>
                         </div>
                         <div v-else class="upload-placeholder">
@@ -399,3 +458,4 @@ export default {
   border-radius: 0.25rem;
 }
 </style>
+
