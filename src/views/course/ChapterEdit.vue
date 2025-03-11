@@ -18,11 +18,9 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const editor = ref(null);
-    const isLoading = ref(false);
-    const showModal = ref(false);
-    const modalMessage = ref("");
     const courseId = route.params.courseId;
     const chapterId = route.params.chapterId;
+    const isLoading = ref(false)
 
     const chapter = ref({
       title: "",
@@ -68,25 +66,18 @@ export default {
         chapter.value = results;
       } catch (error) {
         console.error("獲取章節數據失敗:", error);
-        modalMessage.value = "獲取章節數據失敗，請稍後再試";
-        showModal.value = true;
+        alert(`獲取章節數據失敗`)
       }
     };
 
     const saveChapter = async () => {
       isLoading.value = true;
       try {
-        console.log("保存章節:", chapter.value);
-        modalMessage.value = "保存成功";
-        showModal.value = true;
-
         await apiService.updateChapter(courseId, chapterId, chapter.value)
-
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
         console.error("保存章節失敗:", error);
-        modalMessage.value = "保存失敗，請稍後再試";
-        showModal.value = true;
+        alert(`保存章節失敗`)
       } finally {
         isLoading.value = false;
       }
@@ -190,8 +181,6 @@ export default {
       chapter,
       isUploading,
       isLoading,
-      showModal,
-      modalMessage,
       saveChapter,
       handlePdfUpload,
       handleVideoUpload,
@@ -392,53 +381,12 @@ export default {
         </div>
       </div>
       
-      <div
-        class="modal bd-example-modal-sm"
-        id="messageModal"
-        :class="{ 'd-block': showModal, 'modal-backdrop': showModal }"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="messageModalLabel"
-        aria-hidden="true"
-        v-if="showModal"
-      >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="messageModalLabel">系統提示</h5>
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                @click="showModal = false"
-              ></button>
-            </div>
-            <div class="modal-body">
-              {{ modalMessage }}
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-                @click="showModal = false"
-              >
-                關閉
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
       <Footer />
     </div>
   </div>
 </template>
 
 <style scoped>
-.modal.show {
-  background-color: rgba(0, 0, 0, 0.5);
-}
 
 .video-preview {
   border: 1px solid #dee2e6;
