@@ -506,6 +506,16 @@ const objectToQueryString = (obj) => {
   return queryParams.join('&');
 }
 
+const getChapters = async (courseId) => {
+  const requestConfig = scGet(`${apiUrl}admin/course/${courseId}/chapter`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 const getCourses = async (params) => {
@@ -742,5 +752,6 @@ export default {
   delInstructor,
   getInstructorsOption,
   addInstructor,
-  updateInstructor
+  updateInstructor,
+  getChapters
 };
