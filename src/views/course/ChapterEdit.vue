@@ -89,13 +89,33 @@ export default {
       }
     };
 
-    const handlePdfUpload = (event) => {
+    const isUploading = ref(false);
+    const uploadStatusText = ref('');
+
+    const handlePdfUpload = async (event) => {
       const file = event.target.files[0];
       if (file && file.type === "application/pdf") {
-        chapter.value.pdf_file_url = file;
+        try {
+          isUploading.value = true;
+          uploadStatusText.value = "PDF上傳中...";
+
+          const response = await apiService.chapterPDFUpload(file);
+
+          if (response.status) {
+            chapter.value.pdf_file_url = response.content;
+            uploadStatusText.value = "";
+          }
+        } catch (error) {
+          uploadStatusText.value = "PDF上傳失敗：" + error.message;
+          event.target.value = "";
+        } finally {
+          isUploading.value = false;
+          setTimeout(() => {
+            uploadStatusText.value = "";
+          }, 3000);
+        }
       } else {
-        modalMessage.value = "請上傳PDF格式的檔案";
-        showModal.value = true;
+        uploadStatusText.value = "請上傳PDF格式的檔案";
         event.target.value = "";
       }
     };
@@ -157,16 +177,15 @@ export default {
         });
     });
 
-    function MyCustomUploadAdapterPlugin(editor){
-      editor.plugins.get("FileRepository").createUploadAdapter = (
-        loader
-      ) => {
+    function MyCustomUploadAdapterPlugin(editor) {
+      editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
         return new UploadAdapter(loader);
       };
-    };
+    }
 
     return {
       chapter,
+      isUploading,
       isLoading,
       showModal,
       modalMessage,
@@ -178,6 +197,7 @@ export default {
       addNote,
       removeNote,
       route,
+      uploadStatusText
     };
   },
 };
@@ -223,8 +243,14 @@ export default {
                       accept=".pdf"
                       @change="handlePdfUpload"
                     />
-                    <div v-if="chapter.pdf_file_url" class="mt-2">
-                      <a :href="chapter.pdf_file_url" target="_blank">上傳檔案：{{ typeof chapter.pdf_file_url === 'string' ? chapter.pdf_file_url.split('/').pop() : chapter.pdf_file_url.name }}</a>
+                    <div v-if="chapter.pdf_file_url && !uploadStatusText" class="mt-2">
+                      <a :href="chapter.pdf_file_url" target="_blank"
+                        >上傳檔案：{{
+                          typeof chapter.pdf_file_url === "string"
+                            ? chapter.pdf_file_url.split("/").pop()
+                            : chapter.pdf_file_url.name
+                        }}</a
+                      >
                       <button
                         type="button"
                         class="btn btn-danger btn-sm ms-2"
@@ -233,6 +259,10 @@ export default {
                         移除
                       </button>
                     </div>
+                    <div v-else class="text-muted mt-2">
+                      {{ uploadStatusText }}
+                    </div>
+
                   </div>
 
                   <div class="mb-3">
@@ -332,17 +362,17 @@ export default {
                       id="status"
                       v-model="chapter.status"
                     >
-                      <option value="草稿">草稿</option>
-                      <option value="已發布">已發布</option>
+                      <option value="publish">顯示</option>
+                      <option value="unpublish">隱藏</option>
                     </select>
                   </div>
 
                   <button
                     type="submit"
                     class="btn btn-primary me-2"
-                    :disabled="isLoading"
+                    :disabled="isLoading || isUploading"
                   >
-                    {{ isLoading ? "儲存中..." : "儲存" }}
+                    {{ isLoading ? '儲存中...' : '儲存' }}
                   </button>
 
                   <button
@@ -358,40 +388,46 @@ export default {
           </div>
         </div>
       </div>
-
-      <Footer />
-    </div>
-  </div>
-
-  <!-- 提示訊息 Modal -->
-  <div
-    class="modal fade"
-    id="messageModal"
-    tabindex="-1"
-    :class="{ show: showModal }"
-    v-if="showModal"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">系統提示</h5>
-          <button
-            type="button"
-            class="btn-close"
-            @click="showModal = false"
-          ></button>
-        </div>
-        <div class="modal-body">{{ modalMessage }}</div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="showModal = false"
-          >
-            關閉
-          </button>
+      
+      <div
+        class="modal bd-example-modal-sm"
+        id="messageModal"
+        :class="{ 'd-block': showModal, 'modal-backdrop': showModal }"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="messageModalLabel"
+        aria-hidden="true"
+        v-if="showModal"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="messageModalLabel">系統提示</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                @click="showModal = false"
+              ></button>
+            </div>
+            <div class="modal-body">
+              {{ modalMessage }}
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                @click="showModal = false"
+              >
+                關閉
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   </div>
 </template>

@@ -425,6 +425,29 @@ const courseImgUpload = async (imageFile) => {
   }
 }
 
+const chapterPDFUpload = async (pdfFile) => {
+  const formData = new FormData();
+  formData.append('file', pdfFile);
+
+  try {
+    const response = await axios.post(`${apiUrl}admin/course/chapter/pdf-upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        ...getServerToken() ? { 'Authorization': `Bearer ${getServerToken()}` } : {},
+      },
+    });
+
+    if (response.status === 200 && response.data && response.data.content) {
+      return response.data;
+    } else {
+      throw new Error('Invalid response from server');
+    }
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
+}
+
 const getAdmins = async () => {
   const requestConfig = scGet(`${apiUrl}admin/list`);
 
@@ -765,5 +788,6 @@ export default {
   addInstructor,
   updateInstructor,
   getChapters,
-  getChapter
+  getChapter,
+  chapterPDFUpload
 };
