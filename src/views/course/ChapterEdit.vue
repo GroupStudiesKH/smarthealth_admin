@@ -79,6 +79,9 @@ export default {
         console.log("保存章節:", chapter.value);
         modalMessage.value = "保存成功";
         showModal.value = true;
+
+        await apiService.updateChapter(courseId, chapterId, chapter.value)
+
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
         console.error("保存章節失敗:", error);
@@ -323,9 +326,9 @@ export default {
                           type="text"
                           class="form-control"
                           v-model="note.time"
-                          placeholder="mm:ss"
-                          pattern="\d{2}:\d{2}"
-                          title="請輸入正確的時間格式（分:秒）"
+                          placeholder="HH:mm:ss"
+                          pattern="\d{2}:\d{2}:\d{2}"
+                          title="請輸入正確的時間格式（時:分:秒）"
                         />
                       </div>
                       <div class="col-9">

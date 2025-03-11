@@ -551,6 +551,17 @@ const getChapter = async (courseId, chapterId) => {
   }
 };
 
+const updateChapter = async (courseId, chapterId, inputForm) => {
+  const requestConfig = scPost(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`, inputForm);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
@@ -789,5 +800,6 @@ export default {
   updateInstructor,
   getChapters,
   getChapter,
-  chapterPDFUpload
+  chapterPDFUpload,
+  updateChapter
 };
