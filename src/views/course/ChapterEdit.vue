@@ -4,7 +4,9 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import apiService from "@/service/api-service";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import UploadAdapter from "@/utils/UploadAdapter";
 
 export default {
   components: {
@@ -19,22 +21,24 @@ export default {
     const isLoading = ref(false);
     const showModal = ref(false);
     const modalMessage = ref("");
+    const courseId = route.params.courseId;
+    const chapterId = route.params.chapterId;
 
     const chapter = ref({
       title: "",
-      content: "",
-      status: "草稿",
-      pdfFile: null,
-      videoFile: null,
+      description: "",
+      status: "",
+      pdf_file_url: null,
+      video_url: null,
       videoPath: "",
       videoPreview: null,
-      notes: [{ time: "", content: "" }]
+      notes: [{ time: "", content: "" }],
     });
 
     const addNote = () => {
       chapter.value.notes.push({
         time: "",
-        content: ""
+        content: "",
       });
     };
 
@@ -45,34 +49,23 @@ export default {
     const handleVideoUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
-        chapter.value.videoFile = file;
+        chapter.value.video_url = file;
         chapter.value.videoPath = URL.createObjectURL(file);
         chapter.value.videoPreview = URL.createObjectURL(file);
       }
     };
 
     const removeVideo = () => {
-      chapter.value.videoFile = null;
+      chapter.value.video_url = null;
       chapter.value.videoPath = "";
       chapter.value.videoPreview = null;
     };
 
-    const fetchChapter = async (chapterId) => {
+    const fetchChapter = async () => {
       try {
         // 模擬 API 回傳數據
-        chapter.value = {
-          title: "除了資料統一，規則統一，還要有應用程式市集",
-          content: "本章節將介紹醫療資訊系統中資料統一和規則統一的重要性，以及應用程式市集在整體生態系統中的角色。透過實際案例分析，學員將了解如何建立完整的醫療資訊應用生態系統。",
-          status: "已發布",
-          pdfFile: null,
-          videoFile: "/assets/video/除了資料統一，規則統一，還要有應用程式市集.mov",
-          notes: [
-            { time: "02:30", content: "健康的定義與概念" },
-            { time: "05:45", content: "WHO對健康的詮釋" },
-            { time: "08:15", content: "健康管理的重要性" },
-            { time: "12:00", content: "健康管理的實踐方法" }
-          ]
-        };
+        const results = await apiService.getChapter(courseId, chapterId);
+        chapter.value = results;
       } catch (error) {
         console.error("獲取章節數據失敗:", error);
         modalMessage.value = "獲取章節數據失敗，請稍後再試";
@@ -98,31 +91,79 @@ export default {
 
     const handlePdfUpload = (event) => {
       const file = event.target.files[0];
-      if (file && file.type === 'application/pdf') {
-        chapter.value.pdfFile = file;
+      if (file && file.type === "application/pdf") {
+        chapter.value.pdf_file_url = file;
       } else {
         modalMessage.value = "請上傳PDF格式的檔案";
         showModal.value = true;
-        event.target.value = '';
+        event.target.value = "";
       }
     };
 
     const removePdf = () => {
-      chapter.value.pdfFile = null;
+      chapter.value.pdf_file_url = null;
     };
 
-
     onMounted(async () => {
-      editor.value = await ClassicEditor
-        .create(document.querySelector('#editor'))
-        .catch(error => {
+      await fetchChapter();
+
+      editor.value = await ClassicEditor.create(
+        document.querySelector("#editor"),
+        {
+          removePlugins: ["Markdown"],
+          extraPlugins: [MyCustomUploadAdapterPlugin],
+          toolbar: [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "link",
+            "bulletedList",
+            "numberedList",
+            "blockQuote",
+            "imageUpload",
+          ],
+          heading: {
+            options: [
+              {
+                model: "paragraph",
+                title: "Paragraph",
+                class: "ck-heading_paragraph",
+              },
+              {
+                model: "heading1",
+                view: "h2",
+                title: "Heading 1",
+                class: "ck-heading_heading1",
+              },
+              {
+                model: "heading2",
+                view: "h3",
+                title: "Heading 2",
+                class: "ck-heading_heading2",
+              },
+            ],
+          },
+        }
+      )
+        .then((editorInstance) => {
+          editorInstance.model.document.on("change:data", () => {
+            chapter.value.description = editorInstance.getData();
+          });
+          return editorInstance;
+        })
+        .catch((error) => {
           console.error(error);
         });
-
-      if (route.params.chapterId) {
-        await fetchChapter(route.params.chapterId);
-      }
     });
+
+    function MyCustomUploadAdapterPlugin(editor){
+      editor.plugins.get("FileRepository").createUploadAdapter = (
+        loader
+      ) => {
+        return new UploadAdapter(loader);
+      };
+    };
 
     return {
       chapter,
@@ -136,7 +177,7 @@ export default {
       removeVideo,
       addNote,
       removeNote,
-      route
+      route,
     };
   },
 };
@@ -153,7 +194,9 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">{{ route.params.chapterId ? '編輯章節' : '新增章節' }}</h6>
+                <h6 class="card-title">
+                  {{ route.params.chapterId ? "編輯章節" : "新增章節" }}
+                </h6>
 
                 <form @submit.prevent="saveChapter">
                   <div class="mb-3">
@@ -169,7 +212,7 @@ export default {
 
                   <div class="mb-3">
                     <label for="editor" class="form-label">章節內容</label>
-                    <div id="editor"></div>
+                    <div id="editor">{{ chapter.description }}</div>
                   </div>
 
                   <div class="mb-3">
@@ -180,8 +223,8 @@ export default {
                       accept=".pdf"
                       @change="handlePdfUpload"
                     />
-                    <div v-if="chapter.pdfFile" class="mt-2">
-                      <span>{{ chapter.pdfFile.name }}</span>
+                    <div v-if="chapter.pdf_file_url" class="mt-2">
+                      <a :href="chapter.pdf_file_url" target="_blank">上傳檔案：{{ typeof chapter.pdf_file_url === 'string' ? chapter.pdf_file_url.split('/').pop() : chapter.pdf_file_url.name }}</a>
                       <button
                         type="button"
                         class="btn btn-danger btn-sm ms-2"
@@ -194,16 +237,26 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">影片檔案</label>
-                    <div v-if="chapter.videoFile" class="video-preview mb-3">
+                    <div v-if="chapter.video_url" class="video-preview mb-3">
                       <div class="video-player">
                         <video
                           ref="videoPlayer"
                           class="w-100"
                           controls
-                          style="max-height: 300px; background-color: #000;"
-                          :src="typeof chapter.videoFile === 'string' ? chapter.videoFile : URL.createObjectURL(chapter.videoFile)"
+                          style="max-height: 300px; background-color: #000"
+                          :src="
+                            typeof chapter.video_url === 'string'
+                              ? chapter.video_url
+                              : URL.createObjectURL(chapter.video_url)
+                          "
                         ></video>
-                        <div class="video-title mt-2">{{ typeof chapter.videoFile === 'string' ? chapter.videoFile.split('/').pop() : chapter.videoFile.name }}</div>
+                        <div class="video-title mt-2">
+                          {{
+                            typeof chapter.video_url === "string"
+                              ? chapter.video_url.split("/").pop()
+                              : chapter.video_url.name
+                          }}
+                        </div>
                       </div>
                     </div>
                     <input
@@ -212,7 +265,7 @@ export default {
                       accept=".mp4,.mov"
                       @change="handleVideoUpload"
                     />
-                    <div v-if="chapter.videoFile" class="mt-2">
+                    <div v-if="chapter.video_url" class="mt-2">
                       <button
                         type="button"
                         class="btn btn-danger btn-sm"
@@ -221,19 +274,20 @@ export default {
                         移除
                       </button>
 
-                      <button 
-                        class="m-2 btn btn-info btn-sm"
-                      >
+                      <button class="m-2 btn btn-info btn-sm">
                         <i class="material-icons align-middle me-1">edit</i>
                         Vimeo編輯
                       </button>
-
                     </div>
                   </div>
 
                   <div class="mb-3">
                     <label class="form-label">影片筆記</label>
-                    <div v-for="(note, index) in chapter.notes" :key="index" class="row mb-2">
+                    <div
+                      v-for="(note, index) in chapter.notes"
+                      :key="index"
+                      class="row mb-2"
+                    >
                       <div class="col-2">
                         <input
                           type="text"
@@ -273,7 +327,11 @@ export default {
 
                   <div class="mb-3">
                     <label for="status" class="form-label">狀態</label>
-                    <select class="form-select" id="status" v-model="chapter.status">
+                    <select
+                      class="form-select"
+                      id="status"
+                      v-model="chapter.status"
+                    >
                       <option value="草稿">草稿</option>
                       <option value="已發布">已發布</option>
                     </select>
@@ -284,7 +342,7 @@ export default {
                     class="btn btn-primary me-2"
                     :disabled="isLoading"
                   >
-                    {{ isLoading ? '儲存中...' : '儲存' }}
+                    {{ isLoading ? "儲存中..." : "儲存" }}
                   </button>
 
                   <button
@@ -338,7 +396,7 @@ export default {
   </div>
 </template>
 
-<style>
+<style scoped>
 .modal.show {
   background-color: rgba(0, 0, 0, 0.5);
 }
@@ -367,5 +425,25 @@ export default {
 
 .volume-control {
   cursor: pointer;
+}
+
+/* CKEditor 高度设置 */
+::v-deep #editor {
+  min-height: 400px;
+}
+
+::v-deep .ck-editor__main {
+  height: calc(100% - 40px);
+}
+
+::v-deep .ck-editor__editable {
+  min-height: 360px !important;
+  height: auto !important;
+  overflow-y: auto;
+}
+
+.editor-container {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
 }
 </style>

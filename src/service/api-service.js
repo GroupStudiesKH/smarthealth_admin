@@ -517,6 +517,17 @@ const getChapters = async (courseId) => {
   }
 };
 
+const getChapter = async (courseId, chapterId) => {
+  const requestConfig = scGet(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
@@ -753,5 +764,6 @@ export default {
   getInstructorsOption,
   addInstructor,
   updateInstructor,
-  getChapters
+  getChapters,
+  getChapter
 };
