@@ -554,7 +554,7 @@ const getChapter = async (courseId, chapterId) => {
 };
 
 const updateChapter = async (courseId, chapterId, inputForm) => {
-  const requestConfig = scPost(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`, inputForm, false);
+  const requestConfig = scPost(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`, inputForm);
 
   try {
     const response = await axios(requestConfig);
