@@ -785,6 +785,17 @@ const changeVimeoStatus = async (inputData) => {
   }
 }
 
+const removeVimeo = async (inputData) => {
+  const requestConfig = scDelete(`${apiUrl}admin/vimeo`, inputData);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 export default {
   apiUrl,
   getServerToken,
@@ -840,5 +851,6 @@ export default {
   updateChapter,
   createChapter,
   getVimeoID,
-  changeVimeoStatus
+  changeVimeoStatus,
+  removeVimeo
 };

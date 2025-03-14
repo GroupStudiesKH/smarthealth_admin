@@ -7,7 +7,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import UploadAdapter from "@/utils/UploadAdapter";
-import * as tus from 'tus-js-client'
+import * as tus from "tus-js-client";
 
 export default {
   components: {
@@ -22,6 +22,9 @@ export default {
     const courseId = route.params.courseId;
     const chapterId = route.params.chapterId;
     const isLoading = ref(false);
+    const uploadProgress = ref(0);
+    const isVideoUploading = ref(false);
+    const videoUploadStatusText = ref("");
 
     const chapter = ref({
       title: "",
@@ -29,6 +32,9 @@ export default {
       status: "",
       pdf_file_url: null,
       vimeo_id: null,
+      player_embed_url: "",
+      manage_link: "",
+      vimeo_status: "",
       notes: [{ time: "", content: "" }],
     });
 
@@ -42,14 +48,22 @@ export default {
     const removeNote = (index) => {
       chapter.value.notes.splice(index, 1);
     };
-    
-    const removeVideo = () => {
-      
-    }
 
-    const uploadProgress = ref(0);
-    const isVideoUploading = ref(false);
-    const videoUploadStatusText = ref('');
+    const removeVideo = () => {
+
+      try {
+        apiService.removeVimeo({chapterId: chapterId});
+
+        chapter.value.vimeo_id = null;
+        chapter.value.player_embed_url = '';
+        chapter.value.manage_link = '';
+        chapter.value.vimeo_status = '';
+
+      } catch (error) {
+        console.log(error)
+      }
+
+    };
 
     const handleVideoUpload = async (event) => {
       const file = event.target.files[0];
@@ -57,50 +71,56 @@ export default {
 
       try {
         isVideoUploading.value = true;
-        videoUploadStatusText.value = '正在獲取上傳憑證...';
-        
+        isUploading.value = true;
+        videoUploadStatusText.value = "正在獲取上傳憑證...";
+
         // 获取Vimeo上传凭证
-        const vimeoIDResult = await apiService.getVimeoID(chapterId, {size: file.size});
-        
+        const vimeoIDResult = await apiService.getVimeoID(chapterId, {
+          size: file.size,
+        });
+
         // 配置tus上传
         const upload = new tus.Upload(file, {
           uploadUrl: vimeoIDResult.upload_link,
           headers: {
-            Accept: 'application/vnd.vimeo.*+json;version=3.4'
+            Accept: "application/vnd.vimeo.*+json;version=3.4",
           },
-          method: 'PUT', // 使用PUT方法上傳
+          method: "PUT", // 使用PUT方法上傳
           chunkSize: 5120000, // 5MB分片大小
           onError: (error) => {
             videoUploadStatusText.value = `上傳失敗: ${error.message}`;
-            event.target.value = '';
+            event.target.value = "";
           },
           onProgress: (bytesUploaded) => {
             uploadProgress.value = (bytesUploaded / file.size) * 100;
-            videoUploadStatusText.value = `上傳中: ${uploadProgress.value.toFixed(1)}%`;
+            videoUploadStatusText.value = `上傳中: ${uploadProgress.value.toFixed(
+              1
+            )}%`;
           },
           onSuccess: () => {
             chapter.value.vimeo_id = vimeoIDResult.vimeo_id;
-            apiService.changeVimeoStatus({vimeoID: chapter.value.vimeo_id})
-            videoUploadStatusText.value = '上傳完成';
-            event.target.value = '';
-          }
+            chapter.value.player_embed_url = vimeoIDResult.player_embed_url;
+            chapter.value.manage_link = vimeoIDResult.manage_link;
+            apiService.changeVimeoStatus({ vimeoID: chapter.value.vimeo_id });
+            videoUploadStatusText.value = "上傳完成";
+            event.target.value = "";
+            isUploading.value = false;
+          },
         });
-    
-        videoUploadStatusText.value = '開始上傳資料...';
+
+        videoUploadStatusText.value = "開始上傳資料...";
         upload.start();
-    
       } catch (error) {
         videoUploadStatusText.value = `上傳失敗: ${error.message}`;
-        event.target.value = '';
+        event.target.value = "";
       } finally {
         isVideoUploading.value = false;
+        isUploading.value = false;
         setTimeout(() => {
           uploadProgress.value = 0;
         }, 3000);
       }
     };
-
-
 
     const fetchChapter = async () => {
       try {
@@ -117,7 +137,7 @@ export default {
       isLoading.value = true;
       try {
         let inputForm = chapter.value;
-        inputForm.notes = JSON.stringify(chapter.value.notes)
+        inputForm.notes = JSON.stringify(chapter.value.notes);
         await apiService.updateChapter(courseId, chapterId, chapter.value);
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
@@ -240,7 +260,7 @@ export default {
       route,
       uploadStatusText,
       backToChapterList,
-      videoUploadStatusText
+      videoUploadStatusText,
     };
   },
 };
@@ -254,12 +274,58 @@ export default {
 
       <div class="page-content">
         <div class="row">
-          <div class="col-md-12 grid-margin stretch-card">
+
+
+          <div class="col-12">
+            <div class="card mb-3">
+              <div class="card-body">
+                <label class="form-label">影片檔案</label>
+                <div v-if="chapter.vimeo_id" class="video-preview mb-3">
+                  <iframe
+                    :src="chapter.player_embed_url"
+                    v-if="chapter.vimeo_status == 'vimeo_ready'"
+                    width="100%"
+                    height="600"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                    title="Untitled"
+                  >
+                  </iframe>
+                  <p v-else>已上傳Vimeo，Vimeo影片處理中，您可以繼續編輯</p>
+                </div>
+                <input
+                  type="file"
+                  class="form-control"
+                  accept=".mp4,.mov"
+                  @change="handleVideoUpload"
+                />
+                {{ videoUploadStatusText }}
+                <div v-if="chapter.vimeo_id" class="mt-2">
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    @click="removeVideo"
+                  >
+                    移除
+                  </button>
+
+                  <a
+                    :href="`https://vimeo.com${chapter.manage_link}`"
+                    target="_blank"
+                    class="m-2 btn btn-info btn-sm"
+                  >
+                    <i class="material-icons align-middle me-1">edit</i>
+                    Vimeo編輯
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 grid-margin stretch-card">
+
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">
-                  {{ route.params.chapterId ? "編輯章節" : "新增章節" }}
-                </h6>
 
                 <form @submit.prevent="saveChapter">
                   <div class="mb-3">
@@ -307,33 +373,6 @@ export default {
                     </div>
                     <div v-else class="text-muted mt-2">
                       {{ uploadStatusText }}
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">影片檔案</label>
-                    <div v-if="chapter.vimeo_id" class="video-preview mb-3">
-                    </div>
-                    <input
-                      type="file"
-                      class="form-control"
-                      accept=".mp4,.mov"
-                      @change="handleVideoUpload"
-                    />
-                    {{ videoUploadStatusText }}
-                    <div  class="mt-2">
-                      <button
-                        type="button"
-                        class="btn btn-danger btn-sm"
-                        @click="removeVideo"
-                      >
-                        移除
-                      </button>
-
-                      <button class="m-2 btn btn-info btn-sm">
-                        <i class="material-icons align-middle me-1">edit</i>
-                        Vimeo編輯
-                      </button>
                     </div>
                   </div>
 
