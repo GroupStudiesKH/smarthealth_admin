@@ -20,69 +20,31 @@ export default {
     const editor = ref(null);
     const courseId = route.params.courseId;
     const chapterId = route.params.chapterId;
-    const isLoading = ref(false);
+    const isLoading = ref(false)
 
     const chapter = ref({
       title: "",
       description: "",
       status: "",
       pdf_file_url: null,
-      vimeo_id: null,
-      notes: [{ time: "", content: "" }],
     });
 
-    const addNote = () => {
-      chapter.value.notes.push({
-        time: "",
-        content: "",
-      });
-    };
-
-    const removeNote = (index) => {
-      chapter.value.notes.splice(index, 1);
-    };
-
-    const handleVideoUpload = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        chapter.value.vimeo_id = file;
-        chapter.value.videoPath = URL.createObjectURL(file);
-        chapter.value.videoPreview = URL.createObjectURL(file);
-      }
-    };
-
-    const removeVideo = () => {
-      chapter.value.vimeo_id = null;
-      chapter.value.videoPath = "";
-      chapter.value.videoPreview = null;
-    };
-
-    const fetchChapter = async () => {
-      try {
-        // 模擬 API 回傳數據
-        const results = await apiService.getChapter(courseId, chapterId);
-        chapter.value = results;
-      } catch (error) {
-        console.error("獲取章節數據失敗:", error);
-        alert(`獲取章節數據失敗`);
-      }
-    };
 
     const saveChapter = async () => {
       isLoading.value = true;
       try {
-        await apiService.updateChapter(courseId, chapterId, chapter.value);
+        await apiService.createChapter(courseId, chapter.value)
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
         console.error("保存章節失敗:", error);
-        alert(`保存章節失敗`);
+        alert(`保存章節失敗`)
       } finally {
         isLoading.value = false;
       }
     };
 
     const isUploading = ref(false);
-    const uploadStatusText = ref("");
+    const uploadStatusText = ref('');
 
     const handlePdfUpload = async (event) => {
       const file = event.target.files[0];
@@ -117,7 +79,6 @@ export default {
     };
 
     onMounted(async () => {
-      await fetchChapter();
 
       editor.value = await ClassicEditor.create(
         document.querySelector("#editor"),
@@ -181,13 +142,9 @@ export default {
       isLoading,
       saveChapter,
       handlePdfUpload,
-      handleVideoUpload,
       removePdf,
-      removeVideo,
-      addNote,
-      removeNote,
       route,
-      uploadStatusText,
+      uploadStatusText
     };
   },
 };
@@ -233,10 +190,7 @@ export default {
                       accept=".pdf"
                       @change="handlePdfUpload"
                     />
-                    <div
-                      v-if="chapter.pdf_file_url && !uploadStatusText"
-                      class="mt-2"
-                    >
+                    <div v-if="chapter.pdf_file_url && !uploadStatusText" class="mt-2">
                       <a :href="chapter.pdf_file_url" target="_blank"
                         >上傳檔案：{{
                           typeof chapter.pdf_file_url === "string"
@@ -255,82 +209,10 @@ export default {
                     <div v-else class="text-muted mt-2">
                       {{ uploadStatusText }}
                     </div>
+
                   </div>
 
-                  <div class="mb-3">
-                    <label class="form-label">影片檔案</label>
-                    <div v-if="chapter.vimeo_id" class="video-preview mb-3">
-                      <div class="video-player"></div>
-                    </div>
-                    <input
-                      type="file"
-                      class="form-control"
-                      accept=".mp4,.mov"
-                      @change="handleVideoUpload"
-                    />
-                    <div v-if="chapter.vimeo_id" class="mt-2">
-                      <button
-                        type="button"
-                        class="btn btn-danger btn-sm"
-                        @click="removeVideo"
-                      >
-                        移除
-                      </button>
 
-                      <button class="m-2 btn btn-info btn-sm">
-                        <i class="material-icons align-middle me-1">edit</i>
-                        Vimeo編輯
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">影片筆記</label>
-                    <div
-                      v-for="(note, index) in chapter.notes"
-                      :key="index"
-                      class="row mb-2"
-                    >
-                      <div class="col-2">
-                        <input
-                          type="text"
-                          class="form-control"
-                          v-model="note.time"
-                          placeholder="HH:mm:ss"
-                          pattern="\d{2}:\d{2}:\d{2}"
-                          title="請輸入正確的時間格式（時:分:秒）"
-                        />
-                      </div>
-                      <div class="col-9">
-                        <input
-                          type="text"
-                          class="form-control"
-                          v-model="note.content"
-                          placeholder="筆記內容"
-                        />
-                      </div>
-                      <div class="col-1">
-                        <button
-                          type="button"
-                          class="btn btn-danger btn-sm"
-                          @click="removeNote(index)"
-                        >
-                          刪除
-                        </button>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-3">
-                        <button
-                          type="button"
-                          class="btn btn-primary mt-2"
-                          @click="addNote"
-                        >
-                          新增筆記
-                        </button>
-                      </div>
-                    </div>
-                  </div>
 
                   <div class="mb-3">
                     <label for="status" class="form-label">狀態</label>
@@ -349,7 +231,7 @@ export default {
                     class="btn btn-primary me-2"
                     :disabled="isLoading || isUploading"
                   >
-                    {{ isLoading ? "儲存中..." : "儲存" }}
+                    {{ isLoading ? '儲存中...' : '儲存' }}
                   </button>
 
                   <button
@@ -365,13 +247,14 @@ export default {
           </div>
         </div>
       </div>
-
+      
       <Footer />
     </div>
   </div>
 </template>
 
 <style scoped>
+
 .video-preview {
   border: 1px solid #dee2e6;
   border-radius: 4px;

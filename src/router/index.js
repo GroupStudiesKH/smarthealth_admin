@@ -157,7 +157,7 @@ const router = createRouter({
     {
       path: "/course/:courseId/chapter/add",
       name: "chapterAdd",
-      component: () => import("../views/course/ChapterEdit.vue"),
+      component: () => import("../views/course/ChapterAdd.vue"),
       meta: { requiresAuth: true }
     },
     {
