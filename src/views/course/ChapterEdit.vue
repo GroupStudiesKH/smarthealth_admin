@@ -27,7 +27,7 @@ export default {
       description: "",
       status: "",
       pdf_file_url: null,
-      video_url: null,
+      vimeo_id: null,
       videoPath: "",
       videoPreview: null,
       notes: [{ time: "", content: "" }],
@@ -47,14 +47,14 @@ export default {
     const handleVideoUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
-        chapter.value.video_url = file;
+        chapter.value.vimeo_id = file;
         chapter.value.videoPath = URL.createObjectURL(file);
         chapter.value.videoPreview = URL.createObjectURL(file);
       }
     };
 
     const removeVideo = () => {
-      chapter.value.video_url = null;
+      chapter.value.vimeo_id = null;
       chapter.value.videoPath = "";
       chapter.value.videoPreview = null;
     };
@@ -259,26 +259,8 @@ export default {
 
                   <div class="mb-3">
                     <label class="form-label">影片檔案</label>
-                    <div v-if="chapter.video_url" class="video-preview mb-3">
+                    <div v-if="chapter.vimeo_id" class="video-preview mb-3">
                       <div class="video-player">
-                        <video
-                          ref="videoPlayer"
-                          class="w-100"
-                          controls
-                          style="max-height: 300px; background-color: #000"
-                          :src="
-                            typeof chapter.video_url === 'string'
-                              ? chapter.video_url
-                              : URL.createObjectURL(chapter.video_url)
-                          "
-                        ></video>
-                        <div class="video-title mt-2">
-                          {{
-                            typeof chapter.video_url === "string"
-                              ? chapter.video_url.split("/").pop()
-                              : chapter.video_url.name
-                          }}
-                        </div>
                       </div>
                     </div>
                     <input
@@ -287,7 +269,7 @@ export default {
                       accept=".mp4,.mov"
                       @change="handleVideoUpload"
                     />
-                    <div v-if="chapter.video_url" class="mt-2">
+                    <div v-if="chapter.vimeo_id" class="mt-2">
                       <button
                         type="button"
                         class="btn btn-danger btn-sm"
