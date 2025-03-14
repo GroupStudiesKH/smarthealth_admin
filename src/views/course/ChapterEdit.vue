@@ -71,6 +71,8 @@ export default {
     const saveChapter = async () => {
       isLoading.value = true;
       try {
+        let inputForm = chapter.value;
+        inputForm.notes = JSON.stringify(chapter.value.notes)
         await apiService.updateChapter(courseId, chapterId, chapter.value);
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
