@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import UploadAdapter from "@/utils/UploadAdapter";
+import * as tus from 'tus-js-client'
 
 export default {
   components: {
@@ -41,21 +42,65 @@ export default {
     const removeNote = (index) => {
       chapter.value.notes.splice(index, 1);
     };
+    
+    const removeVideo = () => {
+      
+    }
 
-    const handleVideoUpload = (event) => {
+    const uploadProgress = ref(0);
+    const isVideoUploading = ref(false);
+    const videoUploadStatusText = ref('');
+
+    const handleVideoUpload = async (event) => {
       const file = event.target.files[0];
-      if (file) {
-        chapter.value.vimeo_id = file;
-        chapter.value.videoPath = URL.createObjectURL(file);
-        chapter.value.videoPreview = URL.createObjectURL(file);
+      if (!file) return;
+
+      try {
+        isVideoUploading.value = true;
+        videoUploadStatusText.value = '正在获取上传凭证...';
+        
+        // 获取Vimeo上传凭证
+        const vimeoIDResult = await apiService.getVimeoID(chapterId, {size: file.size});
+        
+        // 配置tus上传
+        const upload = new tus.Upload(file, {
+          uploadUrl: vimeoIDResult.upload_link,
+          headers: {
+            Accept: 'application/vnd.vimeo.*+json;version=3.4'
+          },
+          method: 'PUT', // 使用PUT方法上傳
+          chunkSize: 5120000, // 5MB分片大小
+          onError: (error) => {
+            videoUploadStatusText.value = `上传失败: ${error.message}`;
+            event.target.value = '';
+          },
+          onProgress: (bytesUploaded) => {
+            uploadProgress.value = (bytesUploaded / file.size) * 100;
+            videoUploadStatusText.value = `上传中: ${uploadProgress.value.toFixed(1)}%`;
+          },
+          onSuccess: () => {
+            chapter.value.vimeo_id = vimeoIDResult.vimeo_id;
+            videoUploadStatusText.value = '上传完成';
+            event.target.value = '';
+          }
+        });
+    
+        videoUploadStatusText.value = '开始上传视频...';
+        upload.start();
+    
+      } catch (error) {
+        videoUploadStatusText.value = `视频上传失败: ${error.message}`;
+        event.target.value = '';
+      } finally {
+        isVideoUploading.value = false;
+        setTimeout(() => {
+          videoUploadStatusText.value = '';
+          uploadProgress.value = 0;
+        }, 3000);
       }
     };
 
-    const removeVideo = () => {
-      chapter.value.vimeo_id = null;
-      chapter.value.videoPath = "";
-      chapter.value.videoPreview = null;
-    };
+
 
     const fetchChapter = async () => {
       try {
@@ -194,7 +239,8 @@ export default {
       removeNote,
       route,
       uploadStatusText,
-      backToChapterList
+      backToChapterList,
+      videoUploadStatusText
     };
   },
 };
@@ -267,7 +313,6 @@ export default {
                   <div class="mb-3">
                     <label class="form-label">影片檔案</label>
                     <div v-if="chapter.vimeo_id" class="video-preview mb-3">
-                      <div class="video-player"></div>
                     </div>
                     <input
                       type="file"
@@ -275,7 +320,8 @@ export default {
                       accept=".mp4,.mov"
                       @change="handleVideoUpload"
                     />
-                    <div v-if="chapter.vimeo_id" class="mt-2">
+                    {{ videoUploadStatusText }}
+                    <div  class="mt-2">
                       <button
                         type="button"
                         class="btn btn-danger btn-sm"

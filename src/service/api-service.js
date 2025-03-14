@@ -425,6 +425,8 @@ const courseImgUpload = async (imageFile) => {
   }
 }
 
+
+
 const chapterPDFUpload = async (pdfFile) => {
   const formData = new FormData();
   formData.append('file', pdfFile);
@@ -760,6 +762,18 @@ const getTagsOption = async (type) => {
   }
 };
 
+const getVimeoID = async (chapterID, inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/chapter/${chapterID}/vimeo-id`, inputData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 export default {
   apiUrl,
   getServerToken,
@@ -813,5 +827,6 @@ export default {
   getChapter,
   chapterPDFUpload,
   updateChapter,
-  createChapter
+  createChapter,
+  getVimeoID
 };
