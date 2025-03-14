@@ -57,7 +57,7 @@ export default {
 
       try {
         isVideoUploading.value = true;
-        videoUploadStatusText.value = '正在获取上传凭证...';
+        videoUploadStatusText.value = '正在獲取上傳憑證...';
         
         // 获取Vimeo上传凭证
         const vimeoIDResult = await apiService.getVimeoID(chapterId, {size: file.size});
@@ -71,30 +71,30 @@ export default {
           method: 'PUT', // 使用PUT方法上傳
           chunkSize: 5120000, // 5MB分片大小
           onError: (error) => {
-            videoUploadStatusText.value = `上传失败: ${error.message}`;
+            videoUploadStatusText.value = `上傳失敗: ${error.message}`;
             event.target.value = '';
           },
           onProgress: (bytesUploaded) => {
             uploadProgress.value = (bytesUploaded / file.size) * 100;
-            videoUploadStatusText.value = `上传中: ${uploadProgress.value.toFixed(1)}%`;
+            videoUploadStatusText.value = `上傳中: ${uploadProgress.value.toFixed(1)}%`;
           },
           onSuccess: () => {
             chapter.value.vimeo_id = vimeoIDResult.vimeo_id;
-            videoUploadStatusText.value = '上传完成';
+            apiService.changeVimeoStatus({vimeoID: chapter.value.vimeo_id})
+            videoUploadStatusText.value = '上傳完成';
             event.target.value = '';
           }
         });
     
-        videoUploadStatusText.value = '开始上传视频...';
+        videoUploadStatusText.value = '開始上傳資料...';
         upload.start();
     
       } catch (error) {
-        videoUploadStatusText.value = `视频上传失败: ${error.message}`;
+        videoUploadStatusText.value = `上傳失敗: ${error.message}`;
         event.target.value = '';
       } finally {
         isVideoUploading.value = false;
         setTimeout(() => {
-          videoUploadStatusText.value = '';
           uploadProgress.value = 0;
         }, 3000);
       }

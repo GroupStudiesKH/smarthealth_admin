@@ -774,6 +774,17 @@ const getVimeoID = async (chapterID, inputData) => {
   }
 }
 
+const changeVimeoStatus = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/vimeo/status`, inputData);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 export default {
   apiUrl,
   getServerToken,
@@ -828,5 +839,6 @@ export default {
   chapterPDFUpload,
   updateChapter,
   createChapter,
-  getVimeoID
+  getVimeoID,
+  changeVimeoStatus
 };
