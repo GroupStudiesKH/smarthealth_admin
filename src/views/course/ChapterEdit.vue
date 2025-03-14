@@ -84,6 +84,10 @@ export default {
     const isUploading = ref(false);
     const uploadStatusText = ref("");
 
+    const backToChapterList = () => {
+      router.push(`/course/${courseId}/chapters`);
+    };
+
     const handlePdfUpload = async (event) => {
       const file = event.target.files[0];
       if (file && file.type === "application/pdf") {
@@ -188,6 +192,7 @@ export default {
       removeNote,
       route,
       uploadStatusText,
+      backToChapterList
     };
   },
 };
@@ -222,7 +227,7 @@ export default {
 
                   <div class="mb-3">
                     <label for="editor" class="form-label">章節內容</label>
-                    <div id="editor">{{ chapter.description }}</div>
+                    <div id="editor" v-html="chapter.description"></div>
                   </div>
 
                   <div class="mb-3">
@@ -355,7 +360,7 @@ export default {
                   <button
                     type="button"
                     class="btn btn-secondary"
-                    @click="router.back()"
+                    @click="backToChapterList()"
                   >
                     取消
                   </button>

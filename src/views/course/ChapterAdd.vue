@@ -78,6 +78,10 @@ export default {
       chapter.value.pdf_file_url = null;
     };
 
+    const backToChapterList = () => {
+      router.push(`/course/${courseId}/chapters`);
+    };
+
     onMounted(async () => {
 
       editor.value = await ClassicEditor.create(
@@ -144,7 +148,8 @@ export default {
       handlePdfUpload,
       removePdf,
       route,
-      uploadStatusText
+      uploadStatusText,
+      backToChapterList
     };
   },
 };
@@ -179,7 +184,7 @@ export default {
 
                   <div class="mb-3">
                     <label for="editor" class="form-label">章節內容</label>
-                    <div id="editor">{{ chapter.description }}</div>
+                    <div id="editor" v-html="chapter.description"></div>
                   </div>
 
                   <div class="mb-3">
@@ -237,7 +242,7 @@ export default {
                   <button
                     type="button"
                     class="btn btn-secondary"
-                    @click="router.back()"
+                    @click="backToChapterList()"
                   >
                     取消
                   </button>
