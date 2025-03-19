@@ -29,6 +29,8 @@ export default {
       description: "",
       category: null,
       tags: [],
+      is_mandatory: false,
+      credit: 0,
       status: "publish",
       coverImage: null,
     });
@@ -82,6 +84,8 @@ export default {
           description: course.value.description,
           tags: course.value.tags.map((item) => item.id),
           status: course.value.status,
+          is_mandatory: course.value.is_mandatory,
+          credit: course.value.credit,
           coverImage: course.value.coverImage,
           categories: course.value.category?.id
             ? [course.value.category.id]
@@ -223,8 +227,7 @@ export default {
                   </div>
 
                   <div class="row">
-                    <div class="col">
-                      <div class="mb-3">
+                    <div class="mb-3 col-6">
                         <label class="form-label">講師</label>
                         <multiselect
                           v-model="course.instructors"
@@ -242,10 +245,24 @@ export default {
                           </template>
                         </multiselect>
                       </div>
-                    </div>
-
-                    <div class="col">
-                      <div class="mb-3">
+                      <div class="mb-3 col-6">
+                        <label class="form-label">課程屬性</label>
+                        <select class="form-control" v-model="course.is_mandatory">
+                          <option value="1">必修</option>
+                          <option value="0">選修</option>
+                        </select>
+                      </div>
+                      <div class="mb-3 col-6">
+                        <label class="form-label">學分數</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          v-model="course.credit"
+                          min="0"
+                          step="1"
+                        />
+                      </div>
+                      <div class="mb-3 col-6">
                         <label class="form-label">課程分類</label>
                         <multiselect
                           v-model="course.category"
@@ -255,7 +272,8 @@ export default {
                           track-by="id"
                         />
                       </div>
-                    </div>
+
+
                   </div>
 
                   <div class="mb-3">
