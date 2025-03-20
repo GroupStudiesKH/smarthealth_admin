@@ -49,23 +49,23 @@ export default {
 
     const fetchTableData = async () => {
       try {
-        // 模擬 API 響應數據
-        const mockData = {
-          data: Array(10).fill(null).map((_, index) => ({
-            id: index + 1 + (currentPage.value - 1) * pageSize.value,
-            name: `測試會員${index + 1}`,
-            email: `test${index + 1}@example.com`,
-            created_at: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-            status: Math.random() > 0.3
-          })),
-          recordsTotal: 50
-        };
+        const response = await apiService.getMembers({
+          page: currentPage.value,
+          per_page: pageSize.value,
+          keyword: searchForm.keyword
+        });
+        
+        tableData.value = response.data.map(member => ({
+          id: member.id,
+          name: member.name,
+          email: member.email,
+          created_at: member.created_at,
+          status: member.status === 'active' // 轉換狀態為布林值
+        }));
 
-        // 模擬 API 延遲
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        tableData.value = mockData.data;
-        totalRecords.value = mockData.recordsTotal;
+        totalRecords.value = response.total;
+        currentPage.value = response.current_page;
+        pageSize.value = response.per_page;
       } catch (error) {
         console.error("Failed to fetch member data:", error);
       }

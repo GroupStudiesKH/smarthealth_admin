@@ -692,6 +692,17 @@ const addInstructor = async (inputData) => {
   }
 }
 
+const getMembers = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/member?${queryString}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
 
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
@@ -852,5 +863,6 @@ export default {
   createChapter,
   getVimeoID,
   changeVimeoStatus,
-  removeVimeo
+  removeVimeo,
+  getMembers
 };
