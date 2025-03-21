@@ -28,8 +28,8 @@ export default {
       last_login_at: "",
       registration_source: "",
       last_login_ip: "",
-      identity: "",
-      identityOptions: [
+      role: "",
+      roleOptions: [
         { value: "student", label: "學生" },
         { value: "teacher", label: "老師" },
         { value: "doctor", label: "醫師" },
@@ -37,7 +37,6 @@ export default {
         { value: "vendor", label: "廠商" },
         { value: "other", label: "其他" }
       ],
-      otherIdentity: "",
       organization: "",
       national_id: "",
       address: "",
@@ -68,78 +67,40 @@ export default {
       try {
         errors.value = {};
         
-        // 基本驗證
-        if (!formData.name) {
-          errors.value.name = "請輸入會員名稱";
-          return;
-        }
-
-        if (!formData.email) {
-          errors.value.email = "請輸入Email";
-          return;
-        }
-
-        if (!formData.identity) {
-          errors.value.identity = "請選擇身份別";
-          return;
-        }
-
-        if (formData.identity === "other" && !formData.otherIdentity) {
-          errors.value.otherIdentity = "請填寫其他身份";
-          return;
-        }
-
-        if (!formData.organization) {
-          errors.value.organization = "請輸入任職單位";
-          return;
-        }
-
-        if (!isEdit && !formData.password) {
-          errors.value.password = "請輸入密碼";
-          return;
-        }
-
-        if (formData.password && (formData.password.length < 8 || !/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(formData.password))) {
-          errors.value.password = "密碼需要至少八碼及英數混合";
-          return;
-        }
-
-        if (!formData.mobile) {
-          errors.value.mobile = "請輸入手機號碼";
-          return;
-        } else if (!/^[0-9]{10}$/.test(formData.mobile)) {
-          errors.value.mobile = "請輸入有效的手機號碼";
-          return;
-        }
-
-        if (!formData.gender) {
-          errors.value.gender = "請選擇性別";
-          return;
-        }
-
-        if (!formData.national_id) {
-          errors.value.national_id = "請輸入身分證字號";
-          return;
-        }
-
-        if (!formData.address) {
-          errors.value.address = "請輸入地址";
-          return;
-        }
-
-
-
-        // 模擬 API 請求
-        await new Promise(resolve => setTimeout(resolve, 500));
-
+        const results = await apiService.editMember(memberId, formData);
+        
         router.push("/member");
       } catch (error) {
         console.error("Failed to save member:", error);
-        modalMessage.value = "儲存失敗";
-        showModal.value = true;
+        
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+            
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('\n');
+            
+            modalMessage.value = errorMessages;
+            showModal.value = true;
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            modalMessage.value = error.response.data.message || "儲存失敗";
+            showModal.value = true;
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          modalMessage.value = "儲存失敗";
+          showModal.value = true;
+        }
       }
     };
-
     onMounted(() => {
       fetchMemberData();
     });
@@ -225,31 +186,18 @@ export default {
                       <label class="form-label">身份別 <span class="text-danger">*</span></label>
                       <select
                         class="form-select"
-                        :class="{ 'is-invalid': errors.identity }"
-                        v-model="formData.identity"
+                        :class="{ 'is-invalid': errors.role }"
+                        v-model="formData.role"
                       >
                         <option value="">請選擇身份別</option>
-                        <option v-for="option in formData.identityOptions" 
+                        <option v-for="option in formData.roleOptions" 
                                 :key="option.value" 
                                 :value="option.value">
                           {{ option.label }}
                         </option>
                       </select>
-                      <div class="invalid-feedback" v-if="errors.identity">
-                        {{ errors.identity }}
-                      </div>
-                    </div>
-
-                    <div class="col-md-6 col-12 mb-3" v-if="formData.identity === 'other'">
-                      <label class="form-label">其他身份 <span class="text-danger">*</span></label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.otherIdentity }"
-                        v-model="formData.otherIdentity"
-                      />
-                      <div class="invalid-feedback" v-if="errors.otherIdentity">
-                        {{ errors.otherIdentity }}
+                      <div class="invalid-feedback" v-if="errors.role">
+                        {{ errors.role }}
                       </div>
                     </div>
 
@@ -424,5 +372,7 @@ export default {
         </div>
       </div>
     </div>
+    <div class="modal-backdrop fade show" v-if="showModal"></div>
+
   </div>
 </template>

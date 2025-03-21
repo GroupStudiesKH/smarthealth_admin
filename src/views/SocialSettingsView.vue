@@ -183,6 +183,7 @@ export default {
           </div>
         </div>
       </div>
+      <div class="modal-backdrop fade show" v-if="showModal"></div>
     </div>
   </div>
 </template>

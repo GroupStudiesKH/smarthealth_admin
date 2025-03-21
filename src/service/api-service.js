@@ -715,6 +715,17 @@ const getMember = async (memberID) => {
   }
 };
 
+const editMember = async (memberID, inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/member/${memberID}`, inputData, false);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -876,5 +887,6 @@ export default {
   changeVimeoStatus,
   removeVimeo,
   getMembers,
-  getMember
+  getMember,
+  editMember
 };
