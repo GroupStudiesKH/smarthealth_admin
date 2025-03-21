@@ -344,7 +344,7 @@ export default {
                   </div>
 
                   <button type="submit" class="btn btn-primary me-2">儲存</button>
-                  <button type="button" class="btn btn-secondary" @click="router.push('/member')">取消</button>
+                  <router-link to="/member" class="btn btn-secondary">取消</router-link>
                 </form>
               </div>
             </div>
