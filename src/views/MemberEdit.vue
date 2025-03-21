@@ -23,11 +23,11 @@ export default {
       email: "",
       password: "",
       showPassword: false,
-      status: true,
-      registrationDate: "",
-      lastLoginDate: "",
-      registrationSource: "",
-      lastLoginIp: "",
+      status: 'active',
+      created_at: "",
+      last_login_at: "",
+      registration_source: "",
+      last_login_ip: "",
       identity: "",
       identityOptions: [
         { value: "student", label: "學生" },
@@ -39,9 +39,9 @@ export default {
       ],
       otherIdentity: "",
       organization: "",
-      idNumber: "",
+      national_id: "",
       address: "",
-      phone: "",
+      mobile: "",
       gender: ""
     });
 
@@ -54,18 +54,7 @@ export default {
       
       try {
         // 模擬 API 響應數據
-        const mockData = {
-          name: "測試會員",
-          email: "test@example.com",
-          status: true,
-          registrationDate: "2023-01-01",
-          lastLoginDate: "2023-12-01",
-          registrationSource: "網站註冊",
-          lastLoginIp: "192.168.1.1",
-          identity: "一般會員",
-          phone: "0912345678",
-          gender: "male"
-        };
+        const mockData = await apiService.getMember(memberId);
 
         Object.assign(formData, mockData);
       } catch (error) {
@@ -115,11 +104,11 @@ export default {
           return;
         }
 
-        if (!formData.phone) {
-          errors.value.phone = "請輸入手機號碼";
+        if (!formData.mobile) {
+          errors.value.mobile = "請輸入手機號碼";
           return;
-        } else if (!/^[0-9]{10}$/.test(formData.phone)) {
-          errors.value.phone = "請輸入有效的手機號碼";
+        } else if (!/^[0-9]{10}$/.test(formData.mobile)) {
+          errors.value.mobile = "請輸入有效的手機號碼";
           return;
         }
 
@@ -128,8 +117,8 @@ export default {
           return;
         }
 
-        if (!formData.idNumber) {
-          errors.value.idNumber = "請輸入身分證字號";
+        if (!formData.national_id) {
+          errors.value.national_id = "請輸入身分證字號";
           return;
         }
 
@@ -282,8 +271,8 @@ export default {
                       <input
                         type="text"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.idNumber }"
-                        v-model="formData.idNumber"
+                        :class="{ 'is-invalid': errors.national_id }"
+                        v-model="formData.national_id"
                       />
                     </div>
 
@@ -302,11 +291,11 @@ export default {
                       <input
                         type="tel"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.phone }"
-                        v-model="formData.phone"
+                        :class="{ 'is-invalid': errors.mobile }"
+                        v-model="formData.mobile"
                       />
-                      <div class="invalid-feedback" v-if="errors.phone">
-                        {{ errors.phone }}
+                      <div class="invalid-feedback" v-if="errors.mobile">
+                        {{ errors.mobile }}
                       </div>
                     </div>
 
@@ -339,15 +328,27 @@ export default {
 
                     <div class="col-md-6 col-12 mb-3">
                       <label class="form-label">狀態</label>
-                      <div class="form-check form-switch">
-                        <input
-                          type="checkbox"
-                          class="form-check-input"
-                          v-model="formData.status"
-                        />
-                        <label class="form-check-label">
-                          {{ formData.status ? '啟用' : '停用' }}
-                        </label>
+                      <div class="form-check">
+                        <div class="form-check">
+                          <input
+                            type="radio"
+                            class="form-check-input"
+                            id="active"
+                            value="active"
+                            v-model="formData.status"
+                          />
+                          <label class="form-check-label" for="active">啟用</label>
+                        </div>
+                        <div class="form-check">
+                          <input
+                            type="radio"
+                            class="form-check-input"
+                            id="inactive"
+                            value="inactive"
+                            v-model="formData.status"
+                          />
+                          <label class="form-check-label" for="inactive">停用</label>
+                        </div>
                       </div>
                     </div>
 
@@ -357,7 +358,7 @@ export default {
                         <input
                           type="text"
                           class="form-control"
-                          v-model="formData.registrationDate"
+                          v-model="formData.created_at"
                           disabled
                         />
                       </div>
@@ -367,7 +368,7 @@ export default {
                         <input
                           type="text"
                           class="form-control"
-                          v-model="formData.lastLoginDate"
+                          v-model="formData.last_login_at"
                           disabled
                         />
                       </div>
@@ -377,7 +378,7 @@ export default {
                         <input
                           type="text"
                           class="form-control"
-                          v-model="formData.registrationSource"
+                          v-model="formData.registration_source"
                           disabled
                         />
                       </div>
@@ -387,7 +388,7 @@ export default {
                         <input
                           type="text"
                           class="form-control"
-                          v-model="formData.lastLoginIp"
+                          v-model="formData.last_login_ip"
                           disabled
                         />
                       </div>

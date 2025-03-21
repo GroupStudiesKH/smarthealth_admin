@@ -704,6 +704,17 @@ const getMembers = async (params) => {
   }
 };
 
+const getMember = async (memberID) => {
+  const requestConfig = scGet(`${apiUrl}admin/member/${memberID}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -864,5 +875,6 @@ export default {
   getVimeoID,
   changeVimeoStatus,
   removeVimeo,
-  getMembers
+  getMembers,
+  getMember
 };
