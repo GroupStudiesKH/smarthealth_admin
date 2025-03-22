@@ -38,13 +38,53 @@ export default {
     const addBanner = async () => {
       isLoading.value = true;
       try {
-        // 模擬 API 呼叫
-        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        const formData = new FormData();
+        formData.append('title', bannerData.value.title);
+        formData.append('subtitle_1', bannerData.value.subtitle_1);
+        formData.append('subtitle_2', bannerData.value.subtitle_2);
+        formData.append('content', bannerData.value.content);
+        formData.append('action_link_href', bannerData.value.action_link_href);
+        formData.append('action_link_text', bannerData.value.action_link_text);
+        formData.append('action_link2_href', bannerData.value.action_link2_href);
+        formData.append('action_link2_text', bannerData.value.action_link2_text);
+        formData.append('status', bannerData.value.status);
+        if (bannerData.value.image instanceof File) {
+          formData.append('image', bannerData.value.image);
+        }
+        formData.append('sort', bannerData.value.sort);
+
+        await apiService.addBanner(formData);
+
         showSuccessModal("橫幅新增成功");
         router.push('/layout/banner');
       } catch (error) {
-        console.error("Error adding banner:", error);
-        showErrorModal("橫幅新增失敗：" + (error.message || "未知錯誤"));
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
+            
+
+            showErrorModal("橫幅新增失敗：" + (errorMessages|| "未知錯誤"));
+
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            showErrorModal("橫幅新增失敗：" + (error.response.data.message || "儲存失敗"));
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          showErrorModal("儲存失敗");
+        }
+        
       } finally {
         isLoading.value = false;
       }
@@ -118,27 +158,27 @@ export default {
                   <div class="row">
                     <div class="col-md-6">
                       <div class="mb-3">
-                        <label for="title" class="form-label">標題</label>
-                        <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }">
-                        <div class="invalid-feedback" v-if="errors.title">{{ errors.title.join(', ') }}</div>
+                        <label for="title" class="form-label">標題 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }" required>
+                        <div class="invalid-feedback" v-if="errors.title">{{ errors.title }}</div>
                       </div>
 
                       <div class="mb-3">
                         <label for="subtitle_1" class="form-label">副標題1</label>
                         <input type="text" class="form-control" id="subtitle_1" v-model="bannerData.subtitle_1" :class="{ 'is-invalid': errors.subtitle_1 }">
-                        <div class="invalid-feedback" v-if="errors.subtitle_1">{{ errors.subtitle_1.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.subtitle_1">{{ errors.subtitle_1 }}</div>
                       </div>
 
                       <div class="mb-3">
                         <label for="subtitle_2" class="form-label">副標題2</label>
                         <input type="text" class="form-control" id="subtitle_2" v-model="bannerData.subtitle_2" :class="{ 'is-invalid': errors.subtitle_2 }">
-                        <div class="invalid-feedback" v-if="errors.subtitle_2">{{ errors.subtitle_2.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.subtitle_2">{{ errors.subtitle_2 }}</div>
                       </div>
 
                       <div class="mb-3">
-                        <label for="content" class="form-label">內容</label>
-                        <textarea class="form-control" id="content" v-model="bannerData.content" :class="{ 'is-invalid': errors.content }"></textarea>
-                        <div class="invalid-feedback" v-if="errors.content">{{ errors.content.join(', ') }}</div>
+                        <label for="content" class="form-label">內容 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="content" v-model="bannerData.content" :class="{ 'is-invalid': errors.content }" required></textarea>
+                        <div class="invalid-feedback" v-if="errors.content">{{ errors.content }}</div>
                       </div>
                     </div>
 
@@ -146,25 +186,25 @@ export default {
                       <div class="mb-3">
                         <label for="action_link_href" class="form-label">行動連結網址</label>
                         <input type="text" class="form-control" id="action_link_href" v-model="bannerData.action_link_href" :class="{ 'is-invalid': errors.action_link_href }">
-                        <div class="invalid-feedback" v-if="errors.action_link_href">{{ errors.action_link_href.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.action_link_href">{{ errors.action_link_href }}</div>
                       </div>
 
                       <div class="mb-3">
                         <label for="action_link_text" class="form-label">行動連結文字</label>
                         <input type="text" class="form-control" id="action_link_text" v-model="bannerData.action_link_text" :class="{ 'is-invalid': errors.action_link_text }">
-                        <div class="invalid-feedback" v-if="errors.action_link_text">{{ errors.action_link_text.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.action_link_text">{{ errors.action_link_text }}</div>
                       </div>
 
                       <div class="mb-3">
                         <label for="action_link2_href" class="form-label">行動連結2網址</label>
                         <input type="text" class="form-control" id="action_link2_href" v-model="bannerData.action_link2_href" :class="{ 'is-invalid': errors.action_link2_href }">
-                        <div class="invalid-feedback" v-if="errors.action_link2_href">{{ errors.action_link2_href.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.action_link2_href">{{ errors.action_link2_href }}</div>
                       </div>
 
                       <div class="mb-3">
                         <label for="action_link2_text" class="form-label">行動連結2文字</label>
                         <input type="text" class="form-control" id="action_link2_text" v-model="bannerData.action_link2_text" :class="{ 'is-invalid': errors.action_link2_text }">
-                        <div class="invalid-feedback" v-if="errors.action_link2_text">{{ errors.action_link2_text.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.action_link2_text">{{ errors.action_link2_text }}</div>
                       </div>
                   </div>
 
@@ -175,14 +215,14 @@ export default {
                           <option value="active">啟用</option>
                           <option value="inactive">未啟用</option>
                         </select>
-                        <div class="invalid-feedback" v-if="errors.status">{{ errors.status.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.status">{{ errors.status }}</div>
                       </div>
 
                       <div class="mb-3">
-                        <label for="image" class="form-label">圖片</label>
-                        <input type="file" class="form-control" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" accept=".jpg,.jpeg,.gif,.png,.webp">
+                        <label for="image" class="form-label">圖片 <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="image" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" accept=".jpg,.jpeg,.gif,.png,.webp" required>
                         <small class="form-text text-muted">只能上傳 jpg、jpeg、gif、png 或 webp 格式的圖片</small>
-                        <div class="invalid-feedback" v-if="errors.image">{{ errors.image.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.image">{{ errors.image }}</div>
                         <div v-if="imagePreview" class="mt-2">
                           <img :src="imagePreview" alt="Banner Preview" class="img-fluid" style="max-width: 200px;">
                           <br>
@@ -193,7 +233,7 @@ export default {
                       <div class="mb-3">
                         <label for="sort" class="form-label">排序</label>
                         <input type="number" class="form-control" id="sort" v-model="bannerData.sort" :class="{ 'is-invalid': errors.sort }">
-                        <div class="invalid-feedback" v-if="errors.sort">{{ errors.sort.join(', ') }}</div>
+                        <div class="invalid-feedback" v-if="errors.sort">{{ errors.sort }}</div>
                       </div>
                     </div>
                   </div>
@@ -216,8 +256,7 @@ export default {
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="modal-backdrop" v-if="showModal" @click="closeModal"></div>
+
   <div class="modal" tabindex="-1" :class="{ 'd-block': showModal }">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -225,8 +264,7 @@ export default {
           <h5 class="modal-title">提示</h5>
           <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
-        <div class="modal-body">
-          <p>{{ modalMessage }}</p>
+        <div class="modal-body" v-html="modalMessage">
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
@@ -234,6 +272,9 @@ export default {
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" v-if="showModal"></div>
 </template>
 
 <style scoped>

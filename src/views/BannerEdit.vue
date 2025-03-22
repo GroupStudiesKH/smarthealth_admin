@@ -40,20 +40,9 @@ export default {
     const fetchBannerData = async () => {
       try {
         // 使用假資料
-        const mockData = {
-          title: "夏季健康特惠活動",
-          subtitle_1: "早鳥優惠",
-          subtitle_2: "限時折扣",
-          content: "立即註冊即可享受專業健康諮詢服務",
-          status: "active",
-          img_url: "https://picsum.photos/800/400",
-          action_link_href: "#",
-          action_link_text: "立即報名",
-          sort: 1
-        };
-        bannerData.value = mockData;
-        if (mockData.img_url) {
-          imagePreview.value = mockData.img_url;
+        bannerData.value = await apiService.bannerShow(bannerId);
+        if (bannerData.value.img_url) {
+          imagePreview.value = bannerData.value.img_url;
         }
       } catch (error) {
         console.error("Error fetching banner data:", error);
