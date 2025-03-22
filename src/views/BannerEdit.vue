@@ -240,7 +240,7 @@ export default {
 
                       <div class="mb-3">
                         <label for="image" class="form-label">圖片 <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" required accept=".jpg,.jpeg,.gif,.png,.webp">
+                        <input type="file" class="form-control" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" :required="!imagePreview" accept=".jpg,.jpeg,.gif,.png,.webp">
                         <small class="form-text text-muted">只能上傳 jpg、jpeg、gif、png 或 webp 格式的圖片</small>
                         <div class="invalid-feedback" v-if="errors.image">{{ errors.image }}</div>
                         <div v-if="imagePreview" class="mt-2">
