@@ -66,8 +66,11 @@ export default {
     const handleSubmit = async () => {
       try {
         errors.value = {};
-        
-        const results = await apiService.editMember(memberId, formData);
+        if (!isEdit){
+          await apiService.addMember(formData);
+        }else{
+          await apiService.editMember(memberId, formData);
+        }
         
         router.push("/member");
       } catch (error) {
