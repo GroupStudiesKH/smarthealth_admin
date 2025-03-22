@@ -88,7 +88,7 @@ export default {
             errors.value = cleanedErrors;
             
             // 組合所有錯誤訊息
-            const errorMessages = Object.values(cleanedErrors).join('\n');
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
             
             modalMessage.value = errorMessages;
             showModal.value = true;
@@ -366,8 +366,7 @@ export default {
             <h5 class="modal-title">錯誤提示</h5>
             <button type="button" class="btn-close" @click="showModal = false"></button>
           </div>
-          <div class="modal-body">
-            {{ modalMessage }}
+          <div class="modal-body" v-html="modalMessage">
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="showModal = false">關閉</button>
