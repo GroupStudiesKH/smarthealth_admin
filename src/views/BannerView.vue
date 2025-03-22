@@ -14,6 +14,8 @@ export default {
   },
   setup() {
     const router = useRouter();
+    const modalMessage = ref('');
+    const showModal = ref(false);
     const tableData = ref([]);
 
     const tableColumns = reactive([
@@ -36,11 +38,29 @@ export default {
     };
 
     const deleteBanner = async (bannerId) => {
-      if (confirm("確定要刪除這個 Banner 嗎？")) {
-        // 模擬刪除操作
-        tableData.value = tableData.value.filter(item => item.id !== bannerId);
-        console.log(`Banner ${bannerId} deleted`);
+      try {
+        // 呼叫 API 刪除 Banner
+        await apiService.deleteBanner(bannerId);
+
+        // 重新獲取 Banner 列表
+        await fetchTableData();
+      }catch (error) {
+        showErrorModal('刪除 Banner 時發生錯誤');
       }
+    };
+
+    const showErrorModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const showSuccessModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
     };
 
     onMounted(() => {
@@ -51,6 +71,11 @@ export default {
       tableData,
       tableColumns,
       deleteBanner,
+      showErrorModal,
+      showSuccessModal,
+      closeModal,
+      modalMessage,
+      showModal,
     };
   },
 };
@@ -115,4 +140,39 @@ export default {
       <Footer />
     </div>
   </div>
+
+  <div class="modal" tabindex="-1" :class="{ 'd-block': showModal }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">提示</h5>
+          <button type="button" class="btn-close" @click="closeModal"></button>
+        </div>
+        <div class="modal-body" v-html="modalMessage">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" v-if="showModal"></div>
+
 </template>
+<style scoped>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+</style>
