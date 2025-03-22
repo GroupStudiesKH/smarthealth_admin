@@ -14,44 +14,7 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const tableData = ref([
-      {
-        id: 1,
-        title: "夏季健康特惠活動",
-        subtitle_1: "早鳥優惠",
-        subtitle_2: "限時折扣",
-        content: "立即註冊即可享受專業健康諮詢服務",
-        status: "active",
-        img_url: "https://picsum.photos/800/400",
-        action_link_href: "#",
-        action_link_text: "立即報名",
-        sort: 1
-      },
-      {
-        id: 2,
-        title: "健康講座系列",
-        subtitle_1: "專家分享",
-        subtitle_2: "健康生活",
-        content: "每週線上健康講座，名額有限",
-        status: "active",
-        img_url: "https://picsum.photos/800/400",
-        action_link_href: "#",
-        action_link_text: "查看詳情",
-        sort: 2
-      },
-      {
-        id: 3,
-        title: "會員專屬優惠",
-        subtitle_1: "限時特價",
-        subtitle_2: "會員獨享",
-        content: "會員專屬健康課程優惠",
-        status: "inactive",
-        img_url: "https://picsum.photos/800/400",
-        action_link_href: "#",
-        action_link_text: "了解更多",
-        sort: 3
-      }
-    ]);
+    const tableData = ref([]);
 
     const tableColumns = reactive([
       { key: "id", label: "編號" },
@@ -62,8 +25,14 @@ export default {
     ]);
 
     const fetchTableData = async () => {
-      // 使用假資料，不需要實際呼叫 API
-      console.log("Using mock data instead of API call");
+      try {
+        // 呼叫 API 取得 Banner 列表
+        const response = await apiService.listBanners();
+        
+        tableData.value = response;
+      } catch (error) {
+        console.error('獲取 Banner 列表時發生錯誤:', error);
+      }
     };
 
     const deleteBanner = async (bannerId) => {
