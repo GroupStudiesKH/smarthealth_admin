@@ -179,7 +179,7 @@ export default {
                     <div class="col-md-6">
                       <div class="mb-3">
                         <label for="title" class="form-label">標題 <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }">
+                        <input type="text" class="form-control" id="title" v-model="bannerData.title" :class="{ 'is-invalid': errors.title }" required>
                         <div class="invalid-feedback" v-if="errors.title">{{ errors.title }}</div>
                       </div>
 
@@ -197,7 +197,7 @@ export default {
 
                       <div class="mb-3">
                         <label for="content" class="form-label">內容 <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="content" v-model="bannerData.content" :class="{ 'is-invalid': errors.content }"></textarea>
+                        <textarea class="form-control" id="content" v-model="bannerData.content" :class="{ 'is-invalid': errors.content }" required></textarea>
                         <div class="invalid-feedback" v-if="errors.content">{{ errors.content }}</div>
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export default {
 
                       <div class="mb-3">
                         <label for="image" class="form-label">圖片 <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" accept=".jpg,.jpeg,.gif,.png,.webp">
+                        <input type="file" class="form-control" id="image" @change="handleImageChange" :class="{ 'is-invalid': errors.image }" required accept=".jpg,.jpeg,.gif,.png,.webp">
                         <small class="form-text text-muted">只能上傳 jpg、jpeg、gif、png 或 webp 格式的圖片</small>
                         <div class="invalid-feedback" v-if="errors.image">{{ errors.image }}</div>
                         <div v-if="imagePreview" class="mt-2">
