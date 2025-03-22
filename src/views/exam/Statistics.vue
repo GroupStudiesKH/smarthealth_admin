@@ -20,7 +20,7 @@ export default {
     const fetchCategories = async () => {
       try {
         const response = await apiService.getTagsOption('category');
-        categories.value = response;
+        categories.value = [{id: '', 'name': `全部`}, ...response];
       } catch (error) {
         console.error('獲取分類失敗:', error);
       }
@@ -35,27 +35,6 @@ export default {
     const sortField = ref('')
     const sortOrder = ref('asc')
 
-    // 排序方法
-    const sortExams = (a, b) => {
-      if (!sortField.value) return 0
-      
-      const aValue = a[sortField.value]
-      const bValue = b[sortField.value]
-      
-      if (sortField.value === 'createdAt') {
-        if (sortOrder.value === 'asc') {
-          return new Date(aValue) - new Date(bValue)
-        } else {
-          return new Date(bValue) - new Date(aValue)
-        }
-      }
-      
-      if (sortOrder.value === 'asc') {
-        return aValue - bValue
-      } else {
-        return bValue - aValue
-      }
-    }
 
     // 切換排序
     const toggleSort = (field) => {
@@ -72,20 +51,10 @@ export default {
 
     // 分類選項
     const categories = ref([
-      '全部',
-      '醫療保健',
-      '護理照護',
-      '急救訓練',
-      '長照服務',
-      '心理健康',
-      '營養學',
-      '復健醫學',
-      '中醫保健',
-      '運動醫學'
     ])
 
     // 分類篩選
-    const selectedCategory = ref('全部')
+    const selectedCategory = ref('')
 
     // 分頁相關
     const currentPage = ref(1)
@@ -120,11 +89,6 @@ export default {
         loading.value = false
       }
     }
-
-    // 監聽篩選條件變化
-    watch([searchQuery, selectedCategory, currentPage], () => {
-      fetchExams()
-    })
 
     // 初始化數據
     onMounted(() => {
@@ -164,7 +128,8 @@ export default {
       goToExamEdit,
       toggleSort,
       sortField,
-      sortOrder
+      sortOrder,
+      fetchExams
     }
   }
 }
@@ -183,7 +148,7 @@ export default {
                 <h6 class="card-title">課程測驗列表</h6>
                 <!-- 篩選區域 -->
                 <div class="row mb-3">
-                  <div class="col-md-6">
+                  <div class="col-md-5">
                     <input
                       type="text"
                       class="form-control mb-2"
@@ -191,7 +156,7 @@ export default {
                       placeholder="搜尋課程名稱或講師..."
                     />
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-5">
                     <select
                       class="form-select"
                       v-model="selectedCategory"
@@ -200,6 +165,14 @@ export default {
                         {{ category.name }}
                       </option>
                     </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button 
+                      class="btn btn-primary w-100" 
+                      @click="fetchExams"
+                    >
+                      搜尋
+                    </button>
                   </div>
                 </div>
                 <div class="table-responsive">
