@@ -297,7 +297,6 @@ const bannerShow = async (bannerId) => {
   }
 }
 
-
 const deleteBanner = async (bannerId) => {
   const requestConfig = scDelete(`${apiUrl}admin/banner/${bannerId}`);
 
@@ -566,6 +565,18 @@ const updateChapter = async (courseId, chapterId, inputForm) => {
 
 const createChapter = async (courseId, inputForm) => {
   const requestConfig = scPost(`${apiUrl}admin/course/${courseId}/chapter`, inputForm);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getExamLists = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/exam?${queryString}`);
 
   try {
     const response = await axios(requestConfig);
@@ -912,5 +923,6 @@ export default {
   getMember,
   editMember,
   addMember,
-  memberStatus
+  memberStatus,
+  getExamLists
 };
