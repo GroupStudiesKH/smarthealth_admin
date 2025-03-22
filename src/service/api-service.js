@@ -737,6 +737,17 @@ const addMember = async (inputData) => {
   }
 }
 
+const memberStatus = async (memberID) => {
+  const requestConfig = scPut(`${apiUrl}admin/member/${memberID}/status`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 const getTags = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/tag?${queryString}`);
@@ -900,5 +911,6 @@ export default {
   getMembers,
   getMember,
   editMember,
-  addMember
+  addMember,
+  memberStatus
 };

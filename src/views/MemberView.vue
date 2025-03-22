@@ -75,9 +75,9 @@ export default {
       router.push(`/member/edit/${id}`);
     };
 
-    const handleToggleStatus = async (id, currentStatus) => {
+    const handleToggleStatus = async (id) => {
       try {
-        await apiService.toggleMemberStatus(id, !currentStatus);
+        await apiService.memberStatus(id);
         fetchTableData();
       } catch (error) {
         console.error("Failed to toggle member status:", error);
@@ -178,7 +178,7 @@ export default {
                           <button 
                             class="btn btn-sm me-1" 
                             :class="item.status ? 'btn-warning' : 'btn-success'"
-                            @click="handleToggleStatus(item.id, item.status)"
+                            @click="handleToggleStatus(item.id)"
                           >
                             <i class="material-icons">{{ item.status ? 'block' : 'check_circle' }}</i>
                           </button>
