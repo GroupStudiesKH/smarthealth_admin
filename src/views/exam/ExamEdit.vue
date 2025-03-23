@@ -20,9 +20,9 @@ export default {
 
     // 搜尋和篩選相關的狀態
     const searchQuery = ref("");
-    const selectedChapter = ref("全部");
+    const selectedChapter = ref("");
     const currentPage = ref(1);
-    const pageSize = ref(1);
+    const pageSize = ref(10);
     const total = ref(0);
     const totalPages = ref(10);
     const chapterOptions = ref([]);
@@ -35,13 +35,17 @@ export default {
       try {
         const params = {
           course_id: examId,
+          chapter_id: selectedChapter.value,
           status: "",
           search: searchQuery.value,
           page: currentPage.value,
           pageSize: pageSize.value,
         };
         const response = await apiService.getQuestionLists(params);
-        chapterOptions.value = response.chapterLists;
+        chapterOptions.value = [{
+          id: '',
+          title: `全部`,
+        }, ...response.chapterLists];
         questions.value = response.questions;
         total.value = response.total;
         totalPages.value = response.totalPages;
@@ -51,7 +55,7 @@ export default {
     };
 
     // 監聽搜尋和分頁變化
-    watch([searchQuery, currentPage], () => {
+    watch([currentPage], () => {
       fetchQuestions();
     });
 
@@ -133,7 +137,8 @@ export default {
       currentQuestion,
       isEditMode,
       saveQuestion,
-      chapterOptions
+      chapterOptions,
+      fetchQuestions
     };
   },
 };
@@ -161,7 +166,7 @@ export default {
 
                 <!-- 搜尋和篩選區域 -->
                 <div class="row mb-3">
-                  <div class="col-md-6">
+                  <div class="col-md-5">
                     <input
                       type="text"
                       class="form-control"
@@ -169,7 +174,7 @@ export default {
                       placeholder="搜尋題目內容或答案..."
                     />
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-5">
                     <select class="form-select" v-model="selectedChapter">
                       <option
                         v-for="chapter in chapterOptions"
@@ -179,6 +184,11 @@ export default {
                         {{ chapter.title }}
                       </option>
                     </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button class="btn btn-primary" @click="fetchQuestions">
+                      搜尋
+                    </button>
                   </div>
                 </div>
 
