@@ -36,7 +36,12 @@ export default {
     })
 
     // 題型選項
-    const questionTypes = ['是非題', '單選題', '多選題']
+    // 題型列舉
+    const questionTypes = {
+      true_false: '是非題',
+      single_choice: '單選題',
+      multiple_choice: '多選題'
+    }
 
     // 選項列表（用於單選題和多選題）
     const options = ref(questionForm.value.options || [])
@@ -143,8 +148,8 @@ export default {
             <div class="mb-3">
               <label class="form-label">題型</label>
               <select class="form-select" v-model="questionForm.type">
-                <option v-for="type in questionTypes" :key="type" :value="type">
-                  {{ type }}
+                <option v-for="(value, key) in questionTypes" :key="key" :value="value">
+                  {{ value }}
                 </option>
               </select>
             </div>

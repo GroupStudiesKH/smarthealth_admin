@@ -74,10 +74,19 @@ export default {
     };
 
     // 刪除題目
-    const deleteQuestion = (questionId) => {
-      const index = questions.value.findIndex((q) => q.id === questionId);
-      if (index !== -1) {
-        questions.value.splice(index, 1);
+    const deleteQuestion = async (questionId) => {
+      try {
+        // 使用 confirm 確認是否要刪除
+        if (confirm('確定要刪除此題目嗎？')) {
+          const index = questions.value.findIndex((q) => q.id === questionId);
+          if (index !== -1) {
+            questions.value.splice(index, 1);
+          }
+          
+          await apiService.delQuestion(questionId);
+        }
+      } catch (error) {
+        console.error("刪除題目失敗：", error);
       }
     };
 

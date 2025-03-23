@@ -609,6 +609,17 @@ const getQuestion = async (questionID) => {
   }
 };
 
+const delQuestion = async (questionID) => {
+  const requestConfig = scDelete(`${apiUrl}admin/exam/question/${questionID}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/course?${queryString}`);
@@ -948,5 +959,6 @@ export default {
   memberStatus,
   getExamLists,
   getQuestionLists,
-  getQuestion
+  getQuestion,
+  delQuestion
 };
