@@ -68,7 +68,9 @@ export default {
     // 格式化答案顯示
     const formatAnswer = (question) => {
       if (question.type === "true_false") {
-        return question.correctOptions[0].option_text;
+        return question.correctOptions[0]?.option_text;
+      }else{
+        return question.correctOptions.map((option) => option.option_text).join(", ");
       }
       return "";
     };
@@ -112,25 +114,6 @@ export default {
       }
     };
 
-    // 保存題目
-    const saveQuestion = (questionData) => {
-      if (isEditMode.value) {
-        // 更新現有題目
-        const index = questions.value.findIndex(
-          (q) => q.id === questionData.id
-        );
-        if (index !== -1) {
-          questions.value[index] = questionData;
-        }
-      } else {
-        // 新增題目
-        const newId = Math.max(...questions.value.map((q) => q.id), 0) + 1;
-        questions.value.push({
-          ...questionData,
-          id: newId,
-        });
-      }
-    };
 
     return {
       questions,
@@ -147,7 +130,6 @@ export default {
       showQuestionModal,
       questionID,
       isEditMode,
-      saveQuestion,
       chapterOptions,
       chapterModalOptions,
       fetchQuestions
@@ -329,7 +311,7 @@ export default {
         :questionID="questionID"
         :chapterOptions="chapterModalOptions"
         :isEdit="isEditMode"
-        @save="saveQuestion"
+        @save="fetchQuestions"
         v-if="chapterModalOptions.length > 0"
       />
     </div>

@@ -30,7 +30,7 @@ export default {
       question: "",
       type: "true_false",
       note: "",
-      options: []
+      options: [],
     });
     const questionType = ref("true_false");
     const chapterOptions = ref(props.chapterOptions);
@@ -53,6 +53,14 @@ export default {
       multiple_choice: "多選題",
     };
 
+    const showModal = ref(false);
+    const modalMessage = ref("");
+    const errors = ref({});
+    const showErrorModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    }
+
     const getQuestion = async (id) => {
       try {
         questionForm.value = {
@@ -61,13 +69,13 @@ export default {
           question: "",
           type: "true_false",
           note: "",
-          options: []
+          options: [],
         };
         const response = await apiService.getQuestion(id);
         questionForm.value = response;
         questionType.value = response.type;
       } catch (error) {
-        console.error("獲取題目失敗:", error);
+        showErrorModal("獲取題目失敗");
       }
     };
 
@@ -78,7 +86,7 @@ export default {
         if (newType === "true_false") {
           questionForm.value.options = [
             { option_text: "是", option_index: 0, is_correct: true },
-            { option_text: "否", option_index: 1, is_correct: false }
+            { option_text: "否", option_index: 1, is_correct: false },
           ];
         } else if (newType !== questionForm.value.type) {
           questionForm.value.options = [];
@@ -89,12 +97,16 @@ export default {
 
     // 設置答案
     const setAnswer = (index) => {
-      if (questionForm.value.type === "true_false" || questionForm.value.type === "single_choice") {
+      if (
+        questionForm.value.type === "true_false" ||
+        questionForm.value.type === "single_choice"
+      ) {
         questionForm.value.options.forEach((option, idx) => {
           option.is_correct = idx === index;
         });
       } else {
-        questionForm.value.options[index].is_correct = !questionForm.value.options[index].is_correct;
+        questionForm.value.options[index].is_correct =
+          !questionForm.value.options[index].is_correct;
       }
     };
 
@@ -103,7 +115,7 @@ export default {
       questionForm.value.options.push({
         option_text: "",
         option_index: questionForm.value.options.length,
-        is_correct: false
+        is_correct: false,
       });
     };
 
@@ -127,9 +139,44 @@ export default {
     };
 
     // 保存題目
-    const saveQuestion = () => {
-      emit("save", questionForm.value);
-      closeModal();
+    const saveQuestion = async () => {
+      try {
+        const results = await apiService.updateQuestion(
+          questionID.value,
+          questionForm.value
+        );
+        closeModal();
+      } catch (error) {
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
+            
+
+            showErrorModal("橫幅更新失敗：" + (errorMessages|| "未知錯誤"));
+
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            showErrorModal("橫幅更新失敗：" + (error.response.data.message || "儲存失敗"));
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          showErrorModal("儲存失敗");
+        }
+      }
+
+      console.log(questionForm.value);
+
+      // emit("save", questionForm.value);
+      // closeModal();
     };
 
     return {
@@ -142,7 +189,10 @@ export default {
       closeModal,
       saveQuestion,
       questionType,
-      setAnswer
+      setAnswer,
+      showModal,
+      modalMessage,
+      showErrorModal,
     };
   },
 };
@@ -216,7 +266,11 @@ export default {
                 >
                   <div class="form-check flex-grow-1">
                     <input
-                      :type="questionForm.type === 'multiple_choice' ? 'checkbox' : 'radio'"
+                      :type="
+                        questionForm.type === 'multiple_choice'
+                          ? 'checkbox'
+                          : 'radio'
+                      "
                       name="answer"
                       class="form-check-input"
                       :checked="option.is_correct"
@@ -232,7 +286,10 @@ export default {
                     />
                   </div>
                   <button
-                    v-if="questionForm.type !== 'true_false' && questionForm.options.length > 2"
+                    v-if="
+                      questionForm.type !== 'true_false' &&
+                      questionForm.options.length > 1
+                    "
                     type="button"
                     class="btn btn-outline-danger btn-sm ms-2"
                     @click="removeOption(index)"
@@ -262,7 +319,11 @@ export default {
             </div>
 
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @click="closeModal">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                @click="closeModal"
+              >
                 取消
               </button>
               <button type="submit" class="btn btn-primary">保存</button>
@@ -272,6 +333,38 @@ export default {
       </div>
     </div>
   </div>
+
+  <!-- Error Modal -->
+  <div
+    class="modal fade"
+    :class="{ show: showModal }"
+    tabindex="-1"
+    :style="{ display: showModal ? 'block' : 'none' }"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">錯誤提示</h5>
+          <button
+            type="button"
+            class="btn-close"
+            @click="showModal = false"
+          ></button>
+        </div>
+        <div class="modal-body" v-html="modalMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="showModal = false"
+          >
+            關閉
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show" v-if="showModal"></div>
 </template>
 
 <style scoped>

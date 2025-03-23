@@ -113,7 +113,7 @@ const checkServerResponse = (responseData) => {
     // 重定向到登入頁面
     window.location.href = homeUrl + 'login';
     throw '請重新登入';
-    
+
   }else if (responseData.data.status == 'success' || responseData.status == 200) {
     // Error response
     return responseData.data.content;
@@ -630,6 +630,18 @@ const delQuestion = async (questionID) => {
   }
 };
 
+const updateQuestion = async (questionId, formData) => {
+  const requestConfig = scPost(`${apiUrl}admin/exam/question/${questionId}`, formData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/course?${queryString}`);
@@ -970,5 +982,6 @@ export default {
   getExamLists,
   getQuestionLists,
   getQuestion,
-  delQuestion
+  delQuestion,
+  updateQuestion
 };
