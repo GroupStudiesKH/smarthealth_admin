@@ -55,6 +55,14 @@ export default {
 
     const getQuestion = async (id) => {
       try {
+        questionForm.value = {
+          id: "",
+          chapter: "",
+          question: "",
+          type: "true_false",
+          note: "",
+          options: []
+        };
         const response = await apiService.getQuestion(id);
         questionForm.value = response;
         questionType.value = response.type;
@@ -209,7 +217,7 @@ export default {
                   <div class="form-check flex-grow-1">
                     <input
                       :type="questionForm.type === 'multiple_choice' ? 'checkbox' : 'radio'"
-                      :name="'answer'"
+                      name="answer"
                       class="form-check-input"
                       :checked="option.is_correct"
                       @change="setAnswer(index)"
