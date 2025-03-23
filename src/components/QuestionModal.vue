@@ -145,6 +145,7 @@ export default {
           questionID.value,
           questionForm.value
         );
+        emit("save", questionForm.value);
         closeModal();
       } catch (error) {
         if (error.response?.data?.status === 'error') {
@@ -172,11 +173,6 @@ export default {
           showErrorModal("儲存失敗");
         }
       }
-
-      console.log(questionForm.value);
-
-      // emit("save", questionForm.value);
-      // closeModal();
     };
 
     return {
