@@ -24,7 +24,8 @@ export default {
     const currentPage = ref(1);
     const pageSize = ref(1);
     const total = ref(0);
-    const totalPages = ref(1);
+    const totalPages = ref(10);
+    const chapterOptions = ref([]);
 
     // 題目數據
     const questions = ref([]);
@@ -40,6 +41,7 @@ export default {
           pageSize: pageSize.value,
         };
         const response = await apiService.getQuestionLists(params);
+        chapterOptions.value = response.chapterLists;
         questions.value = response.questions;
         total.value = response.total;
         totalPages.value = response.totalPages;
@@ -131,6 +133,7 @@ export default {
       currentQuestion,
       isEditMode,
       saveQuestion,
+      chapterOptions
     };
   },
 };
@@ -163,17 +166,17 @@ export default {
                       type="text"
                       class="form-control"
                       v-model="searchQuery"
-                      placeholder="搜尋題目內容或答案說明..."
+                      placeholder="搜尋題目內容或答案..."
                     />
                   </div>
                   <div class="col-md-6">
                     <select class="form-select" v-model="selectedChapter">
                       <option
                         v-for="chapter in chapterOptions"
-                        :key="chapter"
-                        :value="chapter"
+                        :key="chapter.id"
+                        :value="chapter.id"
                       >
-                        {{ chapter }}
+                        {{ chapter.title }}
                       </option>
                     </select>
                   </div>
