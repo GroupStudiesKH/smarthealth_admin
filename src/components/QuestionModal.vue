@@ -26,11 +26,14 @@ export default {
   setup(props, { emit }) {
     const questionForm = ref({
       id: "",
-      chapter: "",
+      chapter_id: "",
       question: "",
       type: "true_false",
       note: "",
-      options: [],
+      options: [
+        { option_text: "是", option_index: 0, is_correct: true },
+        { option_text: "否", option_index: 1, is_correct: false },
+      ],
     });
     const questionType = ref("true_false");
     const chapterOptions = ref(props.chapterOptions);
@@ -42,6 +45,18 @@ export default {
         questionID.value = newID;
         if (newID) {
           getQuestion(newID);
+        }else{
+          questionForm.value = {
+            id: "",
+            chapter_id: "",
+            question: "",
+            type: "true_false",
+            note: "",
+            options: [
+              { option_text: "是", option_index: 0, is_correct: true },
+              { option_text: "否", option_index: 1, is_correct: false },
+            ],
+          }
         }
       }
     );
@@ -141,10 +156,17 @@ export default {
     // 保存題目
     const saveQuestion = async () => {
       try {
-        const results = await apiService.updateQuestion(
-          questionID.value,
-          questionForm.value
-        );
+
+        if(props.isEdit){
+          await apiService.updateQuestion(
+            questionID.value,
+            questionForm.value
+          );
+        }else{
+          await apiService.addQuestion(questionForm.value);
+        }
+
+
         emit("save", questionForm.value);
         closeModal();
       } catch (error) {
@@ -228,7 +250,7 @@ export default {
             <!-- 所屬範圍 -->
             <div class="mb-3">
               <label class="form-label">所屬範圍</label>
-              <select class="form-select" v-model="questionForm.chapter">
+              <select class="form-select" v-model="questionForm.chapter_id" required>
                 <option value="">請選擇章節/考試範圍</option>
                 <option
                   v-for="chapter in chapterOptions"

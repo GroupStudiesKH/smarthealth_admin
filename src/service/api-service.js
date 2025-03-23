@@ -641,6 +641,17 @@ const updateQuestion = async (questionId, formData) => {
   }
 };
 
+const addQuestion = async (formData) => {
+  const requestConfig = scPost(`${apiUrl}admin/exam/question`, formData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
@@ -983,5 +994,6 @@ export default {
   getQuestionLists,
   getQuestion,
   delQuestion,
-  updateQuestion
+  updateQuestion,
+  addQuestion
 };

@@ -72,7 +72,6 @@ export default {
       }else{
         return question.correctOptions.map((option) => option.option_text).join(", ");
       }
-      return "";
     };
 
     // 刪除題目
@@ -99,9 +98,9 @@ export default {
 
     // 新增題目
     const addQuestion = () => {
-      currentQuestion.value = null;
       isEditMode.value = false;
       showQuestionModal.value = true;
+      questionID.value = null;
     };
 
     // 編輯題目
