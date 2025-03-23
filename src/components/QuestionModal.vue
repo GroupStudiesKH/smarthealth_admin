@@ -25,11 +25,14 @@ export default {
   emits: ["update:show", "save"],
   setup(props, { emit }) {
     const questionForm = ref({
-      ...props.questionData,
+      id: "",
+      chapter: "",
+      question: "",
+      type: "true_false",
+      note: "",
+      options: []
     });
-    const questionOptions = ref([]);
-    const questionType = ref("");
-    const questionAnswer = ref([]);
+    const questionType = ref("true_false");
     const chapterOptions = ref(props.chapterOptions);
 
     const questionID = ref(props.questionID);
@@ -44,29 +47,17 @@ export default {
     );
 
     // 題型選項
-    // 題型列舉
     const questionTypes = {
       true_false: "是非題",
       single_choice: "單選題",
       multiple_choice: "多選題",
     };
 
-
-
     const getQuestion = async (id) => {
       try {
         const response = await apiService.getQuestion(id);
         questionForm.value = response;
         questionType.value = response.type;
-        questionAnswer.value = [];
-        console.log(questionType.value);
-
-        questionOptions.value = response.options;
-        response.options.forEach((option, index) => {
-          if (option.is_correct) {
-            questionAnswer.value.push(index);
-          }
-        });
       } catch (error) {
         console.error("獲取題目失敗:", error);
       }
@@ -76,69 +67,50 @@ export default {
     watch(
       () => questionType.value,
       (newType) => {
-        // 重置答案
-        questionOptions.value = [{ option_text: "是", option_index: 0, is_correct: true }, { option_text: "否", option_index: 1, is_correct: false}];
-
-        if(newType == questionForm.value.type){
-          questionOptions.value = questionForm.value.options || [];
+        if (newType === "true_false") {
+          questionForm.value.options = [
+            { option_text: "是", option_index: 0, is_correct: true },
+            { option_text: "否", option_index: 1, is_correct: false }
+          ];
+        } else if (newType !== questionForm.value.type) {
+          questionForm.value.options = [];
         }
-
+        questionForm.value.type = newType;
       }
     );
 
+    // 設置答案
     const setAnswer = (index) => {
-      if (questionForm.value.type != "true_false") {
-        const position = questionAnswer.value.indexOf(index);
-        if (position === -1) {
-          questionAnswer.value.push(index);
-        } else {
-          questionAnswer.value.splice(position, 1);
-        }
-      }else{
-        questionAnswer.value = [index];
+      if (questionForm.value.type === "true_false" || questionForm.value.type === "single_choice") {
+        questionForm.value.options.forEach((option, idx) => {
+          option.is_correct = idx === index;
+        });
+      } else {
+        questionForm.value.options[index].is_correct = !questionForm.value.options[index].is_correct;
       }
-    }
+    };
 
     // 新增選項
     const addOption = () => {
-      questionOptions.value.push("");
-      questionForm.value.options = questionOptions.value;
+      questionForm.value.options.push({
+        option_text: "",
+        option_index: questionForm.value.options.length,
+        is_correct: false
+      });
     };
 
     // 刪除選項
     const removeOption = (index) => {
-      questionOptions.value.splice(index, 1);
-      questionForm.value.options = questionOptions.value;
-      // 更新答案
-      if (questionForm.value.type === "單選題") {
-        if (questionForm.value.answer >= index) {
-          questionForm.value.answer = null;
-        }
-      } else if (questionForm.value.type === "多選題") {
-        questionForm.value.answer = questionForm.value.answer.filter(
-          (ans) => ans < index
-        );
-      }
+      questionForm.value.options.splice(index, 1);
+      // 更新選項索引
+      questionForm.value.options.forEach((option, idx) => {
+        option.option_index = idx;
+      });
     };
 
     // 更新選項內容
     const updateOption = (index, value) => {
-      questionOptions.value[index] = value;
-      questionForm.value.options = questionOptions.value;
-    };
-
-    // 切換多選答案
-    const toggleMultipleAnswer = (index) => {
-      if (!Array.isArray(questionForm.value.answer)) {
-        questionForm.value.answer = [];
-      }
-      const position = questionForm.value.answer.indexOf(index);
-      if (position === -1) {
-        questionForm.value.answer.push(index);
-      } else {
-        questionForm.value.answer.splice(position, 1);
-      }
-      questionForm.value.answer.sort((a, b) => a - b);
+      questionForm.value.options[index].option_text = value;
     };
 
     // 關閉modal
@@ -159,19 +131,17 @@ export default {
       addOption,
       removeOption,
       updateOption,
-      toggleMultipleAnswer,
       closeModal,
       saveQuestion,
       questionType,
-      questionOptions,
-      setAnswer,
-      questionAnswer
+      setAnswer
     };
   },
 };
 </script>
 
 <template>
+  <div class="modal-backdrop fade show" v-if="show"></div>
   <div
     v-if="show"
     class="modal fade show d-block"
@@ -188,8 +158,6 @@ export default {
         <div class="modal-body">
           <form @submit.prevent="saveQuestion">
             <!-- 題型選擇 -->
-            {{ questionForm }}
-            {{ questionType }}
             <div class="mb-3">
               <label class="form-label">題型</label>
               <select class="form-select" v-model="questionType">
@@ -231,96 +199,65 @@ export default {
 
             <!-- 答案設定區域 -->
             <div class="mb-3">
-              <label class="form-label">答案設定</label>
-
-              <!-- 是非題答案 -->
-              <div v-if="questionType === 'true_false'" class="d-flex gap-3">
-                <div class="form-check" v-for="(qValue, qKey) in questionOptions" v-bind:key="qKey">
-                  <input
-                    type="radio"
-                    class="form-check-input"
-                    :checked="questionAnswer.indexOf(qKey) !== -1"
-                    @click="setAnswer(qKey)"
-                    required
-                  />
-                  <label class="form-check-label">{{ qValue.option_text }}</label>
-                </div>
-
-              </div>
-
-              <!-- 單選題和多選題選項 -->
-              <div v-else>
-                <div class="mb-2 d-flex justify-content-end">
-                  <button
-                    type="button"
-                    class="btn btn-outline-primary btn-sm"
-                    @click="addOption"
-                  >
-                    <i class="material-icons align-middle">add</i>
-                    新增選項
-                  </button>
-                </div>
+              <label class="form-label">選項與答案</label>
+              <div class="options-container">
                 <div
-                  v-for="(option, index) in options"
+                  v-for="(option, index) in questionForm.options"
                   :key="index"
-                  class="mb-2 d-flex gap-2 align-items-center"
+                  class="option-item mb-2 d-flex align-items-center"
                 >
                   <div class="form-check flex-grow-1">
                     <input
-                      :type="
-                        questionForm.type === '單選題' ? 'radio' : 'checkbox'
-                      "
+                      :type="questionForm.type === 'multiple_choice' ? 'checkbox' : 'radio'"
+                      :name="'answer'"
                       class="form-check-input"
-                      :value="index"
-                      v-model="questionForm.answer"
-                      @change="
-                        questionForm.type === '多選題' &&
-                          toggleMultipleAnswer(index)
-                      "
-                      required
+                      :checked="option.is_correct"
+                      @change="setAnswer(index)"
                     />
                     <input
                       type="text"
-                      class="form-control"
-                      v-model="options[index]"
+                      class="form-control d-inline-block ms-2"
+                      style="width: calc(100% - 30px)"
+                      v-model="option.option_text"
+                      :placeholder="'選項' + (index + 1)"
                       @input="updateOption(index, $event.target.value)"
-                      placeholder="請輸入選項內容"
-                      required
                     />
                   </div>
                   <button
+                    v-if="questionForm.type !== 'true_false' && questionForm.options.length > 2"
                     type="button"
-                    class="btn btn-outline-danger btn-sm"
+                    class="btn btn-outline-danger btn-sm ms-2"
                     @click="removeOption(index)"
-                    :disabled="questionOptions.length <= 2"
                   >
-                    <i class="material-icons">delete</i>
+                    刪除
                   </button>
                 </div>
               </div>
+              <button
+                v-if="questionForm.type !== 'true_false'"
+                type="button"
+                class="btn btn-outline-primary btn-sm mt-2"
+                @click="addOption"
+              >
+                新增選項
+              </button>
             </div>
 
-            <!-- 答案說明 -->
+            <!-- 備註 -->
             <div class="mb-3">
-              <label class="form-label">答案說明</label>
+              <label class="form-label">備註</label>
               <textarea
                 class="form-control"
                 v-model="questionForm.note"
                 rows="2"
-                required
               ></textarea>
             </div>
 
-            <!-- 提交按鈕 -->
             <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                @click="closeModal"
-              >
+              <button type="button" class="btn btn-secondary" @click="closeModal">
                 取消
               </button>
-              <button type="submit" class="btn btn-primary">儲存</button>
+              <button type="submit" class="btn btn-primary">保存</button>
             </div>
           </form>
         </div>
@@ -330,13 +267,9 @@ export default {
 </template>
 
 <style scoped>
-.modal {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.material-icons {
-  font-size: 16px;
-  line-height: 1;
-  vertical-align: middle;
+.option-item {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
 }
 </style>
