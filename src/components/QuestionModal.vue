@@ -20,6 +20,10 @@ export default {
         explanation: ''
       })
     },
+    chapterOptions: {
+      type: Array,
+      default: () => []
+    },
     isEdit: {
       type: Boolean,
       default: false
@@ -34,19 +38,10 @@ export default {
     // 題型選項
     const questionTypes = ['是非題', '單選題', '多選題']
 
-    // 章節/考試範圍選項
-    const chapterOptions = [
-      '第一章：FHIR基礎概念',
-      '第二章：FHIR應用',
-      '第三章：電子病歷系統',
-      '第四章：醫療標準規範',
-      '第五章：醫療資訊交換',
-      '期中考試',
-      '期末考試'
-    ]
-
     // 選項列表（用於單選題和多選題）
     const options = ref(questionForm.value.options || [])
+
+    const chapterOptions = ref(props.chapterOptions)
 
     // 監聽題型變化
     watch(() => questionForm.value.type, (newType) => {
@@ -159,8 +154,8 @@ export default {
               <label class="form-label">所屬範圍</label>
               <select class="form-select" v-model="questionForm.chapter">
                 <option value="">請選擇章節/考試範圍</option>
-                <option v-for="chapter in chapterOptions" :key="chapter" :value="chapter">
-                  {{ chapter }}
+                <option v-for="chapter in chapterOptions" :key="chapter.id" :value="chapter.id">
+                  {{ chapter.title }}
                 </option>
               </select>
             </div>

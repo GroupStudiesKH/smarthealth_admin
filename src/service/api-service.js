@@ -598,7 +598,16 @@ const getQuestionLists = async (params) => {
   }
 };
 
+const getQuestion = async (questionID) => {
+  const requestConfig = scGet(`${apiUrl}admin/exam/question/${questionID}`);
 
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
 
 const getCourses = async (params) => {
   const queryString = objectToQueryString(params);
@@ -938,5 +947,6 @@ export default {
   addMember,
   memberStatus,
   getExamLists,
-  getQuestionLists
+  getQuestionLists,
+  getQuestion
 };

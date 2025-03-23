@@ -26,6 +26,7 @@ export default {
     const total = ref(0);
     const totalPages = ref(10);
     const chapterOptions = ref([]);
+    const chapterModalOptions = ref([]);
 
     // 題目數據
     const questions = ref([]);
@@ -46,6 +47,7 @@ export default {
           id: '',
           title: `全部`,
         }, ...response.chapterLists];
+        chapterModalOptions.value = response.chapterLists;
         questions.value = response.questions;
         total.value = response.total;
         totalPages.value = response.totalPages;
@@ -81,7 +83,12 @@ export default {
 
     // 控制 Modal 顯示
     const showQuestionModal = ref(false);
-    const currentQuestion = ref(null);
+    const currentQuestion = ref({
+        "id": ``,
+        "question": ``,
+        "type": ``,
+        "options": []
+    });
     const isEditMode = ref(false);
 
     // 新增題目
@@ -92,12 +99,14 @@ export default {
     };
 
     // 編輯題目
-    const editQuestion = (questionId) => {
+    const editQuestion = async (questionId) => {
       const question = questions.value.find((q) => q.id === questionId);
       if (question) {
-        currentQuestion.value = { ...question };
         isEditMode.value = true;
         showQuestionModal.value = true;
+        
+        // currentQuestion.value = await apiService.getQuestionDetail(questionId);
+
       }
     };
 
@@ -138,6 +147,7 @@ export default {
       isEditMode,
       saveQuestion,
       chapterOptions,
+      chapterModalOptions,
       fetchQuestions
     };
   },
@@ -315,8 +325,10 @@ export default {
       <QuestionModal
         v-model:show="showQuestionModal"
         :questionData="currentQuestion"
+        :chapterOptions="chapterModalOptions"
         :isEdit="isEditMode"
         @save="saveQuestion"
+        v-if="chapterModalOptions.length > 0"
       />
     </div>
   </div>
