@@ -199,6 +199,7 @@ export default {
                         <th>題型</th>
                         <th>題目內容</th>
                         <th>答案</th>
+                        <th>註解</th>
                         <th>所屬章節/考試</th>
                         <th>操作</th>
                       </tr>
@@ -227,6 +228,7 @@ export default {
                         </td>
                         <td>{{ question.question }}</td>
                         <td>{{ formatAnswer(question) }}</td>
+                        <td>{{ question.note }}</td>
                         <td>{{ question.chapterName }}</td>
                         <td>
                           <button
