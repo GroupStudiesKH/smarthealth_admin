@@ -92,12 +92,7 @@ export default {
 
     // 控制 Modal 顯示
     const showQuestionModal = ref(false);
-    const currentQuestion = ref({
-        "id": ``,
-        "question": ``,
-        "type": ``,
-        "options": []
-    });
+    const questionID = ref(null);
     const isEditMode = ref(false);
 
     // 新增題目
@@ -108,14 +103,12 @@ export default {
     };
 
     // 編輯題目
-    const editQuestion = async (questionId) => {
-      const question = questions.value.find((q) => q.id === questionId);
+    const editQuestion = async (qID) => {
+      const question = questions.value.find((q) => q.id === qID);
       if (question) {
         isEditMode.value = true;
         showQuestionModal.value = true;
-        
-        // currentQuestion.value = await apiService.getQuestionDetail(questionId);
-
+        questionID.value = qID;
       }
     };
 
@@ -152,7 +145,7 @@ export default {
       editQuestion,
       addQuestion,
       showQuestionModal,
-      currentQuestion,
+      questionID,
       isEditMode,
       saveQuestion,
       chapterOptions,
@@ -333,7 +326,7 @@ export default {
       <!-- 題目編輯 Modal -->
       <QuestionModal
         v-model:show="showQuestionModal"
-        :questionData="currentQuestion"
+        :questionID="questionID"
         :chapterOptions="chapterModalOptions"
         :isEdit="isEditMode"
         @save="saveQuestion"

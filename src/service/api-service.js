@@ -105,11 +105,21 @@ const scOption = (url, params) => {
 };
 
 const checkServerResponse = (responseData) => {
-  if (responseData.data.status != 'success' || responseData.status != 200) {
+  // 檢查是否為401未授權狀態
+  if (responseData.status === 401) {
+    // 清除本地儲存的token
+    localStorage.removeItem('access_token');
+    sessionStorage.removeItem('access_token');
+    // 重定向到登入頁面
+    window.location.href = homeUrl + 'login';
+    throw '請重新登入';
+    
+  }else if (responseData.data.status == 'success' || responseData.status == 200) {
     // Error response
-    throw responseData.data.message;
+    return responseData.data.content;
   }
-  return responseData.data.content;
+
+  throw responseData.data.message;
 };
 
 const adminLogin = async (inputData) => {

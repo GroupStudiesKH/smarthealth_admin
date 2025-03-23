@@ -1,5 +1,6 @@
 <script>
 import { ref, watch } from 'vue'
+import apiService from "@/service/api-service";
 
 export default {
   name: 'QuestionModal',
@@ -8,17 +9,9 @@ export default {
       type: Boolean,
       required: true
     },
-    questionData: {
-      type: Object,
-      default: () => ({
-        id: null,
-        type: '是非題',
-        content: '',
-        chapter: '',
-        options: [],
-        answer: null,
-        explanation: ''
-      })
+    questionID: {
+      type: String,
+      required: true
     },
     chapterOptions: {
       type: Array,
@@ -35,6 +28,14 @@ export default {
       ...props.questionData
     })
 
+    const questionID = ref(props.questionID)
+    watch(() => props.questionID, (newID) => {
+      questionID.value = newID
+      if (newID) {
+        getQuestion(newID)
+      }
+    })
+
     // 題型選項
     // 題型列舉
     const questionTypes = {
@@ -48,20 +49,28 @@ export default {
 
     const chapterOptions = ref(props.chapterOptions)
 
+    const getQuestion = async (id) => {
+      try {
+        const response = await apiService.getQuestion(id)
+        questionForm.value = response
+      } catch (error) {
+        console.error('獲取題目失敗:', error)
+      }
+    }
+
     // 監聽題型變化
     watch(() => questionForm.value.type, (newType) => {
       // 重置答案
-      if (newType === '是非題') {
-        questionForm.value.answer = null
+      if (newType === 'true_false') {
         questionForm.value.options = []
       } else {
-        questionForm.value.answer = newType === '單選題' ? null : []
+        questionForm.value.answer = newType === 'single_choice' ? null : []
         if (options.value.length === 0) {
           options.value = ['', '', '', '']
           questionForm.value.options = options.value
         }
         // 確保多選題的答案是陣列
-        if (newType === '多選題' && !Array.isArray(questionForm.value.answer)) {
+        if (newType === 'multiple_choice' && !Array.isArray(questionForm.value.answer)) {
           questionForm.value.answer = []
         }
       }
@@ -145,6 +154,8 @@ export default {
         <div class="modal-body">
           <form @submit.prevent="saveQuestion">
             <!-- 題型選擇 -->
+            {{ questionForm }}
+
             <div class="mb-3">
               <label class="form-label">題型</label>
               <select class="form-select" v-model="questionForm.type">
@@ -170,7 +181,7 @@ export default {
               <label class="form-label">題目內容</label>
               <textarea
                 class="form-control"
-                v-model="questionForm.content"
+                v-model="questionForm.question"
                 rows="3"
                 required
               ></textarea>
@@ -181,7 +192,7 @@ export default {
               <label class="form-label">答案設定</label>
               
               <!-- 是非題答案 -->
-              <div v-if="questionForm.type === '是非題'" class="d-flex gap-3">
+              <div v-if="questionForm.type === 'true_false'" class="d-flex gap-3">
                 <div class="form-check">
                   <input
                     type="radio"
@@ -248,7 +259,7 @@ export default {
               <label class="form-label">答案說明</label>
               <textarea
                 class="form-control"
-                v-model="questionForm.explanation"
+                v-model="questionForm.note"
                 rows="2"
                 required
               ></textarea>
