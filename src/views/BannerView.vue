@@ -39,11 +39,17 @@ export default {
 
     const deleteBanner = async (bannerId) => {
       try {
-        // 呼叫 API 刪除 Banner
-        await apiService.deleteBanner(bannerId);
-
-        // 重新獲取 Banner 列表
-        await fetchTableData();
+        // 顯示確認彈窗
+        if (confirm('確定要刪除此 Banner 嗎？')) {
+          // 呼叫 API 刪除 Banner
+          await apiService.deleteBanner(bannerId);
+          
+          // 重新獲取 Banner 列表
+          await fetchTableData();
+          
+          // 顯示成功訊息
+          showSuccessModal('Banner 已成功刪除');
+        }
       }catch (error) {
         showErrorModal('刪除 Banner 時發生錯誤');
       }

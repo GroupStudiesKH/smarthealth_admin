@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick } from "vue";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service.js";
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 export default {
@@ -17,103 +18,96 @@ export default {
       id: null,
       title: "",
       content: "",
-      order: 0
+      sort: 0,
+      status: "active",
+      type: "faq"
     });
     const showModal = ref(false);
     const editor = ref(null);
 
     const addFaq = () => {
       currentFaq.value = {
-        id: Date.now(),
+        id: null,
         title: "",
         content: "",
-        order: faqList.value.length + 1
+        sort: faqList.value.length + 1,
+        status: "active",
+        type: "faq"
       };
       showModal.value = true;
     };
 
-    const editFaq = (faq) => {
-      currentFaq.value = { ...faq };
-      showModal.value = true;
-      // 使用 nextTick 確保 DOM 更新後再設定編輯器內容
-      nextTick(() => {
-        if (editor.value) {
-          editor.value.setData(faq.content);
-        }
-      });
+    const editFaq = async (faq) => {
+      try {
+        const response = await apiService.getPost({ id: faq.id });
+        currentFaq.value = { ...response };
+
+        editor.value = await ClassicEditor
+          .create(document.querySelector('#editor'))
+          .then(editor => {
+            editor.setData(response.content);
+            editor.model.document.on('change:data', () => {
+              content.value = editor.getData();
+            });
+            return editor;
+          })
+
+        showModal.value = true;
+      } catch (error) {
+        console.error('Error fetching FAQ:', error);
+        alert('獲取FAQ資料失敗，請稍後再試');
+      }
     };
 
-    const saveFaq = () => {
+    const saveFaq = async () => {
       if (editor.value) {
         currentFaq.value.content = editor.value.getData();
       }
-      if (!currentFaq.value.id) {
-        faqList.value.push({ ...currentFaq.value });
-      } else {
-        const index = faqList.value.findIndex(f => f.id === currentFaq.value.id);
-        if (index !== -1) {
-          faqList.value[index] = { ...currentFaq.value };
+      try {
+        if (!currentFaq.value.id) {
+          const response = await apiService.createPost(currentFaq.value);
+          faqList.value.push(response);
+        } else {
+          const response = await apiService.updatePost(currentFaq.value.id, currentFaq.value);
+          const index = faqList.value.findIndex(f => f.id === currentFaq.value.id);
+          if (index !== -1) {
+            faqList.value[index] = response;
+          }
         }
+        showModal.value = false;
+        currentFaq.value = { id: null, title: "", content: "", sort: 0, status: "active", type: "faq" };
+      } catch (error) {
+        console.error('Error saving FAQ:', error);
+        alert('保存失敗，請稍後再試');
       }
-      showModal.value = false;
-      currentFaq.value = { id: null, title: "", content: "", order: 0 };
     };
 
-    const deleteFaq = (id) => {
+    const deleteFaq = async (id) => {
       if (confirm("確定要刪除這個 FAQ 項目嗎？")) {
-        const index = faqList.value.findIndex(f => f.id === id);
-        if (index !== -1) {
-          faqList.value.splice(index, 1);
-          // 重新排序
-          faqList.value.forEach((faq, idx) => {
-            faq.order = idx + 1;
-          });
+        try {
+          await apiService.deletePost(id);
+          const index = faqList.value.findIndex(f => f.id === id);
+          if (index !== -1) {
+            faqList.value.splice(index, 1);
+          }
+        } catch (error) {
+          console.error('Error deleting FAQ:', error);
+          alert('刪除失敗，請稍後再試');
         }
       }
     };
 
-    onMounted(async () => {
-      editor.value = await ClassicEditor
-        .create(document.querySelector('#editor'), {
-          minHeight: '500px',
-          height: '500px'
-        })
-        .catch(error => {
-          console.error(error);
-        });
-      faqList.value = [
-        {
-          id: 1,
-          title: "如何開始使用智慧健康管理平台？",
-          content: "註冊帳號後，您可以立即開始使用我們的健康管理功能。首先，請完善您的個人健康檔案，接著您就可以使用各項功能，包括健康數據追蹤、營養建議等服務。",
-          order: 1
-        },
-        {
-          id: 2,
-          title: "平台提供哪些主要功能？",
-          content: "我們的平台提供以下主要功能：<br>1. 個人健康數據追蹤<br>2. 即時健康分析報告<br>3. 專業醫療諮詢服務<br>4. 營養管理建議<br>5. 運動計劃制定",
-          order: 2
-        },
-        {
-          id: 3,
-          title: "如何確保我的健康數據安全？",
-          content: "我們採用最先進的加密技術保護您的健康數據。所有資料都經過加密存儲，並且只有經過授權的醫療人員才能查看您的健康記錄。",
-          order: 3
-        },
-        {
-          id: 4,
-          title: "是否提供緊急醫療協助？",
-          content: "是的，我們提供24小時緊急醫療諮詢服務。如果您遇到緊急情況，可以通過平台快速聯繫醫療人員獲得協助。",
-          order: 4
-        },
-        {
-          id: 5,
-          title: "如何更新個人健康資料？",
-          content: "登入後，點擊「個人檔案」選項，您可以隨時更新您的健康資料，包括基本資料、病史、過敏史等重要信息。",
-          order: 5
-        }
-      ];
+    const fetchFaqList = async () => {
+      try {
+        const response = await apiService.getPosts({type: 'faq'});
+        faqList.value = response;
+      } catch (error) {
+        console.error('Error fetching FAQ list:', error);
+      }
+    }
 
+    onMounted(() => {
+      fetchFaqList()
     });
 
     return {
@@ -220,5 +214,8 @@ export default {
 }
 .modal {
   z-index: 1050;
+}
+:deep .ck-editor__editable {
+  min-height: 500px;
 }
 </style>

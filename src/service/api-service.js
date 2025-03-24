@@ -330,8 +330,9 @@ const getPosts = async (params = {}) => {
   }
 }
 
-const getPost = async (postId) => {
-  const requestConfig = scGet(`${apiUrl}admin/posts/${postId}`);
+const getPost = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/posts/show?${queryString}`);
 
   try {
     const response = await axios(requestConfig);
@@ -340,18 +341,6 @@ const getPost = async (postId) => {
     throw error;
   }
 }
-
-const getCategories = async () => {
-  const requestConfig = scGet(`${apiUrl}admin/categories`);
-
-  try {
-    const response = await axios(requestConfig);
-    return checkServerResponse(response);
-  } catch (error) {
-    throw error;
-  }
-}
-
 
 const createPost = async (postData) => {
   const requestConfig = scPost(`${apiUrl}admin/posts`, postData);
@@ -955,7 +944,6 @@ export default {
   bannerShow,
   getPosts,
   getPost,
-  getCategories,
   updatePost,
   deletePost,
   createPost,
