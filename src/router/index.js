@@ -107,7 +107,13 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: "/content/faq/:id",
+      path: "/content/faq/add",
+      name: "faqAdd",
+      component: () => import("../views/content/FaqEdit.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/content/faq/edit/:id",
       name: "faqEdit",
       component: () => import("../views/content/FaqEdit.vue"),
       meta: { requiresAuth: true }

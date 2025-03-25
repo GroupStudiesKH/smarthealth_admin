@@ -30,7 +30,7 @@ export default {
     const showModal = ref(false);
     const modalMessage = ref("");
     const editor = ref(null);
-    const content = ref("");
+    const isEdit = ref(false)
 
     const editFaq = async () => {
       try {
@@ -46,23 +46,13 @@ export default {
       try {
         if (!route.params.id) {
           const response = await apiService.createPost(currentFaq.value);
-          faqList.value.push(response);
         } else {
           const response = await apiService.updatePost(
             currentFaq.value.id,
             currentFaq.value
           );
-
-          router.push({ name: "faqList" });
         }
-        currentFaq.value = {
-          id: null,
-          title: "",
-          content: "",
-          sort: 0,
-          status: "active",
-          type: "faq",
-        };
+        router.push({ name: "faqList" });
       } catch (error) {
         console.error("Failed to save member:", error);
 
@@ -115,7 +105,10 @@ export default {
     };
 
     onMounted(async () => {
-      await editFaq();
+      if(route.params.id){
+        await editFaq();
+        isEdit.value = true;
+      }
       editor.value = await ClassicEditor.create(
         document.querySelector("#editor"),
         {
@@ -184,6 +177,7 @@ export default {
       showModal,
       modalMessage,
       errors,
+      isEdit
     };
   },
 };
@@ -199,7 +193,7 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">FAQ 管理</h6>
+                <h6 class="card-title">FAQ {{ isEdit ? '管理' : '新增' }}</h6>
                 <div class="row mb-4">
                   <div class="col-12">
                     <label class="form-label">標題</label>

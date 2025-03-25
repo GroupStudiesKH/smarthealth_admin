@@ -17,7 +17,7 @@ export default {
     const faqList = ref([]);
 
     const addFaq = () => {
-      router.push('/content/faq/new');
+      router.push({ name: 'faqAdd' });
     };
 
     const editFaq = (faq) => {
