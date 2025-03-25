@@ -1,6 +1,6 @@
 <script>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -15,6 +15,7 @@ export default {
   },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const faqList = ref([]);
     const currentFaq = ref({
       id: null,
@@ -24,7 +25,9 @@ export default {
       status: "active",
       type: "faq",
     });
-
+    const errors = ref({});
+    const showModal = ref(false);
+    const modalMessage = ref("");
     const editor = ref(null);
     const content = ref("");
 
@@ -37,6 +40,7 @@ export default {
           document.querySelector("#editor")
         ).then((editor) => {
           editor.setData(response.content);
+          content.value = editor.getData();
           editor.model.document.on("change:data", () => {
             content.value = editor.getData();
           });
@@ -49,16 +53,12 @@ export default {
       }
     };
 
-    const saveFaq = async (faq) => {
-      if (!faq.title || !faq.content) {
-        alert("標題和內容為必填欄位");
-        return;
-      }
+    const saveFaq = async () => {
       if (editor.value) {
-        currentFaq.value.content = editor.value.getData();
+        currentFaq.value.content = content.value;
       }
       try {
-        if (!currentFaq.value.id) {
+        if (!route.params.id) {
           const response = await apiService.createPost(currentFaq.value);
           faqList.value.push(response);
         } else {
@@ -66,12 +66,8 @@ export default {
             currentFaq.value.id,
             currentFaq.value
           );
-          const index = faqList.value.findIndex(
-            (f) => f.id === currentFaq.value.id
-          );
-          if (index !== -1) {
-            faqList.value[index] = response;
-          }
+
+          router.push({ name: "faqList" });
         }
         currentFaq.value = {
           id: null,
@@ -82,8 +78,34 @@ export default {
           type: "faq",
         };
       } catch (error) {
-        console.error("Error saving FAQ:", error);
-        alert("保存失敗，請稍後再試");
+        console.error("Failed to save member:", error);
+        
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+            
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
+            
+            modalMessage.value = errorMessages;
+            showModal.value = true;
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            modalMessage.value = error.response.data.message || "儲存失敗";
+            showModal.value = true;
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          modalMessage.value = "儲存失敗";
+          showModal.value = true;
+        }
       }
     };
 
@@ -114,6 +136,9 @@ export default {
       editFaq,
       saveFaq,
       deleteFaq,
+      showModal,
+      modalMessage,
+      errors
     };
   },
 };
@@ -172,6 +197,25 @@ export default {
         <Footer />
       </div>
     </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" :class="{ show: showModal }" tabindex="-1" :style="{ display: showModal ? 'block' : 'none' }">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">錯誤提示</h5>
+            <button type="button" class="btn-close" @click="showModal = false"></button>
+          </div>
+          <div class="modal-body" v-html="modalMessage">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="showModal = false">關閉</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show" v-if="showModal"></div>
+
   </div>
 </template>
 

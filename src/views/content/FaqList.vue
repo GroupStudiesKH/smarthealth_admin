@@ -83,12 +83,18 @@ export default {
                     <thead>
                       <tr>
                         <th>標題</th>
+                        <th>排序</th>
+                        <th>狀態</th>
                         <th>操作</th>
                       </tr>
                     </thead>
                     <tbody class="sortable-list">
                       <tr v-for="(faq, index) in faqList" :key="faq.id">
                         <td>{{ faq.title }}</td>
+                        <td>
+                          {{  faq.sort }}
+                        </td>
+                        <td>{{ faq.status == 'active' ? '啟用' : '停用' }}</td>
                         <td>
                           <button class="btn btn-sm btn-primary me-2" @click="editFaq(faq)">編輯</button>
                           <button class="btn btn-sm btn-danger" @click="deleteFaq(faq.id)">刪除</button>
