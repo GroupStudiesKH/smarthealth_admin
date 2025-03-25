@@ -1,9 +1,12 @@
 <script>
 import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import apiService from "@/service/api-service.js";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import UploadAdapter from "@/utils/UploadAdapter";
 
 export default {
   components: {
@@ -12,72 +15,152 @@ export default {
     Sidebar,
   },
   setup() {
-    const content = ref(`<h2>智慧健康管理平台計劃緣起</h2>
-<p>隨著科技的快速發展和人口高齡化的趨勢，智慧健康管理已成為現代醫療照護體系中不可或缺的一環。本計劃旨在建立一個整合性的智慧健康管理平台，結合最新的資訊科技與醫療專業知識，為使用者提供全方位的健康管理服務。</p>
-
-<h3>計劃目標</h3>
-<ul>
-    <li>建立個人化健康管理系統</li>
-    <li>提供即時健康數據分析</li>
-    <li>促進醫療資源有效利用</li>
-    <li>提升整體醫療照護品質</li>
-</ul>
-
-<h3>預期效益</h3>
-<p>透過本平台的建置，我們期望能：</p>
-<ol>
-    <li>提升民眾自主健康管理意識</li>
-    <li>降低醫療資源使用成本</li>
-    <li>建立完整的健康管理生態系統</li>
-    <li>促進產業創新與發展</li>
-</ol>
-
-<h3>實施策略</h3>
-<p>本計劃將分階段實施，包含：</p>
-<ul>
-    <li>第一階段：基礎平台建置</li>
-    <li>第二階段：功能擴充與優化</li>
-    <li>第三階段：生態系統整合</li>
-    <li>第四階段：永續營運規劃</li>
-</ul>`);
+    const route = useRoute();
+    const router = useRouter();
+    const postList = ref([]);
+    const currentpost = ref({
+      id: null,
+      title: "",
+      content: "",
+      sort: 0,
+      status: "active",
+      type: "post",
+    });
+    const errors = ref({});
+    const showModal = ref(false);
+    const modalMessage = ref("");
     const editor = ref(null);
-    const isLoading = ref(false);
 
-    const saveContent = async () => {
-      isLoading.value = true;
+    const editpost = async () => {
       try {
-        // 這裡添加保存內容的邏輯
-        console.log('保存內容:', content.value);
+        const response = await apiService.getPost({ type: 'about' });
+        currentpost.value = { ...response };
       } catch (error) {
-        console.error('保存失敗:', error);
-      } finally {
-        isLoading.value = false;
+        console.error("Error fetching post:", error);
+        alert("獲取post資料失敗，請稍後再試");
       }
     };
+
+    const savepost = async () => {
+      try {
+        const response = await apiService.updatePost(
+            currentpost.value.id,
+            currentpost.value
+          );
+      
+          modalMessage.value = "儲存成功";
+          showModal.value = true;
+          
+      } catch (error) {
+        console.error("Failed to save member:", error);
+
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === "error") {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(
+              error.response.data.content
+            )) {
+              cleanedErrors[key] = Array.isArray(value)
+                ? value[0].replace(/[\[\]"]/g, "")
+                : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join("<br/>");
+
+            modalMessage.value = errorMessages;
+            showModal.value = true;
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            modalMessage.value = error.response.data.message || "儲存失敗";
+            showModal.value = true;
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          modalMessage.value = "儲存失敗";
+          showModal.value = true;
+        }
+      }
+    };
+
+
 
     onMounted(async () => {
-      try {
-        editor.value = await ClassicEditor
-          .create(document.querySelector('#editor'))
-          .then(editor => {
-            editor.setData(content.value);
-            editor.model.document.on('change:data', () => {
-              content.value = editor.getData();
-            });
-            return editor;
-          })
-      } catch (error) {
-        console.error('編輯器初始化失敗:', error);
-      }
+      await editpost();
+
+      editor.value = await ClassicEditor.create(
+        document.querySelector("#editor"),
+        {
+          removePlugins: ["Markdown"],
+          extraPlugins: [MyCustomUploadAdapterPlugin],
+          toolbar: [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "link",
+            "bulletedList",
+            "numberedList",
+            "blockQuote",
+            "imageUpload",
+          ],
+          heading: {
+            options: [
+              {
+                model: "paragraph",
+                title: "Paragraph",
+                class: "ck-heading_paragraph",
+              },
+              {
+                model: "heading1",
+                view: "h2",
+                title: "Heading 1",
+                class: "ck-heading_heading1",
+              },
+              {
+                model: "heading2",
+                view: "h3",
+                title: "Heading 2",
+                class: "ck-heading_heading2",
+              },
+            ],
+          },
+        }
+      )
+        .then((editorInstance) => {
+          editorInstance.model.document.on("change:data", () => {
+            currentpost.value.content = editorInstance.getData();
+          });
+          return editorInstance;
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     });
 
+    function MyCustomUploadAdapterPlugin(editor) {
+      editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+        return new UploadAdapter(loader);
+      };
+    }
+
+
+
     return {
-      content,
+      postList,
+      currentpost,
       editor,
-      isLoading,
-      saveContent
+      editpost,
+      savepost,
+      showModal,
+      modalMessage,
+      errors,
     };
-  }
+  },
 };
 </script>
 
@@ -91,15 +174,39 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">計劃緣起編輯</h6>
-                <div class="mt-3">
-                  <div class="mb-3">
-                    <label class="form-label">內容</label>
-                    <textarea id="editor"></textarea>
+                <h6 class="card-title">關於我們編輯</h6>
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <label class="form-label">標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      disabled
+                      v-model="currentpost.title"
+                    />
                   </div>
-                  <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary" @click="saveContent" :disabled="isLoading">
-                      {{ isLoading ? '儲存中...' : '儲存' }}
+                  <div class="col-12 my-3">
+                    <label class="form-label">內容編輯</label>
+                    <div id="editor" v-html="currentpost.content"></div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">狀態</label>
+                    <select class="form-select" v-model="currentpost.status">
+                      <option value="active">啟用</option>
+                      <option value="inactive">停用</option>
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">排序</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      v-model.number="currentpost.sort"
+                    />
+                  </div>
+                  <div class="col-12 d-flex align-items-end my-3">
+                    <button class="btn btn-primary w-100" @click="savepost">
+                      儲存變更
                     </button>
                   </div>
                 </div>
@@ -107,8 +214,61 @@ export default {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
+
+    <!-- Error Modal -->
+    <div
+      class="modal fade"
+      :class="{ show: showModal }"
+      tabindex="-1"
+      :style="{ display: showModal ? 'block' : 'none' }"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">錯誤提示</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="showModal = false"
+            ></button>
+          </div>
+          <div class="modal-body" v-html="modalMessage"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="showModal = false"
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
+
+<style scoped>
+.cursor-move {
+  cursor: move;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+.modal {
+  z-index: 1050;
+}
+:deep .ck-editor__editable {
+  min-height: 500px;
+}
+</style>

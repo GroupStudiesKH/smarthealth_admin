@@ -89,21 +89,6 @@ export default {
       }
     };
 
-    const deleteFaq = async (id) => {
-      if (confirm("確定要刪除這個 FAQ 項目嗎？")) {
-        try {
-          await apiService.deletePost(id);
-          const index = faqList.value.findIndex((f) => f.id === id);
-          if (index !== -1) {
-            faqList.value.splice(index, 1);
-          }
-        } catch (error) {
-          console.error("Error deleting FAQ:", error);
-          alert("刪除失敗，請稍後再試");
-        }
-      }
-    };
-
     onMounted(async () => {
       if(route.params.id){
         await editFaq();
@@ -173,7 +158,6 @@ export default {
       editor,
       editFaq,
       saveFaq,
-      deleteFaq,
       showModal,
       modalMessage,
       errors,
