@@ -1,9 +1,12 @@
 <script>
 import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import apiService from "@/service/api-service.js";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import UploadAdapter from "@/utils/UploadAdapter";
 
 export default {
   components: {
@@ -12,93 +15,152 @@ export default {
     Sidebar,
   },
   setup() {
-    const content = ref(`<h2>資訊安全政策</h2>
-<p>智慧健康管理平台致力於保護所有使用者的資訊安全，我們採用最高標準的安全措施，確保您的資料受到完善的保護。</p>
+    const route = useRoute();
+    const router = useRouter();
+    const postList = ref([]);
+    const currentpost = ref({
+      id: null,
+      title: "",
+      content: "",
+      sort: 0,
+      status: "active",
+      type: "post",
+    });
+    const errors = ref({});
+    const showModal = ref(false);
+    const modalMessage = ref("");
+    const editor = ref(null);
 
-<h3>資訊安全管理架構</h3>
-<p>本平台建立完整的資訊安全管理制度：</p>
-<ul>
-    <li>設立資訊安全委員會</li>
-    <li>定期進行資安風險評估</li>
-    <li>制定資安事件應變計畫</li>
-    <li>執行持續性的資安監控</li>
-</ul>
-
-<h3>系統安全防護</h3>
-<p>我們採用多層次的安全防護機制：</p>
-<ol>
-    <li>防火牆系統
-        <ul>
-            <li>建置多重防火牆</li>
-            <li>即時入侵偵測</li>
-            <li>異常流量監控</li>
-        </ul>
-    </li>
-    <li>加密機制
-        <ul>
-            <li>SSL/TLS 加密傳輸</li>
-            <li>資料庫加密存儲</li>
-            <li>端對端加密通訊</li>
-        </ul>
-    </li>
-</ol>
-
-<h3>存取控制</h3>
-<p>嚴格的存取權限管理：</p>
-<ul>
-    <li>角色基礎存取控制（RBAC）</li>
-    <li>最小權限原則</li>
-    <li>定期權限稽核</li>
-    <li>異常登入監控</li>
-</ul>
-
-<h3>資料備份</h3>
-<p>完整的資料備份機制：</p>
-<ul>
-    <li>即時資料鏡像</li>
-    <li>定期完整備份</li>
-    <li>異地備援機制</li>
-    <li>災難復原演練</li>
-</ul>
-
-<h3>安全認證與稽核</h3>
-<p>本平台通過多項安全認證：</p>
-<ul>
-    <li>ISO 27001資訊安全認證</li>
-    <li>HIPAA合規認證</li>
-    <li>定期第三方資安稽核</li>
-    <li>滲透測試與弱點掃描</li>
-</ul>`);
-    const editor = ClassicEditor;
-    const isLoading = ref(false);
-
-    const saveContent = async () => {
-      isLoading.value = true;
+    const editpost = async () => {
       try {
-        // 這裡添加保存內容的邏輯
-        console.log('保存內容:', content.value);
+        const response = await apiService.getPost({ type: 'security' });
+        currentpost.value = { ...response };
       } catch (error) {
-        console.error('保存失敗:', error);
-      } finally {
-        isLoading.value = false;
+        console.error("Error fetching post:", error);
+        alert("獲取文章資料失敗，請稍後再試");
       }
     };
 
+    const savepost = async () => {
+      try {
+        const response = await apiService.updatePost(
+            currentpost.value.id,
+            currentpost.value
+          );
+      
+          modalMessage.value = "儲存成功";
+          showModal.value = true;
+          
+      } catch (error) {
+        console.error("Failed to save member:", error);
+
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === "error") {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(
+              error.response.data.content
+            )) {
+              cleanedErrors[key] = Array.isArray(value)
+                ? value[0].replace(/[\[\]"]/g, "")
+                : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join("<br/>");
+
+            modalMessage.value = errorMessages;
+            showModal.value = true;
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            modalMessage.value = error.response.data.message || "儲存失敗";
+            showModal.value = true;
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          modalMessage.value = "儲存失敗";
+          showModal.value = true;
+        }
+      }
+    };
+
+
+
     onMounted(async () => {
-      editor.value = await ClassicEditor
-        .create(document.querySelector('#editor'))
-        .catch(error => {
+      await editpost();
+
+      editor.value = await ClassicEditor.create(
+        document.querySelector("#editor"),
+        {
+          removePlugins: ["Markdown"],
+          extraPlugins: [MyCustomUploadAdapterPlugin],
+          toolbar: [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "link",
+            "bulletedList",
+            "numberedList",
+            "blockQuote",
+            "imageUpload",
+          ],
+          heading: {
+            options: [
+              {
+                model: "paragraph",
+                title: "Paragraph",
+                class: "ck-heading_paragraph",
+              },
+              {
+                model: "heading1",
+                view: "h2",
+                title: "Heading 1",
+                class: "ck-heading_heading1",
+              },
+              {
+                model: "heading2",
+                view: "h3",
+                title: "Heading 2",
+                class: "ck-heading_heading2",
+              },
+            ],
+          },
+        }
+      )
+        .then((editorInstance) => {
+          editorInstance.model.document.on("change:data", () => {
+            currentpost.value.content = editorInstance.getData();
+          });
+          return editorInstance;
+        })
+        .catch((error) => {
           console.error(error);
         });
     });
 
+    function MyCustomUploadAdapterPlugin(editor) {
+      editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+        return new UploadAdapter(loader);
+      };
+    }
+
+
+
     return {
-      content,
+      postList,
+      currentpost,
       editor,
-      isLoading,
-      saveContent
+      editpost,
+      savepost,
+      showModal,
+      modalMessage,
+      errors,
     };
-  }
+  },
 };
 </script>
 
@@ -113,17 +175,31 @@ export default {
             <div class="card">
               <div class="card-body">
                 <h6 class="card-title">資安政策編輯</h6>
-                <div class="mt-3">
-                  <div class="mb-3">
-                    <label class="form-label">內容</label>
-                    <textarea
-                      id="editor"
-                      v-model="content"
-                    ></textarea>
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <label class="form-label">標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      disabled
+                      v-model="currentpost.title"
+                    />
                   </div>
-                  <div class="d-flex justify-content-end">
-                    <button class="btn btn-primary" @click="saveContent" :disabled="isLoading">
-                      {{ isLoading ? '儲存中...' : '儲存' }}
+                  <div class="col-12 my-3">
+                    <label class="form-label">內容編輯</label>
+                    <div id="editor" v-html="currentpost.content"></div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label">狀態</label>
+                    <select class="form-select" v-model="currentpost.status">
+                      <option value="active">啟用</option>
+                      <option value="inactive">停用</option>
+                    </select>
+                  </div>
+
+                  <div class="col-6 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" @click="savepost">
+                      儲存變更
                     </button>
                   </div>
                 </div>
@@ -131,8 +207,61 @@ export default {
             </div>
           </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
+
+    <!-- Error Modal -->
+    <div
+      class="modal fade"
+      :class="{ show: showModal }"
+      tabindex="-1"
+      :style="{ display: showModal ? 'block' : 'none' }"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">錯誤提示</h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="showModal = false"
+            ></button>
+          </div>
+          <div class="modal-body" v-html="modalMessage"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="showModal = false"
+            >
+              關閉
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
+
+<style scoped>
+.cursor-move {
+  cursor: move;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+.modal {
+  z-index: 1050;
+}
+:deep .ck-editor__editable {
+  min-height: 500px;
+}
+</style>

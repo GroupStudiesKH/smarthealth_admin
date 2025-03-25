@@ -37,7 +37,7 @@ export default {
         currentpost.value = { ...response };
       } catch (error) {
         console.error("Error fetching post:", error);
-        alert("獲取post資料失敗，請稍後再試");
+        alert("獲取文章資料失敗，請稍後再試");
       }
     };
 
@@ -197,14 +197,14 @@ export default {
                     </select>
                   </div>
                   <div class="col-6">
-                    <label class="form-label">排序</label>
-                    <input
-                      type="number"
-                      class="form-control"
-                      v-model.number="currentpost.sort"
-                    />
+                    <label class="form-label">狀態</label>
+                    <select class="form-select" v-model="currentpost.status">
+                      <option value="active">啟用</option>
+                      <option value="inactive">停用</option>
+                    </select>
                   </div>
-                  <div class="col-12 d-flex align-items-end my-3">
+
+                  <div class="col-6 d-flex align-items-end">
                     <button class="btn btn-primary w-100" @click="savepost">
                       儲存變更
                     </button>
