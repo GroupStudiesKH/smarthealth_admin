@@ -41,7 +41,8 @@ export default {
       national_id: "",
       address: "",
       mobile: "",
-      gender: ""
+      gender: "",
+      birthdate: "",
     });
 
     const errors = ref({});
@@ -302,6 +303,15 @@ export default {
                         </div>
                       </div>
                     </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">生日 <span class="text-danger">*</span></label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          v-model="formData.birthdate"
+                        />
+                      </div>
 
                     <div v-if="isEdit">
                       <div class="col-md-6 col-12 mb-3">

@@ -41,6 +41,7 @@ export default {
     const tableColumns = reactive([
       { key: "id", label: "編號" },
       { key: "name", label: "會員名稱" },
+      { key: "birthdate", label: "生日" },
       { key: "email", label: "Email帳號" },
       { key: "created_at", label: "註冊日期" },
       { key: "status", label: "狀態" },
@@ -59,6 +60,7 @@ export default {
           id: member.id,
           name: member.name,
           email: member.email,
+          birthdate: member.birthdate,
           created_at: member.created_at,
           status: member.status === 'active' // 轉換狀態為布林值
         }));
@@ -164,6 +166,7 @@ export default {
                       <tr v-for="item in tableData" :key="item.id">
                         <td>{{ item.id }}</td>
                         <td>{{ item.name }}</td>
+                        <td>{{ item.birthdate }}</td>
                         <td>{{ item.email }}</td>
                         <td>{{ new Date(item.created_at).toLocaleDateString() }}</td>
                         <td>
