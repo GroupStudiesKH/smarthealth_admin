@@ -23,9 +23,18 @@ export default {
     const isUploading = ref(false);
     const uploadStatusText = ref("");
 
+    const errors = ref({});
+    const isLoading = ref(false);
+    const showModal = ref(false);
+    const modalMessage = ref("");
+
+
     const course = ref({
       title: "",
       instructors: [],
+      subtitle: "",
+      has_certificate: false,
+      language: "",
       description: "",
       category: null,
       tags: [],
@@ -78,6 +87,9 @@ export default {
       try {
         const sendForm = {
           title: course.value.title,
+          subtitle: course.value.subtitle,
+          has_certificate: course.value.has_certificate,
+          language: course.value.language,
           instructors: course.value.instructors.map(
             (instructor) => instructor.id
           ),
@@ -95,8 +107,49 @@ export default {
         await apiService.createCourse(sendForm);
         router.push({ name: "courseList" });
       } catch (error) {
-        console.log(error);
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
+            
+
+            showErrorModal("新增失敗：" + (errorMessages|| "未知錯誤"));
+
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            showErrorModal("新增失敗：" + (error.response.data.message || "儲存失敗"));
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          showErrorModal("儲存失敗");
+        }
+        
+      } finally {
+        isLoading.value = false;
       }
+    };
+
+    const showErrorModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const showSuccessModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
     };
 
     const handleCoverImageUpload = async (event) => {
@@ -197,6 +250,13 @@ export default {
       editor,
       availableInstructors,
       nameWithPos,
+      errors,
+      isLoading,
+      showModal,
+      modalMessage,
+      showErrorModal,
+      closeModal,
+      showSuccessModal
     };
   },
 };
@@ -217,67 +277,110 @@ export default {
 
                 <form @submit.prevent="saveCourse">
                   <div class="mb-3">
-                    <label class="form-label">課程標題</label>
+                    <label class="form-label">課程標題 <span class="text-danger">*</span></label>
                     <input
                       type="text"
                       class="form-control"
                       v-model="course.title"
                       required
                     />
-                  </div>
-
-                  <div class="row">
-                    <div class="mb-3 col-6">
-                        <label class="form-label">講師</label>
-                        <multiselect
-                          v-model="course.instructors"
-                          :options="availableInstructors"
-                          :custom-label="nameWithPos"
-                          placeholder="選擇講師"
-                          label="name"
-                          track-by="name"
-                          :multiple="true"
-                        >
-                          <template v-slot:singleLabel="{ option }">
-                            <strong>{{ option.name }}</strong> ({{
-                              option.position
-                            }})
-                          </template>
-                        </multiselect>
-                      </div>
-                      <div class="mb-3 col-6">
-                        <label class="form-label">課程屬性</label>
-                        <select class="form-control" v-model="course.is_mandatory">
-                          <option value="1">必修</option>
-                          <option value="0">選修</option>
-                        </select>
-                      </div>
-                      <div class="mb-3 col-6">
-                        <label class="form-label">學分數</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          v-model="course.credit"
-                          min="0"
-                          step="1"
-                        />
-                      </div>
-                      <div class="mb-3 col-6">
-                        <label class="form-label">課程分類</label>
-                        <multiselect
-                          v-model="course.category"
-                          :options="categories"
-                          placeholder="選擇分類"
-                          label="name"
-                          track-by="id"
-                        />
-                      </div>
-
+                    <div class="invalid-feedback" v-if="errors.title">{{ errors.title }}</div>
 
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">課程標籤</label>
+                    <label class="form-label">副標題</label>
+                    <input
+                      v-model="course.subtitle"
+                      type="text"
+                      class="form-control"
+                      maxlength="100"
+                    />
+                    <div class="invalid-feedback" v-if="errors.subtitle">{{ errors.subtitle }}</div>
+
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">是否有證書 <span class="text-danger">*</span></label>
+                    <select
+                      v-model="course.has_certificate"
+                      class="form-select"
+                      required
+                    >
+                      <option value="0">否</option>
+                      <option value="1">是</option>
+                    </select>
+                    <div class="invalid-feedback" v-if="errors.has_certificate">{{ errors.has_certificate }}</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程語言 <span class="text-danger">*</span></label>
+                    <select v-model="course.language" class="form-select" required>
+                      <option value="">請選擇語言</option>
+                      <option value="中文">中文</option>
+                      <option value="英文">英文</option>
+                    </select>
+                    <div class="invalid-feedback" v-if="errors.language">{{ errors.language }}</div>
+
+                  </div>
+
+                  <div class="row">
+                    <div class="mb-3 col-6">
+                      <label class="form-label">講師 <span class="text-danger">*</span></label>
+                      <multiselect
+                        v-model="course.instructors"
+                        :options="availableInstructors"
+                        :custom-label="nameWithPos"
+                        placeholder="選擇講師"
+                        label="name"
+                        track-by="name"
+                        :multiple="true"
+                      >
+                        <template v-slot:singleLabel="{ option }">
+                          <strong>{{ option.name }}</strong> ({{
+                            option.position
+                          }})
+                        </template>
+                      </multiselect>
+                      <div class="invalid-feedback" v-if="errors.language">{{ errors.language }}</div>
+                    </div>
+                    <div class="mb-3 col-6">
+                      <label class="form-label">課程屬性 <span class="text-danger">*</span></label>
+                      <select
+                        class="form-control"
+                        v-model="course.is_mandatory"
+                      >
+                        <option value="1">必修</option>
+                        <option value="0">選修</option>
+                      </select>
+                      <div class="invalid-feedback" v-if="errors.is_mandatory">{{ errors.is_mandatory }}</div>
+                    </div>
+                    <div class="mb-3 col-6">
+                      <label class="form-label">學分數 <span class="text-danger">*</span></label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        v-model="course.credit"
+                        min="0"
+                        step="1"
+                      />
+                      <div class="invalid-feedback" v-if="errors.credit">{{ errors.credit }}</div>
+                    </div>
+                    <div class="mb-3 col-6">
+                      <label class="form-label">課程分類 <span class="text-danger">*</span></label>
+                      <multiselect
+                        v-model="course.category"
+                        :options="categories"
+                        placeholder="選擇分類"
+                        label="name"
+                        track-by="id"
+                      />
+                      <div class="invalid-feedback" v-if="errors.category">{{ errors.category }}</div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程標籤 <span class="text-danger">*</span></label>
                     <multiselect
                       v-model="course.tags"
                       :options="availableTags"
@@ -286,6 +389,7 @@ export default {
                       track-by="id"
                       :multiple="true"
                     />
+                    <div class="invalid-feedback" v-if="errors.tags">{{ errors.tags }}</div>
                   </div>
 
                   <div class="mb-3">
@@ -319,12 +423,13 @@ export default {
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">課程描述</label>
+                    <label class="form-label">課程描述 <span class="text-danger">*</span></label>
                     <div id="editor"></div>
+                    <div class="invalid-feedback" v-if="errors.is_mandatory">{{ errors.is_mandatory }}</div>
                   </div>
 
                   <div class="mb-3">
-                    <label class="form-label">課程狀態</label>
+                    <label class="form-label">課程狀態 <span class="text-danger">*</span></label>
                     <select
                       class="form-select"
                       v-model="course.status"
@@ -333,6 +438,7 @@ export default {
                       <option value="publish">公開</option>
                       <option value="unpublish">非公開</option>
                     </select>
+                    <div class="invalid-feedback" v-if="errors.status">{{ errors.status }}</div>
                   </div>
 
                   <button type="submit" class="btn btn-primary me-2">
@@ -354,10 +460,40 @@ export default {
       <Footer />
     </div>
   </div>
+
+  <div class="modal" tabindex="-1" :class="{ 'd-block': showModal }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">提示</h5>
+          <button type="button" class="btn-close" @click="closeModal"></button>
+        </div>
+        <div class="modal-body" v-html="modalMessage">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" v-if="showModal"></div>
+
 </template>
 
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
 .cover-image-container {
   max-width: 400px;
 }
@@ -409,3 +545,4 @@ export default {
   border-radius: 0.25rem;
 }
 </style>
+

@@ -24,9 +24,17 @@ export default {
     const isUploading = ref(false);
     const uploadStatusText = ref("");
 
+    const errors = ref({});
+    const isLoading = ref(false);
+    const showModal = ref(false);
+    const modalMessage = ref("");
+
     const course = ref({
       title: "",
       instructor: "",
+      subtitle: "",
+      has_certificate: false,
+      language: "",
       description: "",
       category: "",
       tags: [],
@@ -62,6 +70,9 @@ export default {
 
         course.value = {
           title: res.title,
+          subtitle: res.subtitle,
+          has_certificate: res.has_certificate,
+          language: res.language,
           instructors: res.instructors,
           description: res.description,
           category: res.categories[0],
@@ -117,11 +128,29 @@ export default {
       instructorSearchQuery.value = "";
     };
 
+
+    const showErrorModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const showSuccessModal = (message) => {
+      modalMessage.value = message;
+      showModal.value = true;
+    };
+
+    const closeModal = () => {
+      showModal.value = false;
+    };
+
     const saveCourse = async () => {
       try {
         const courseID = route.params.id;
         let sendForm = {
           title: course.value.title,
+          subtitle: course.value.subtitle,
+          has_certificate: course.value.has_certificate,
+          language: course.value.language,
           instructors: course.value.instructors.map(
             (instructor) => instructor.id
           ),
@@ -141,7 +170,34 @@ export default {
 
         router.push({ name: "courseList" });
       } catch (error) {
-        console.log(error);
+        // 處理後端回傳的驗證錯誤
+        if (error.response?.data?.status === 'error') {
+          // 處理後端回傳的驗證錯誤
+          if (error.response.data.content) {
+            // 移除錯誤訊息中的括號和引號
+            const cleanedErrors = {};
+            for (const [key, value] of Object.entries(error.response.data.content)) {
+              cleanedErrors[key] = Array.isArray(value) ? value[0].replace(/[\[\]"]/g, '') : value;
+            }
+            errors.value = cleanedErrors;
+
+            // 組合所有錯誤訊息
+            const errorMessages = Object.values(cleanedErrors).join('<br/>');
+            
+
+            showErrorModal("新增失敗：" + (errorMessages|| "未知錯誤"));
+
+          } else {
+            // 如果有錯誤訊息但沒有詳細內容
+            showErrorModal("新增失敗：" + (error.response.data.message || "儲存失敗"));
+          }
+        } else {
+          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
+          showErrorModal("儲存失敗");
+        }
+        
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -256,6 +312,13 @@ export default {
       selectInstructor,
       availableInstructors,
       nameWithPos,
+      errors,
+      isLoading,
+      showModal,
+      modalMessage,
+      showErrorModal,
+      closeModal,
+      showSuccessModal
     };
   },
 };
@@ -285,6 +348,28 @@ export default {
                       v-model="course.title"
                       required
                     />
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">副標題</label>
+                    <input v-model="course.subtitle" type="text" class="form-control" maxlength="100">
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">是否有證書</label>
+                    <select v-model="course.has_certificate" class="form-select">
+                      <option value="0">否</option>
+                      <option value="1">是</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程語言</label>
+                    <select v-model="course.language" class="form-select">
+                      <option value="">請選擇語言</option>
+                      <option value="中文">中文</option>
+                      <option value="英文">英文</option>
+                    </select>
                   </div>
 
                   <div class="row">
@@ -418,9 +503,40 @@ export default {
       </div>
     </div>
   </div>
+
+  <div class="modal" tabindex="-1" :class="{ 'd-block': showModal }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">提示</h5>
+          <button type="button" class="btn-close" @click="closeModal"></button>
+        </div>
+        <div class="modal-body" v-html="modalMessage">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" v-if="showModal"></div>
+
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+
 .cover-image-container {
   max-width: 400px;
 }
