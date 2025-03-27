@@ -59,7 +59,8 @@ export default {
           id: item.id,
           name: item.name,
           note: item.note,
-          created_at: item.created_at
+          created_at: item.created_at,
+          index_show: item.index_show
         }));
 
     
@@ -135,6 +136,7 @@ export default {
                       <tr>
                         <th>講師名稱</th>
                         <th>備註</th>
+                        <th>展示在首頁</th>
                         <th>新增日期</th>
                         <th>操作</th>
                       </tr>
@@ -143,6 +145,7 @@ export default {
                       <tr v-for="instructor in instructors" :key="instructor.id">
                         <td>{{ instructor.name }}</td>
                         <td>{{ instructor.note }}</td>
+                        <td>{{ instructor.index_show ? '是' : '否' }}</td>
                         <td>{{ instructor.created_at }}</td>
                         <td>
                           <router-link

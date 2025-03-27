@@ -22,6 +22,7 @@ export default {
       name: "",
       title: "",
       description: "",
+      index_show: 0,
       note: "",
       image: null
     });
@@ -34,6 +35,7 @@ export default {
         formData.append('position', instructor.value.title);
         formData.append('description', instructor.value.description);
         formData.append('note', instructor.value.note);
+        formData.append('index_show', instructor.value.index_show);
         if (instructor.value.image instanceof File) {
           formData.append('photo', instructor.value.image);
         }
@@ -147,6 +149,14 @@ export default {
                       v-model="instructor.note"
                       rows="2"
                     ></textarea>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">是否展示在首頁</label>
+                    <select class="form-select" v-model="instructor.index_show" required>
+                      <option value="1">是</option>
+                      <option value="0">否</option>
+                    </select>
                   </div>
 
                   <div class="d-flex justify-content-end">
