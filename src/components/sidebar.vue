@@ -37,7 +37,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/course') }"
-          v-if="hasPermission('course-management', 'list') || true"
+          v-if="hasPermission('course-management', 'list')"
         >
           <a
             class="nav-link"
@@ -53,16 +53,16 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="courseManagement">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('course-list', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('course-list', 'list')">
                 <a href="/course" class="nav-link" :class="{ active: $route.path === '/course/list' }">課程列表</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('course-category', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('course-category', 'list')">
                 <a href="/course/category" class="nav-link" :class="{ active: $route.path === '/course/category' }">分類管理</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('course-tag', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('course-tag', 'list')">
                 <a href="/course/tag" class="nav-link" :class="{ active: $route.path === '/course/tag' }">標籤管理</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('course-instructor', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('course-instructor', 'list')">
                 <a href="/course/instructor" class="nav-link" :class="{ active: $route.path === '/course/instructor' }">講師列表</a>
               </li>
             </ul>
@@ -73,7 +73,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/member') }"
-          v-if="hasPermission('member-management', 'list') || true"
+          v-if="hasPermission('member-management', 'list')"
         >
           <a
             class="nav-link"
@@ -89,7 +89,7 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="memberManagement">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('member-list', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('member-list', 'list')">
                 <a href="/member" class="nav-link" :class="{ active: $route.path === '/member' }">會員列表</a>
               </li>
             </ul>
@@ -100,7 +100,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/statistics') }"
-          v-if="hasPermission('course-statistics', 'list') || true"
+          v-if="hasPermission('course-statistics', 'list')"
         >
           <a
             class="nav-link"
@@ -116,7 +116,7 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="statisticsManagement">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('course-progress', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('course-progress', 'list')">
                 <a href="/statistics/progress" class="nav-link" :class="{ active: $route.path === '/statistics/progress' }">學習進度統計</a>
               </li>
             </ul>
@@ -127,7 +127,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/exam') }"
-          v-if="hasPermission('exam-management', 'list') || true"
+          v-if="hasPermission('exam-management', 'list')"
         >
           <a
             class="nav-link"
@@ -143,7 +143,7 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="examManagement">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('exam-statistics', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('exam-statistics', 'list')">
                 <a href="/exam/statistics" class="nav-link" :class="{ active: $route.path === '/exam/statistics' }">課程測驗列表</a>
               </li>
             </ul>
@@ -154,7 +154,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/settings') }"
-          v-if="hasPermission('site-settings', 'list') || true"
+          v-if="hasPermission('site-settings', 'list')"
         >
           <a
             class="nav-link"
@@ -170,10 +170,10 @@ defineExpose({ hasPermission });
           </a>
           <div class="collapse" data-bs-parent="#sidebarNav" id="siteSettings">
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('site-brand', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('site-brand', 'list')">
                 <a href="/settings/brand" class="nav-link" :class="{ active: $route.path === '/settings/brand' }">品牌設定</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('site-social', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('site-social', 'list')">
                 <a href="/settings/social" class="nav-link" :class="{ active: $route.path === '/settings/social' }">社群設定</a>
               </li>
             </ul>
@@ -185,8 +185,7 @@ defineExpose({ hasPermission });
           :class="{ active: $route.path.startsWith('/layout') }"
           v-if="
             hasPermission('layout-banner-management', 'list') ||
-            hasPermission('layout-cms', 'list') ||
-            true
+            hasPermission('layout-cms', 'list')
           "
         >
           <a
@@ -207,7 +206,7 @@ defineExpose({ hasPermission });
             id="layoutSettings"
           >
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('layout-banner-management', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('layout-banner-management', 'list')">
                 <a
                   href="/layout/banner"
                   class="nav-link"
@@ -217,16 +216,16 @@ defineExpose({ hasPermission });
                   >首頁Banner管理</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('content-faq', 'edit') || true">
+              <li class="nav-item" v-if="hasPermission('content-faq', 'edit')">
                 <a href="/content/faq" class="nav-link" :class="{ active: $route.path === '/content/faq' }">FAQ</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('content-about', 'edit') || true">
+              <li class="nav-item" v-if="hasPermission('content-about', 'edit')">
                 <a href="/content/about" class="nav-link" :class="{ active: $route.path === '/content/about' }">計劃緣起</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('content-privacy', 'edit') || true">
+              <li class="nav-item" v-if="hasPermission('content-privacy', 'edit')">
                 <a href="/content/privacy" class="nav-link" :class="{ active: $route.path === '/content/privacy' }">隱私權政策</a>
               </li>
-              <li class="nav-item" v-if="hasPermission('content-security', 'edit') || true">
+              <li class="nav-item" v-if="hasPermission('content-security', 'edit')">
                 <a href="/content/security" class="nav-link" :class="{ active: $route.path === '/content/security' }">資安政策</a>
               </li>
             </ul>
@@ -238,7 +237,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/permission') }"
-          v-if="hasPermission('permissions_group', 'list') || true"
+          v-if="hasPermission('permissions_group', 'list')"
         >
           <a
             class="nav-link"
@@ -258,7 +257,7 @@ defineExpose({ hasPermission });
             id="permissionManagement"
           >
             <ul class="nav sub-menu">
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
                 <a
                   href="/permission"
                   class="nav-link"
@@ -266,7 +265,7 @@ defineExpose({ hasPermission });
                   >角色</a
                 >
               </li>
-              <li class="nav-item" v-if="hasPermission('permissions_group', 'list') || true">
+              <li class="nav-item" v-if="hasPermission('permissions_group', 'list')">
                 <a
                   href="/admins"
                   class="nav-link"
