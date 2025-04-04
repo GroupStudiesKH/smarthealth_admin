@@ -21,41 +21,29 @@ export default {
 
     const fetchAdmins = async (page = 1) => {
       try {
-        // 模擬數據
-        const mockData = {
-          data: [
-            { id: 1, name: '管理員A', email: 'admin_a@example.com', permission_group: { name: '教師' } },
-            { id: 2, name: '管理員B', email: 'admin_b@example.com', permission_group: { name: '小編' } },
-            { id: 3, name: '管理員C', email: 'admin_c@example.com', permission_group: { name: '超級管理員' } },
-            { id: 4, name: '管理員D', email: 'admin_d@example.com', permission_group: { name: '超級管理員' } },
-            { id: 5, name: '管理員E', email: 'admin_e@example.com', permission_group: { name: '教師' } }
-          ],
-          total: 15
-        };
-        admins.value = mockData.data;
-        totalPages.value = Math.ceil(mockData.total / pageSize);
+        const response = await apiService.getAdmins(page, pageSize);
+        admins.value = response.data;
+        totalPages.value = Math.ceil(response.total / pageSize);
         currentPage.value = page;
       } catch (error) {
         console.error("Failed to fetch admin data:", error);
       }
     };
 
+    const editAdmin = (adminId) => {
+      router.push(`/admins/${adminId}/edit`);
+    };
+
     const deleteAdmin = async (adminId) => {
       if (confirm("您確定要刪除這個管理員嗎？")) {
         try {
-          // 模擬刪除成功
-          admins.value = admins.value.filter(admin => admin.id !== adminId);
-          // Show success message
-          alert("管理員已成功刪除");
+          await apiService.deleteAdmin(adminId);
+          await fetchAdmins(currentPage.value);
         } catch (error) {
           console.error("Failed to delete admin:", error);
-          alert("刪除管理員時發生錯誤");
+          alert(error.response?.data?.message || "刪除管理員時發生錯誤");
         }
       }
-    };
-
-    const editAdmin = (adminId) => {
-      router.push(`/admins/${adminId}/edit`);
     };
 
     const changePage = (page) => {
