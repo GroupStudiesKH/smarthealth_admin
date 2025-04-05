@@ -127,7 +127,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/exam') }"
-          v-if="hasPermission('exam-management', 'list')"
+          v-if="hasPermission('exam-statistics', 'list')"
         >
           <a
             class="nav-link"
@@ -154,7 +154,7 @@ defineExpose({ hasPermission });
         <li
           class="nav-item"
           :class="{ active: $route.path.startsWith('/settings') }"
-          v-if="hasPermission('site-settings', 'list')"
+          v-if="hasPermission('site-brand', 'list') || hasPermission('site-social', 'list')"
         >
           <a
             class="nav-link"
@@ -185,7 +185,10 @@ defineExpose({ hasPermission });
           :class="{ active: $route.path.startsWith('/layout') }"
           v-if="
             hasPermission('layout-banner-management', 'list') ||
-            hasPermission('layout-cms', 'list')
+            hasPermission('content-faq', 'edit') ||
+            hasPermission('content-about', 'edit') ||
+            hasPermission('content-privacy', 'edit') ||
+            hasPermission('content-security', 'edit')
           "
         >
           <a
