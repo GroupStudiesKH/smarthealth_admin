@@ -25,19 +25,46 @@ export default {
     const showModal = ref(false);
     const modalMessage = ref('');
     const modalTitle = ref('');
+    const uploadedFiles = ref({
+      metaImage: null,
+      logo: null
+    });
 
     const handleFileUpload = (event, type) => {
       const file = event.target.files[0];
       if (file) {
-        // 在實際應用中，這裡應該調用API上傳文件
-        console.log(`Uploading ${type}:`, file);
+        uploadedFiles.value[type] = file;
+        // 創建預覽URL
+        brandSettings.value[type] = URL.createObjectURL(file);
       }
     };
 
     const saveBrandSettings = async () => {
       try {
-        // 在實際應用中，這裡應該調用API保存設定
-        console.log('Saving brand settings:', brandSettings.value);
+        const settings = [
+          { meta_key: 'site_name', meta_value: brandSettings.value.siteName },
+          { meta_key: 'meta_title', meta_value: brandSettings.value.metaTitle },
+          { meta_key: 'meta_description', meta_value: brandSettings.value.metaDescription },
+          { meta_key: 'tracking_code', meta_value: brandSettings.value.trackingCode }
+        ];
+    
+        // 添加圖片文件（如果有上傳）
+        if (uploadedFiles.value.metaImage) {
+          settings.push({
+            meta_key: 'meta_img',
+            meta_value: uploadedFiles.value.metaImage
+          });
+        }
+        if (uploadedFiles.value.logo) {
+          settings.push({
+            meta_key: 'logo_img',
+            meta_value: uploadedFiles.value.logo
+          });
+        }
+    
+        // 直接傳遞 settings 陣列，不需要額外包裝
+        await apiService.updateSiteMetaBatch(settings);
+        
         modalTitle.value = '成功';
         modalMessage.value = '品牌設定已更新';
         showModal.value = true;
@@ -53,7 +80,6 @@ export default {
       showModal.value = false;
     };
 
-    // 獲取品牌設定
     const getBrandSettings = async () => {
       try {
         const response = await apiService.getBrandSetting();
@@ -140,31 +166,31 @@ export default {
                   </div>
 
                   <!-- Meta 圖片上傳 -->
-                  <div class="mb-3">
-                    <label for="metaImage" class="form-label">Meta 圖片</label>
-                    <input
-                      type="file"
-                      class="form-control"
-                      id="metaImage"
-                      accept="image/*"
-                      @change="handleFileUpload($event, 'metaImage')"
-                    >
-                    <img v-if="brandSettings.metaImage" :src="brandSettings.metaImage" class="mt-2" style="max-width: 200px;" />
-                  </div>
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label for="metaImage" class="form-label">Meta 圖片</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        id="metaImage"
+                        accept="image/*"
+                        @change="handleFileUpload($event, 'metaImage')"
+                      >
+                      <img v-if="brandSettings.metaImage" :src="brandSettings.metaImage" class="mt-2" style="max-width: 200px;" />
+                    </div>
 
-                  <!-- Logo 上傳 -->
-                  <div class="mb-3">
-                    <label for="logo" class="form-label">Logo</label>
-                    <input
-                      type="file"
-                      class="form-control"
-                      id="logo"
-                      accept="image/*"
-                      @change="handleFileUpload($event, 'logo')"
-                    >
-                    <img v-if="brandSettings.logo" :src="brandSettings.logo" class="mt-2" style="max-width: 200px;" />
+                    <div class="col-md-6">
+                      <label for="logo" class="form-label">Logo</label>
+                      <input
+                        type="file"
+                        class="form-control"
+                        id="logo"
+                        accept="image/*"
+                        @change="handleFileUpload($event, 'logo')"
+                      >
+                      <img v-if="brandSettings.logo" :src="brandSettings.logo" class="mt-2" style="max-width: 200px;" />
+                    </div>
                   </div>
-
                   <!-- 追蹤碼 -->
                   <div class="mb-3">
                     <label for="trackingCode" class="form-label">追蹤碼</label>
@@ -186,7 +212,7 @@ export default {
       </div>
 
       <!-- Modal -->
-      <div class="modal fade" :class="{ show: showModal }" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal fade" :class="{ 'show': showModal }" tabindex="-1" style="display: block;" v-if="showModal">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
@@ -205,4 +231,4 @@ export default {
       <div class="modal-backdrop fade show" v-if="showModal"></div>
     </div>
   </div>
-</template>>
+</template>

@@ -27,10 +27,37 @@ export default {
     const modalMessage = ref('');
     const modalTitle = ref('');
 
+    // 解析API錯誤訊息
+    const parseApiErrors = (error) => {
+      const errorData = error.response?.data?.errors || {};
+      const parsedErrors = {};
+      
+      Object.entries(errorData).forEach(([key, messages]) => {
+        // 將 meta_value.fb_acc 轉換為 facebook 等
+        const field = key.replace('meta_value.', '');
+        
+        // 根據後端驗證規則解析錯誤訊息
+        if (field.includes('_acc')) {
+          const socialField = field.replace('_acc', '');
+          const fieldMap = {
+            'fb': 'facebook',
+            'line': 'line',
+            'twitter': 'twitter',
+            'youtube': 'youtube'
+          };
+          parsedErrors[fieldMap[socialField] || socialField] = messages[0];
+        } else {
+          // 處理一般欄位錯誤
+          parsedErrors[field] = messages[0];
+        }
+      });
+      
+      return parsedErrors;
+    };
+
     const fetchSocialSettings = async () => {
       try {
         const response = await apiService.getSocialSetting();
-        // 將API回傳的資料映射到本地狀態
         socialSettings.value = {
           address: response.address,
           phone: response.phone,
@@ -50,15 +77,27 @@ export default {
 
     const saveSocialSettings = async () => {
       try {
-        // 在實際應用中，這裡應該調用API保存設定
-        console.log('Saving social settings:', socialSettings.value);
+        errors.value = {}; // 重置錯誤訊息
+        const settings = [
+          { meta_key: 'address', meta_value: { address: socialSettings.value.address } },
+          { meta_key: 'phone', meta_value: { phone: socialSettings.value.phone } },
+          { meta_key: 'email', meta_value: { email: socialSettings.value.email } },
+          { meta_key: 'fb_acc', meta_value: { fb_acc: socialSettings.value.facebook } },
+          { meta_key: 'line_acc', meta_value: { line_acc: socialSettings.value.line } },
+          { meta_key: 'twitter_acc', meta_value: { twitter_acc: socialSettings.value.twitter } },
+          { meta_key: 'youtube_acc', meta_value: { youtube_acc: socialSettings.value.youtube } }
+        ];
+
+        await apiService.updateSiteMetaBatch({ settings });
+        
         modalTitle.value = '成功';
         modalMessage.value = '社群設定已更新';
         showModal.value = true;
       } catch (error) {
         console.error('Error saving social settings:', error);
+        errors.value = parseApiErrors(error);
         modalTitle.value = '錯誤';
-        modalMessage.value = '更新設定失敗，請稍後再試';
+        modalMessage.value = '更新設定失敗，請檢查輸入內容';
         showModal.value = true;
       }
     };
@@ -103,10 +142,14 @@ export default {
                     <input
                       type="text"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.address }"
                       id="address"
                       v-model="socialSettings.address"
                       required
                     >
+                    <div class="invalid-feedback" v-if="errors.address">
+                      {{ errors.address }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -114,10 +157,14 @@ export default {
                     <input
                       type="tel"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.phone }"
                       id="phone"
                       v-model="socialSettings.phone"
                       required
                     >
+                    <div class="invalid-feedback" v-if="errors.phone">
+                      {{ errors.phone }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -125,10 +172,14 @@ export default {
                     <input
                       type="email"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.email }"
                       id="email"
                       v-model="socialSettings.email"
                       required
                     >
+                    <div class="invalid-feedback" v-if="errors.email">
+                      {{ errors.email }}
+                    </div>
                   </div>
 
                   <!-- 社群媒體連結 -->
@@ -137,10 +188,14 @@ export default {
                     <input
                       type="url"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.fb_acc }"
                       id="facebook"
                       v-model="socialSettings.facebook"
                       placeholder="https://facebook.com/your-page"
                     >
+                    <div class="invalid-feedback" v-if="errors.facebook">
+                      {{ errors.facebook }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -148,10 +203,14 @@ export default {
                     <input
                       type="url"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.twitter_acc }"
                       id="twitter"
                       v-model="socialSettings.twitter"
                       placeholder="https://twitter.com/your-account"
                     >
+                    <div class="invalid-feedback" v-if="errors.twitter">
+                      {{ errors.twitter }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -159,10 +218,14 @@ export default {
                     <input
                       type="url"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.youtube_acc }"
                       id="youtube"
                       v-model="socialSettings.youtube"
                       placeholder="https://youtube.com/@your-channel"
                     >
+                    <div class="invalid-feedback" v-if="errors.youtube">
+                      {{ errors.youtube }}
+                    </div>
                   </div>
 
                   <div class="mb-3">
@@ -170,10 +233,14 @@ export default {
                     <input
                       type="text"
                       class="form-control"
+                      :class="{ 'is-invalid': errors.line_acc }"
                       id="line"
                       v-model="socialSettings.line"
                       placeholder="@your-line-id"
                     >
+                    <div class="invalid-feedback" v-if="errors.line">
+                      {{ errors.line }}
+                    </div>
                   </div>
 
                   <button type="submit" class="btn btn-primary me-2">儲存設定</button>
@@ -185,7 +252,7 @@ export default {
       </div>
 
       <!-- Modal -->
-      <div class="modal fade" :class="{ show: showModal }" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal fade" :class="{ 'show': showModal }" tabindex="-1" style="display: block;" v-if="showModal">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">

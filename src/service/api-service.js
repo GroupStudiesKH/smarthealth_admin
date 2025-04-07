@@ -948,12 +948,22 @@ const getSocialSetting = async () => {
 };
 
 const updateSiteMetaBatch = async (inputData) => {
-  const requestConfig = scPost(`${apiUrl}admin/site-meta/batch-update`, inputData);
+  // 建立 FormData 物件來處理多部分表單數據
+  const formData = new FormData();
+  
+  // 遍歷輸入數據並添加到 FormData
+  inputData.settings.forEach((setting, index) => {
+    formData.append(`settings[${index}][meta_key]`, setting.meta_key);
+    formData.append(`settings[${index}][meta_value][${setting.meta_key}]`, setting.meta_value);
+  });
+
+  const requestConfig = scPost(`${apiUrl}admin/site-meta/batch-update`, formData, false);
+
   try {
     const response = await axios(requestConfig);
     return checkServerResponse(response);
   } catch (error) {
-    console.error('Error registering admin:', error);
+    console.error('Error updating site meta:', error);
     throw error;
   }
 }
