@@ -13,19 +13,40 @@ export default {
   },
   setup() {
     const socialSettings = ref({
-      address: '台北市信義區信義路五段7號',
-      phone: '02-2345-6789',
-      email: 'contact@smarthealth.com',
-      facebook: 'https://facebook.com/smarthealth',
-      line: '@smarthealth',
-      twitter: 'https://twitter.com/smarthealth',
-      youtube: 'https://youtube.com/@smarthealth'
+      address: '',
+      phone: '',
+      email: '',
+      facebook: '', // 對應 fb_acc
+      line: '', // 對應 line_acc
+      twitter: '', // 對應 twitter_acc
+      youtube: '', // 對應 youtube_acc
     });
 
     const errors = ref({});
     const showModal = ref(false);
     const modalMessage = ref('');
     const modalTitle = ref('');
+
+    const fetchSocialSettings = async () => {
+      try {
+        const response = await apiService.getSocialSetting();
+        // 將API回傳的資料映射到本地狀態
+        socialSettings.value = {
+          address: response.address,
+          phone: response.phone,
+          email: response.email,
+          facebook: response.fb_acc,
+          line: response.line_acc,
+          twitter: response.twitter_acc,
+          youtube: response.youtube_acc,
+        };
+      } catch (error) {
+        console.error('獲取社群設定失敗:', error);
+        modalTitle.value = '錯誤';
+        modalMessage.value = '獲取設定失敗，請重新整理頁面';
+        showModal.value = true;
+      }
+    };
 
     const saveSocialSettings = async () => {
       try {
@@ -47,8 +68,7 @@ export default {
     };
 
     onMounted(() => {
-      // 在實際應用中，這裡應該從API獲取設定
-      console.log('Component mounted');
+      fetchSocialSettings();
     });
 
     return {
@@ -155,8 +175,6 @@ export default {
                       placeholder="@your-line-id"
                     >
                   </div>
-
-
 
                   <button type="submit" class="btn btn-primary me-2">儲存設定</button>
                 </form>

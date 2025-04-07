@@ -927,6 +927,37 @@ const getDashboard = async () => {
   }
 };
 
+const getBrandSetting = async () => {
+  const requestConfig = scGet(`${apiUrl}admin/site-meta/brand`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getSocialSetting = async () => {
+  const requestConfig = scGet(`${apiUrl}admin/site-meta/social`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateSiteMetaBatch = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/site-meta/batch-update`, inputData);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    console.error('Error registering admin:', error);
+    throw error;
+  }
+}
+
 export default {
   apiUrl,
   getServerToken,
@@ -994,5 +1025,8 @@ export default {
   delQuestion,
   updateQuestion,
   addQuestion,
-  getDashboard
+  getDashboard,
+  getBrandSetting,
+  getSocialSetting,
+  updateSiteMetaBatch
 };

@@ -13,9 +13,9 @@ export default {
   },
   setup() {
     const brandSettings = ref({
-      siteName: 'SmartHealth',
-      metaTitle: 'SmartHealth - 智慧健康管理平台',
-      metaDescription: '提供全方位的健康管理服務',
+      siteName: '',
+      metaTitle: '',
+      metaDescription: '',
       metaImage: '',
       logo: '',
       trackingCode: '',
@@ -53,9 +53,28 @@ export default {
       showModal.value = false;
     };
 
+    // 獲取品牌設定
+    const getBrandSettings = async () => {
+      try {
+        const response = await apiService.getBrandSetting();
+        brandSettings.value = {
+          siteName: response.site_name,
+          metaTitle: response.meta_title,
+          metaDescription: response.meta_description,
+          metaImage: response.meta_img,
+          logo: response.logo_img,
+          trackingCode: response.tracking_code,
+        };
+      } catch (error) {
+        console.error('獲取品牌設定失敗:', error);
+        modalTitle.value = '錯誤';
+        modalMessage.value = '獲取設定失敗，請重新整理頁面';
+        showModal.value = true;
+      }
+    };
+
     onMounted(() => {
-      // 在實際應用中，這裡應該從API獲取設定
-      console.log('Component mounted');
+      getBrandSettings();
     });
 
     return {
@@ -130,6 +149,7 @@ export default {
                       accept="image/*"
                       @change="handleFileUpload($event, 'metaImage')"
                     >
+                    <img v-if="brandSettings.metaImage" :src="brandSettings.metaImage" class="mt-2" style="max-width: 200px;" />
                   </div>
 
                   <!-- Logo 上傳 -->
@@ -142,6 +162,7 @@ export default {
                       accept="image/*"
                       @change="handleFileUpload($event, 'logo')"
                     >
+                    <img v-if="brandSettings.logo" :src="brandSettings.logo" class="mt-2" style="max-width: 200px;" />
                   </div>
 
                   <!-- 追蹤碼 -->
@@ -184,4 +205,4 @@ export default {
       <div class="modal-backdrop fade show" v-if="showModal"></div>
     </div>
   </div>
-</template>
+</template>>
