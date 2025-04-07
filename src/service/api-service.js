@@ -954,9 +954,8 @@ const updateSiteMetaBatch = async (inputData) => {
   // 遍歷輸入數據並添加到 FormData
   inputData.settings.forEach((setting, index) => {
     formData.append(`settings[${index}][meta_key]`, setting.meta_key);
-    formData.append(`settings[${index}][meta_value][${setting.meta_key}]`, setting.meta_value);
+    formData.append(`settings[${index}][meta_value][${setting.meta_key}]`, setting.meta_value[setting.meta_key]);
   });
-
   const requestConfig = scPost(`${apiUrl}admin/site-meta/batch-update`, formData, false);
 
   try {
