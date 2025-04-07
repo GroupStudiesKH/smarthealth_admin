@@ -917,6 +917,16 @@ const removeVimeo = async (inputData) => {
   }
 }
 
+const getDashboard = async () => {
+  const requestConfig = scGet(`${apiUrl}admin/dashboard`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   getServerToken,
@@ -983,5 +993,6 @@ export default {
   getQuestion,
   delQuestion,
   updateQuestion,
-  addQuestion
+  addQuestion,
+  getDashboard
 };

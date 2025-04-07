@@ -19,30 +19,48 @@ export default {
     const router = useRouter();
 
     const memberStats = ref({
-      totalMembers: 8756,
-      newMonthlyMembers: 183,
-      totalCourses: 245,
-      publicCourses: 128
+      totalMembers: 0,
+      newMonthlyMembers: 0,
+      totalCourses: 0,
+      publicCourses: 0
     });
 
-    const popularCourses = ref([
-      { name: 'FHIR標準與實作', enrollments: 245, rating: 4.8 },
-      { name: '電子病歷系統設計', enrollments: 198, rating: 4.9 },
-      { name: '醫療資訊標準規範', enrollments: 176, rating: 4.7 },
-      { name: '醫療數據分析基礎', enrollments: 165, rating: 4.8 },
-      { name: '醫療資訊安全實務', enrollments: 142, rating: 4.6 }
-    ]);
-
-    const popularTeachers = ref([
-      { name: '陳醫資', courses: 15, students: 1850, rating: 4.9 },
-      { name: '王資訊', courses: 12, students: 1560, rating: 4.8 },
-      { name: '李教授', courses: 10, students: 1280, rating: 4.8 },
-      { name: '張醫師', courses: 8, students: 980, rating: 4.7 },
-      { name: '林工程師', courses: 7, students: 860, rating: 4.6 }
-    ]);
+    const popularCourses = ref([]);
+    const popularTeachers = ref([]);
+    
+    const fetchDashboardData = async () => {
+      try {
+        const data = await apiService.getDashboard();
+        
+        // 更新會員統計數據
+        memberStats.value = {
+          totalMembers: data.total_members,
+          newMonthlyMembers: data.new_members_this_month,
+          totalCourses: data.total_courses,
+          publicCourses: data.published_courses
+        };
+        
+        // 更新熱門課程數據
+        popularCourses.value = data.popular_courses.map(course => ({
+          name: course.title,
+          enrollments: course.enrollment_count,
+          id: course.id
+        }));
+        
+        // 更新熱門講師數據
+        popularTeachers.value = data.popular_instructors.map(instructor => ({
+          name: instructor.name,
+          students: instructor.student_count,
+          id: instructor.id,
+          courses: instructor.course_count
+        }));
+      } catch (error) {
+        console.error('獲取儀表板數據失敗:', error);
+      }
+    };
 
     onMounted(() => {
-      // 初始化數據
+      fetchDashboardData();
     });
 
     return {
@@ -130,7 +148,7 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="course in popularCourses" :key="course.name">
+                      <tr v-for="course in popularCourses" :key="course.id">
                         <td>{{ course.name }}</td>
                         <td>{{ course.enrollments }}</td>
                       </tr>
@@ -155,7 +173,7 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="teacher in popularTeachers" :key="teacher.name">
+                      <tr v-for="teacher in popularTeachers" :key="teacher.id">
                         <td>{{ teacher.name }}</td>
                         <td>{{ teacher.courses }}</td>
                         <td>{{ teacher.students }}</td>
