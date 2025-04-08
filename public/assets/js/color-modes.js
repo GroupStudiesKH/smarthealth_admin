@@ -16,10 +16,11 @@
     if (storedTheme) {
       return storedTheme
     } else {
-      setStoredTheme(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      // 預設設定為light主題
+      setStoredTheme('light')
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return 'light'
   }
 
   const setTheme = theme => {
@@ -76,8 +77,6 @@
     }
 
   })
-
-
 
   // Theme switch based on parameters from query string
   const urlParams = new URLSearchParams(window.location.search);
