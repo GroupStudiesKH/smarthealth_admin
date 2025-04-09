@@ -65,6 +65,22 @@ export default {
       await fetchStats()
     }
 
+    const exportReport = async () => {
+      try {
+        const params = {
+          category_id: selectedCategory.value,
+          status: '',
+          search: searchQuery.value,
+          sort_field: sortField.value,
+          sort_order: sortOrder.value
+        }
+        // 直接呼叫API下載Excel檔案
+        await apiService.downloadStatsExcel(params)
+      } catch (error) {
+        console.error('下載報表失敗:', error)
+      }
+    }
+
     // 總頁數
     const totalPages = ref(1)
     const loading = ref(false)
@@ -136,7 +152,8 @@ export default {
       goToPage,
       toggleSort,
       sortField,
-      sortOrder
+      sortOrder,
+      exportReport
     }
   }
 }
