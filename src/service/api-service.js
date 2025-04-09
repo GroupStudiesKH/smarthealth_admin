@@ -1008,6 +1008,34 @@ const updateSiteMetaBatch = async (inputData) => {
   }
 }
 
+const getCourseReport = async (courseId) => {
+  const requestConfig = scGet(`${apiUrl}admin/stats/${courseId}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCourseStudents = async (courseId, params = {}) => {
+  // 將分頁參數加入到請求URL中
+  const queryString = objectToQueryString({
+    page: params.page || 1,
+    ...params
+  });
+  
+  const requestConfig = scGet(`${apiUrl}admin/stats/${courseId}/student?${queryString}`);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   getServerToken,
@@ -1080,5 +1108,7 @@ export default {
   getSocialSetting,
   updateSiteMetaBatch,
   getStats,
-  downloadStatsExcel
+  downloadStatsExcel,
+  getCourseReport,
+  getCourseStudents,
 };

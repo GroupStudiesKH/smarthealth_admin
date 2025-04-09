@@ -1,11 +1,12 @@
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import StudentDetailModal from "@/components/StudentDetailModal.vue";
 import ExamReviewModal from "@/components/ExamReviewModal.vue";
+import apiService from "@/service/api-service";
 
 export default {
   components: {
@@ -18,147 +19,163 @@ export default {
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const courseId = route.params.id
+    const courseId = route.params.id;
 
     // 學生詳細資料模態框狀態
-    const showStudentModal = ref(false)
-    const selectedStudent = ref(null)
+    const showStudentModal = ref(false);
+    const selectedStudent = ref(null);
 
     // 閱卷模態框狀態
-    const showExamModal = ref(false)
-    const selectedExamData = ref(null)
+    const showExamModal = ref(false);
+    const selectedExamData = ref(null);
 
-    // 模擬課程詳細資料
+    // 課程詳細資料
     const courseDetail = ref({
-      name: '開發FHIR工具，FHIR資料中臺實現互通',
-      instructor: '王大明',
-      category: '醫療標準規範',
-      completionRate: 92,
-      averageScore: 88,
-      chapters: [
-        { name: '第一章：FHIR標準介紹與應用', completionRate: 95 },
-        { name: '第二章：資料中臺架構設計', completionRate: 92 },
-        { name: '第三章：FHIR API開發實務', completionRate: 90 },
-        { name: '第四章：系統整合與測試', completionRate: 88 }
-      ],
-      students: [
-        { 
-          name: '張小明', 
-          email: 'zhang@example.com', 
-          id: 1,
-          totalTime: '32小時',
-          lastAccess: '2024-01-15',
-          progress: 92,
-          chapterProgress: [
-            { name: '第一章：FHIR標準介紹與應用', progress: 100, score: 92 },
-            { name: '第二章：資料中臺架構設計', progress: 95, score: 88 },
-            { name: '第三章：FHIR API開發實務', progress: 85, score: 90 },
-            { name: '第四章：系統整合與測試', progress: 80, score: 85 }
-          ],
-          quizResults: [
-            { name: '第一章測驗', score: 92, date: '2024-01-05', isExam: false },
-            { name: '第二章測驗', score: 88, date: '2024-01-08', isExam: false },
-            { name: '第三章測驗', score: 90, date: '2024-01-12', isExam: false },
-            { name: '第四章測驗', score: 85, date: '2024-01-15', isExam: false },
-            { name: '期中考試', score: 89, date: '2024-01-10', isExam: true },
-            { name: '期末考試', score: 91, date: '2024-01-20', isExam: true }
-          ]
-        }
-      ]
-    })
+      name: "",
+      instructor: "",
+      category: "",
+      completionRate: 0,
+      averageScore: 0,
+      chapters: [],
+      students: [],
+    });
+
+    // 學生列表資料
+    const students = ref([]);
+    const totalStudents = ref(0);
+    const totalStudentPages = ref(0);
+
+    // 載入課程報表資料
+    const loadCourseReport = async () => {
+      try {
+        const data = await apiService.getCourseReport(courseId);
+        courseDetail.value = {
+          name: data.title,
+          instructor: data.instructors.join(", "),
+          category: data.categories.join(", "),
+          completionRate: data.completion_rate,
+          averageScore: data.average_score,
+          chapters: data.chapters.map((chapter) => ({
+            name: chapter.title,
+            completionRate: chapter.completion_rate,
+          })),
+        };
+      } catch (error) {
+        console.error("Error loading course report:", error);
+      }
+    };
+
+    // 載入學生列表資料
+    const loadStudents = async () => {
+      try {
+        const data = await apiService.getCourseStudents(
+          courseId,
+          currentPage.value,
+          pageSize.value
+        );
+        students.value = data.students;
+        totalStudents.value = data.total;
+        totalStudentPages.value = data.totalPages;
+      } catch (error) {
+        console.error("Error loading students:", error);
+      }
+    };
+
+    // 初始化資料
+    onMounted(() => {
+      loadCourseReport();
+      loadStudents();
+    });
 
     // 分頁相關狀態
-    const currentPage = ref(1)
-    const pageSize = ref(2)
-
-    // 計算分頁後的學生列表
-    const paginatedStudents = computed(() => {
-      const start = (currentPage.value - 1) * pageSize.value
-      const end = start + pageSize.value
-      return courseDetail.value.students.slice(start, end)
-    })
-
-    // 計算總頁數
-    const totalPages = computed(() => {
-      return Math.ceil(courseDetail.value.students.length / pageSize.value)
-    })
+    const currentPage = ref(1);
+    const pageSize = ref(10);
 
     // 頁碼變更處理
-    const handlePageChange = (page) => {
-      currentPage.value = page
-    }
+    const handlePageChange = async (page) => {
+      currentPage.value = page;
+      await loadStudents();
+    };
 
     const viewExam = (studentId) => {
-      const student = courseDetail.value.students.find(s => s.id === studentId)
+      const student = courseDetail.value.students.find(
+        (s) => s.id === studentId
+      );
       if (student) {
         selectedExamData.value = {
-          examName: '期末考試',
-          examTime: '2024-01-20 14:30',
+          examName: "期末考試",
+          examTime: "2024-01-20 14:30",
           score: 91,
           answers: [
             {
               questionId: 1,
-              question: '什麼是FHIR（Fast Healthcare Interoperability Resources）？',
-              studentAnswer: 'FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通',
-              correctAnswer: 'FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通',
+              question:
+                "什麼是FHIR（Fast Healthcare Interoperability Resources）？",
+              studentAnswer:
+                "FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通",
+              correctAnswer:
+                "FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通",
               isCorrect: true,
-              answerTime: '14:35'
+              answerTime: "14:35",
             },
             {
               questionId: 2,
-              question: 'FHIR的主要優勢是什麼？',
-              studentAnswer: 'RESTful API支援、現代網路技術整合',
-              correctAnswer: 'RESTful API支援、現代網路技術整合、彈性的資料模型',
+              question: "FHIR的主要優勢是什麼？",
+              studentAnswer: "RESTful API支援、現代網路技術整合",
+              correctAnswer:
+                "RESTful API支援、現代網路技術整合、彈性的資料模型",
               isCorrect: false,
-              answerTime: '14:37'
-            }
-          ]
-        }
-        showExamModal.value = true
+              answerTime: "14:37",
+            },
+          ],
+        };
+        showExamModal.value = true;
       }
-    }
+    };
 
     const viewStudent = (studentId) => {
-      const student = courseDetail.value.students.find(s => s.id === studentId)
+      const student = courseDetail.value.students.find(
+        (s) => s.id === studentId
+      );
       if (student) {
         selectedStudent.value = {
           ...student,
           courseName: courseDetail.value.name,
           progress: 92,
-          totalTime: '32小時',
-          lastAccess: '2024-01-15',
+          totalTime: "32小時",
+          lastAccess: "2024-01-15",
           chapterProgress: [
-            { name: '第一章：FHIR標準介紹與應用', progress: 100, score: 92 },
-            { name: '第二章：資料中臺架構設計', progress: 95, score: 88 },
-            { name: '第三章：FHIR API開發實務', progress: 85, score: 90 },
-            { name: '第四章：系統整合與測試', progress: 80, score: 85 }
+            { name: "第一章：FHIR標準介紹與應用", progress: 100, score: 92 },
+            { name: "第二章：資料中臺架構設計", progress: 95, score: 88 },
+            { name: "第三章：FHIR API開發實務", progress: 85, score: 90 },
+            { name: "第四章：系統整合與測試", progress: 80, score: 85 },
           ],
           quizResults: [
-            { name: '第一章測驗', score: 92, date: '2024-01-05' },
-            { name: '第二章測驗', score: 88, date: '2024-01-08' },
-            { name: '第三章測驗', score: 90, date: '2024-01-12' },
-            { name: '第四章測驗', score: 85, date: '2024-01-15' }
-          ]
-        }
-        showStudentModal.value = true
+            { name: "第一章測驗", score: 92, date: "2024-01-05" },
+            { name: "第二章測驗", score: 88, date: "2024-01-08" },
+            { name: "第三章測驗", score: 90, date: "2024-01-12" },
+            { name: "第四章測驗", score: 85, date: "2024-01-15" },
+          ],
+        };
+        showStudentModal.value = true;
       }
-    }
+    };
 
     return {
       courseDetail,
       currentPage,
-      totalPages,
-      paginatedStudents,
+      students,
+      totalStudentPages,
       handlePageChange,
       viewStudent,
       showStudentModal,
       selectedStudent,
       showExamModal,
       selectedExamData,
-      viewExam
-    }
-  }
-}
+      viewExam,
+    };
+  },
+};
 </script>
 
 <template>
@@ -171,65 +188,73 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
                   <h6 class="card-title mb-0">課程詳細報表</h6>
                   <button class="btn btn-primary" @click="exportReport">
-                    <i class="material-icons align-middle me-1">file_download</i>
+                    <i class="material-icons align-middle me-1"
+                      >file_download</i
+                    >
                     匯出報表
                   </button>
                 </div>
-                <hr>
-                
+                <hr />
+
                 <!-- 課程基本資訊 -->
                 <div class="course-info mt-3">
                   <div class="row">
                     <div class="col-md-6">
                       <p><strong>課程名稱：</strong>{{ courseDetail.name }}</p>
-                      <p><strong>講師：</strong>{{ courseDetail.instructor }}</p>
-                      <p><strong>課程分類：</strong>{{ courseDetail.category }}</p>
+                      <p>
+                        <strong>講師：</strong>{{ courseDetail.instructor }}
+                      </p>
+                      <p>
+                        <strong>課程分類：</strong>{{ courseDetail.category }}
+                      </p>
                     </div>
                     <div class="col-md-6">
-                      <p>
-                        <strong>總完課率：</strong>
-                        <div class="progress">
-                          <div
-                            class="progress-bar bg-success"
-                            role="progressbar"
-                            :style="{ width: courseDetail.completionRate + '%' }"
-                          >
-                            {{ courseDetail.completionRate }}%
-                          </div>
+                      <strong>總完課率：</strong>
+                      <div class="progress">
+                        <div
+                          class="progress-bar bg-success"
+                          role="progressbar"
+                          :style="{ width: courseDetail.completionRate + '%' }"
+                        >
+                          {{ courseDetail.completionRate }}%
                         </div>
-                      </p>
-                      <p>
-                        <strong>平均分數：</strong>
-                        <div class="progress">
-                          <div
-                            class="progress-bar bg-info"
-                            role="progressbar"
-                            :style="{ width: courseDetail.averageScore + '%' }"
-                          >
-                            {{ courseDetail.averageScore }}分
-                          </div>
+                      </div>
+
+                      <strong>平均成績：</strong>
+                      <div class="progress">
+                        <div
+                          class="progress-bar bg-info"
+                          role="progressbar"
+                          :style="{ width: courseDetail.averageScore + '%' }"
+                        >
+                          {{ courseDetail.averageScore }}分
                         </div>
-                      </p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- 章節完課率表格 -->
-                <h6 class="card-subtitle mt-3">章節完課率</h6>
-                <hr>
-                <div class="table-responsive mb-4">
+                <!-- 章節完成率 -->
+                <h6 class="card-subtitle mt-3">章節完成率</h6>
+                <hr />
+                <div class="table-responsive">
                   <table class="table table-hover">
                     <thead>
                       <tr>
                         <th>章節名稱</th>
-                        <th>完課率</th>
+                        <th>完成率</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="chapter in courseDetail.chapters" :key="chapter.name">
+                      <tr
+                        v-for="chapter in courseDetail.chapters"
+                        :key="chapter.name"
+                      >
                         <td>{{ chapter.name }}</td>
                         <td>
                           <div class="progress">
@@ -249,7 +274,7 @@ export default {
 
                 <!-- 學生列表 -->
                 <h6 class="card-subtitle mt-3">參加學生列表</h6>
-                <hr>
+                <hr />
                 <div class="table-responsive">
                   <table class="table table-hover">
                     <thead>
@@ -260,7 +285,7 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="student in paginatedStudents" :key="student.id">
+                      <tr v-for="student in students" :key="student.id">
                         <td>{{ student.name }}</td>
                         <td>{{ student.email }}</td>
                         <td>
@@ -285,25 +310,43 @@ export default {
                 </div>
 
                 <!-- 分頁導航 -->
-                <nav class="mt-3" v-if="totalPages > 1">
+                <nav class="mt-3" v-if="totalStudentPages > 1">
                   <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage - 1)">
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === 1 }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(currentPage - 1)"
+                      >
                         上一頁
                       </a>
                     </li>
-                    <li 
-                      v-for="page in totalPages" 
-                      :key="page" 
+                    <li
+                      v-for="page in totalStudentPages"
+                      :key="page"
                       class="page-item"
                       :class="{ active: currentPage === page }"
                     >
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(page)">
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(page)"
+                      >
                         {{ page }}
                       </a>
                     </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage + 1)">
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === totalStudentPages }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(currentPage + 1)"
+                      >
                         下一頁
                       </a>
                     </li>
