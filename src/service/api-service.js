@@ -511,8 +511,17 @@ const deleteAdmin = async (adminId) => {
   }
 }
 
+const getStats = async (params) => {
+  const queryString = objectToQueryString(params);
+  const requestConfig = scGet(`${apiUrl}admin/stats?${queryString}`);
 
-
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
 
 const objectToQueryString = (obj) => {
   const queryParams = [];
@@ -947,6 +956,7 @@ const getSocialSetting = async () => {
   }
 };
 
+
 const updateSiteMetaBatch = async (inputData) => {
   // 建立 FormData 物件來處理多部分表單數據
   const formData = new FormData();
@@ -1037,5 +1047,6 @@ export default {
   getDashboard,
   getBrandSetting,
   getSocialSetting,
-  updateSiteMetaBatch
+  updateSiteMetaBatch,
+  getStats
 };

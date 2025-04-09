@@ -1,9 +1,10 @@
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import apiService from "@/service/api-service.js";
 
 export default {
   components: {
@@ -15,53 +16,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     // 模擬課程統計數據
-    const courses = ref([
-      {
-        id: 1,
-        name: '除了資料統一，規則統一，還要有應用程式市集',
-        instructor: '王大明',
-        category: '醫療資訊系統',
-        completionRate: 88,
-        averageScore: 85,
-        students_count: 180
-      },
-      {
-        id: 2,
-        name: '統一台灣電子病歷的策略思考',
-        instructor: '李小華',
-        category: '電子病歷',
-        completionRate: 92,
-        averageScore: 88,
-        students_count: 165
-      },
-      {
-        id: 3,
-        name: '開發FHIR工具，FHIR資料中臺實現互通',
-        instructor: '張醫師',
-        category: '醫療標準規範',
-        completionRate: 95,
-        averageScore: 92,
-        students_count: 150
-      },
-      {
-        id: 4,
-        name: '臺灣醫中電子病歷資料統一的架構',
-        instructor: '陳工程師',
-        category: '醫療資料交換',
-        completionRate: 87,
-        averageScore: 85,
-        students_count: 142
-      },
-      {
-        id: 5,
-        name: 'FHIR 統一資料，但是沒有統一規則',
-        instructor: '林教授',
-        category: '醫療標準規範',
-        completionRate: 90,
-        averageScore: 89,
-        students_count: 98
-      }
-    ])
+    const courses = ref([])
 
     // 分頁相關狀態
     const currentPage = ref(1)
@@ -95,45 +50,74 @@ export default {
     }
 
     // 切換排序
-    const toggleSort = (field) => {
+    const toggleSort = async (field) => {
+      await handleSort(field)
+    }
+
+    // 排序方法
+    const handleSort = async (field) => {
       if (sortField.value === field) {
         sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
       } else {
         sortField.value = field
         sortOrder.value = 'asc'
       }
+      await fetchStats()
     }
-
-    // 篩選後的課程列表
-    const filteredCourses = computed(() => {
-      const filtered = courses.value.filter(course => {
-        const matchQuery = 
-          course.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-          course.instructor.toLowerCase().includes(searchQuery.value.toLowerCase())
-        const matchCategory = !selectedCategory.value || course.category === selectedCategory.value
-        return matchQuery && matchCategory
-      })
-      
-      // 應用排序
-      if (sortField.value) {
-        filtered.sort(sortCourses)
-      }
-      
-      // 計算總頁數
-      totalPages.value = Math.ceil(filtered.length / pageSize.value)
-      
-      // 根據當前頁碼進行分頁
-      const start = (currentPage.value - 1) * pageSize.value
-      const end = start + pageSize.value
-      return filtered.slice(start, end)
-    })
 
     // 總頁數
     const totalPages = ref(1)
+    const loading = ref(false)
+    const total = ref(0)
 
+    const fetchStats = async () => {
+      loading.value = true
+      try {
+        const params = {
+          category_id: selectedCategory.value,
+          status: '',
+          search: searchQuery.value,
+          page: currentPage.value,
+          pageSize: pageSize.value,
+          sort_field: sortField.value,
+          sort_order: sortOrder.value
+        }
+        const response = await apiService.getStats(params)
+        
+        courses.value = response.courses.map(course => ({
+          id: course.id,
+          name: course.title,
+          instructor: course.instructors.join(', '),
+          category: course.categories.join(', '),
+          completionRate: course.completion_rate,
+          averageScore: course.average_score,
+          students_count: course.student_count
+        }))
+        
+        total.value = response.total
+        totalPages.value = response.totalPages
+      } catch (error) {
+        console.error('獲取統計數據失敗:', error)
+      } finally {
+        loading.value = false
+      }
+    }
+    
+    // 初始化數據
+    onMounted(() => {
+      fetchStats()
+    })
+    
+    // 修改篩選邏輯
+    watch([searchQuery, selectedCategory], () => {
+      currentPage.value = 1
+      fetchStats()
+    })
+    
     // 分頁導航方法
     const goToPage = (page) => {
       currentPage.value = page
+      fetchStats()
     }
 
     // 檢視詳細資料方法
@@ -142,7 +126,7 @@ export default {
     }
 
     return {
-      courses: filteredCourses,
+      courses,
       categories,
       searchQuery,
       selectedCategory,
