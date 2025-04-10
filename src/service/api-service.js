@@ -1065,6 +1065,45 @@ const getCourseStudents = async (courseId, params = {}) => {
   }
 };
 
+const getCourseStudent = async (courseId, studentId) => {
+  const requestConfig = scGet(`${apiUrl}admin/stats/${courseId}/student/${studentId}`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCourseStudentExcel = async (courseId, studentId) => {
+  const requestConfig = {
+    ...scGet(`${apiUrl}admin/stats/${courseId}/student/${studentId}/export`),
+    responseType: 'blob' // 設定回應類型為blob以處理檔案下載
+  };
+
+  try {
+    const response = await axios(requestConfig);
+    
+    // 建立下載用的URL
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    
+    // 建立暫時的a標籤來觸發下載
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `course-student-report.xlsx`); // 設定下載的檔案名稱
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理URL物件
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   getServerToken,
@@ -1140,5 +1179,7 @@ export default {
   downloadStatsExcel,
   getCourseReport,
   getCourseStudents,
-  getCourseReportExcel
+  getCourseReportExcel,
+  getCourseStudent,
+  getCourseStudentExcel,
 };

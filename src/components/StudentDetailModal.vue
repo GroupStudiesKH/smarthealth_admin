@@ -1,5 +1,7 @@
 <script>
 import { ref } from 'vue'
+import apiService from "@/service/api-service";
+
 
 export default {
   name: 'StudentDetailModal',
@@ -10,6 +12,14 @@ export default {
     },
     student: {
       type: Object,
+      required: true
+    },
+    courseId: {
+      type: String,
+      required: true
+    },
+    studentId: {
+      type: String,
       required: true
     }
   },
@@ -26,9 +36,7 @@ export default {
     }
 
     const downloadLearningRecord = () => {
-      // 這裡可以實作下載學習紀錄的邏輯
-      console.log('下載學習紀錄', props.student)
-      // TODO: 實作與後端 API 的串接
+      apiService.getCourseStudentExcel(props.courseId, props.studentId)
     }
 
     return {

@@ -135,31 +135,37 @@ export default {
       }
     };
 
-    const viewStudent = (studentId) => {
-      const student = courseDetail.value.students.find(
-        (s) => s.id === studentId
-      );
-      if (student) {
+    const viewStudent = async (studentId) => {
+      try {
+        // 呼叫API取得學生資料
+        const response = await apiService.getCourseStudent(courseId, studentId);
+        
+        // 整理API回傳的資料
         selectedStudent.value = {
-          ...student,
-          courseName: courseDetail.value.name,
-          progress: 92,
-          totalTime: "32小時",
-          lastAccess: "2024-01-15",
-          chapterProgress: [
-            { name: "第一章：FHIR標準介紹與應用", progress: 100, score: 92 },
-            { name: "第二章：資料中臺架構設計", progress: 95, score: 88 },
-            { name: "第三章：FHIR API開發實務", progress: 85, score: 90 },
-            { name: "第四章：系統整合與測試", progress: 80, score: 85 },
-          ],
-          quizResults: [
-            { name: "第一章測驗", score: 92, date: "2024-01-05" },
-            { name: "第二章測驗", score: 88, date: "2024-01-08" },
-            { name: "第三章測驗", score: 90, date: "2024-01-12" },
-            { name: "第四章測驗", score: 85, date: "2024-01-15" },
-          ],
+          id: studentId,
+          name: response.student_info.name,
+          email: response.student_info.email,
+          courseName: response.course_info.title,
+          progress: response.course_info.progress,
+          totalTime: `${response.student_info.total_study_hours}小時`,
+          lastAccess: response.student_info.last_login,
+          // 轉換章節進度資料格式
+          chapterProgress: response.chapters.map(chapter => ({
+            name: chapter.title,
+            progress: chapter.progress,
+            score: chapter.quiz_score
+          })),
+          // 轉換測驗結果資料格式
+          quizResults: response.chapters.map(chapter => ({
+            name: `${chapter.title}測驗`,
+            score: chapter.quiz_score,
+            date: chapter.quiz_completed_at || '-'
+          }))
         };
+        
         showStudentModal.value = true;
+      } catch (error) {
+        console.error('Error fetching student details:', error);
       }
     };
 
@@ -175,7 +181,8 @@ export default {
       showExamModal,
       selectedExamData,
       viewExam,
-      exportReport
+      exportReport,
+      courseId
     };
   },
 };
@@ -360,6 +367,8 @@ export default {
                 <StudentDetailModal
                   v-model:show="showStudentModal"
                   :student="selectedStudent"
+                  :course-id="courseId"
+                  :student-id="selectedStudent?.id"
                 />
 
                 <!-- 閱卷詳情模態框 -->
