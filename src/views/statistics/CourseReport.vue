@@ -70,8 +70,7 @@ export default {
       try {
         const data = await apiService.getCourseStudents(
           courseId,
-          currentPage.value,
-          pageSize.value
+          {page: currentPage.value}
         );
         students.value = data.students;
         totalStudents.value = data.total;
@@ -81,6 +80,10 @@ export default {
       }
     };
 
+    const exportReport = () => {
+      apiService.getCourseReportExcel(courseId);
+    }
+
     // 初始化資料
     onMounted(() => {
       loadCourseReport();
@@ -89,7 +92,6 @@ export default {
 
     // 分頁相關狀態
     const currentPage = ref(1);
-    const pageSize = ref(10);
 
     // 頁碼變更處理
     const handlePageChange = async (page) => {
@@ -173,6 +175,7 @@ export default {
       showExamModal,
       selectedExamData,
       viewExam,
+      exportReport
     };
   },
 };
