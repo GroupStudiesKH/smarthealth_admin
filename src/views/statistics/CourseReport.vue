@@ -68,10 +68,9 @@ export default {
     // 載入學生列表資料
     const loadStudents = async () => {
       try {
-        const data = await apiService.getCourseStudents(
-          courseId,
-          {page: currentPage.value}
-        );
+        const data = await apiService.getCourseStudents(courseId, {
+          page: currentPage.value,
+        });
         students.value = data.students;
         totalStudents.value = data.total;
         totalStudentPages.value = data.totalPages;
@@ -82,7 +81,7 @@ export default {
 
     const exportReport = () => {
       apiService.getCourseReportExcel(courseId);
-    }
+    };
 
     // 初始化資料
     onMounted(() => {
@@ -99,39 +98,21 @@ export default {
       await loadStudents();
     };
 
-    const viewExam = (studentId) => {
-      const student = courseDetail.value.students.find(
-        (s) => s.id === studentId
-      );
-      if (student) {
-        selectedExamData.value = {
-          examName: "期末考試",
-          examTime: "2024-01-20 14:30",
-          score: 91,
-          answers: [
-            {
-              questionId: 1,
-              question:
-                "什麼是FHIR（Fast Healthcare Interoperability Resources）？",
-              studentAnswer:
-                "FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通",
-              correctAnswer:
-                "FHIR是一種現代化的醫療資訊交換標準，用於促進醫療系統間的數據互通",
-              isCorrect: true,
-              answerTime: "14:35",
-            },
-            {
-              questionId: 2,
-              question: "FHIR的主要優勢是什麼？",
-              studentAnswer: "RESTful API支援、現代網路技術整合",
-              correctAnswer:
-                "RESTful API支援、現代網路技術整合、彈性的資料模型",
-              isCorrect: false,
-              answerTime: "14:37",
-            },
-          ],
-        };
+    const viewExam = async (studentId) => {
+      try {
+        const results = await apiService.getStudentExamDetail({
+          course_id: courseId,
+          user_id: studentId,
+        });
+
+        selectedExamData.value = results;
         showExamModal.value = true;
+      } catch (error) {
+        console.error("Error fetching student details:", error);
+        // 如果是404錯誤，顯示尚未進行考試的提示
+        if (error.response && error.response.status === 404) {
+          alert("此學生尚未進行考試");
+        }
       }
     };
 
@@ -139,7 +120,7 @@ export default {
       try {
         // 呼叫API取得學生資料
         const response = await apiService.getCourseStudent(courseId, studentId);
-        
+
         // 整理API回傳的資料
         selectedStudent.value = {
           id: studentId,
@@ -150,22 +131,22 @@ export default {
           totalTime: `${response.student_info.total_study_hours}小時`,
           lastAccess: response.student_info.last_login,
           // 轉換章節進度資料格式
-          chapterProgress: response.chapters.map(chapter => ({
+          chapterProgress: response.chapters.map((chapter) => ({
             name: chapter.title,
             progress: chapter.progress,
-            score: chapter.quiz_score
+            score: chapter.quiz_score,
           })),
           // 轉換測驗結果資料格式
-          quizResults: response.chapters.map(chapter => ({
+          quizResults: response.chapters.map((chapter) => ({
             name: `${chapter.title}測驗`,
             score: chapter.quiz_score,
-            date: chapter.quiz_completed_at || '-'
-          }))
+            date: chapter.quiz_completed_at || "-",
+          })),
         };
-        
+
         showStudentModal.value = true;
       } catch (error) {
-        console.error('Error fetching student details:', error);
+        console.error("Error fetching student details:", error);
       }
     };
 
@@ -182,7 +163,7 @@ export default {
       selectedExamData,
       viewExam,
       exportReport,
-      courseId
+      courseId,
     };
   },
 };

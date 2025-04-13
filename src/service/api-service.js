@@ -1075,6 +1075,17 @@ const getCourseStudent = async (courseId, studentId) => {
   }
 };
 
+const getStudentExamDetail = async (formData) => {
+  const requestConfig = scPost(`${apiUrl}admin/exam/student/detail`, formData);
+
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getCourseStudentExcel = async (courseId, studentId) => {
   const requestConfig = {
     ...scGet(`${apiUrl}admin/stats/${courseId}/student/${studentId}/export`),
@@ -1182,4 +1193,5 @@ export default {
   getCourseReportExcel,
   getCourseStudent,
   getCourseStudentExcel,
+  getStudentExamDetail
 };
