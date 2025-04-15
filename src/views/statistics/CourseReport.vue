@@ -205,7 +205,7 @@ export default {
                       </p>
                     </div>
                     <div class="col-md-6">
-                      <strong>總完課率：</strong>
+                      <strong>平均完課率：</strong>
                       <div class="progress">
                         <div
                           class="progress-bar bg-success"
