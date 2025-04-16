@@ -28,6 +28,9 @@ export default {
     const tableData = ref([]);
     const showModal = ref(false);
     const selectedCourse = ref(null);
+    const currentPage = ref(1);
+    const pageSize = ref(10);
+    const totalPages = ref(1);
 
     const tableColumns = reactive([
       { key: "name", label: "課程名稱" },
@@ -40,37 +43,15 @@ export default {
 
     const fetchMemberInfo = async () => {
       try {
-        // 模擬 API 響應數據
-        const mockData = {
-          name: "測試會員",
-          email: "test@example.com",
-          created_at: "2023-01-01"
-        };
-        memberInfo.value = mockData;
+        const response = await apiService.getStudentLearningRecord(memberId, {
+          page: currentPage.value,
+          pageSize: pageSize.value
+        });
+        memberInfo.value = response.student;
+        tableData.value = response.courses;
+        totalPages.value = response.pagination.totalPages;
       } catch (error) {
         console.error("Failed to fetch member info:", error);
-      }
-    };
-
-    const fetchCourseData = async () => {
-      try {
-        // 模擬 API 響應數據
-        const mockData = Array(5).fill(null).map((_, index) => ({
-          id: index + 1,
-          name: `測試課程${index + 1}`,
-          instructor: `講師${index + 1}`,
-          category: `分類${index % 3 + 1}`,
-          completion_rate: Math.round(Math.random() * 100) + "%",
-          average_score: Math.round(Math.random() * 100),
-          chapters: Array(5).fill(null).map((_, chapterIndex) => ({
-            name: `章節${chapterIndex + 1}`,
-            completion: Math.random() > 0.5,
-            score: Math.round(Math.random() * 100)
-          }))
-        }));
-        tableData.value = mockData;
-      } catch (error) {
-        console.error("Failed to fetch course data:", error);
       }
     };
 
@@ -79,9 +60,13 @@ export default {
       showModal.value = true;
     };
 
+    const handlePageChange = async (page) => {
+      currentPage.value = page;
+      await fetchMemberInfo();
+    };
+
     onMounted(() => {
       fetchMemberInfo();
-      fetchCourseData();
     });
 
     return {
@@ -91,6 +76,9 @@ export default {
       showModal,
       selectedCourse,
       handleViewDetails,
+      currentPage,
+      totalPages,
+      handlePageChange,
     };
   },
 };
@@ -157,6 +145,21 @@ export default {
                     </tbody>
                   </table>
                 </div>
+
+                <!-- 分頁 -->
+                <nav class="mt-3" v-if="totalPages > 1">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage - 1)">上一頁</a>
+                    </li>
+                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                      <a class="page-link" href="#" @click.prevent="handlePageChange(page)">{{ page }}</a>
+                    </li>
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage + 1)">下一頁</a>
+                    </li>
+                  </ul>
+                </nav>
 
                 <!-- 詳細資訊 Modal -->
                 <StudentDetailModal

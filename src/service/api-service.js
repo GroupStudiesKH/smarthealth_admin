@@ -1086,6 +1086,23 @@ const getStudentExamDetail = async (formData) => {
   }
 };
 
+const getStudentLearningRecord = async (studentId, params = {}) => {
+  // 將分頁參數加入到請求URL中
+  const queryString = objectToQueryString({
+    page: params.page || 1,
+    pageSize: params.pageSize || 10,
+    ...params
+  });
+  
+  const requestConfig = scGet(`${apiUrl}admin/stats/${studentId}/course?${queryString}`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getQuestionStatistics = async (formData) => {
   const requestConfig = scPost(`${apiUrl}admin/exam/statistics/course`, formData);
   try {
@@ -1204,5 +1221,6 @@ export default {
   getCourseStudent,
   getCourseStudentExcel,
   getStudentExamDetail,
-  getQuestionStatistics
+  getQuestionStatistics,
+  getStudentLearningRecord
 };
