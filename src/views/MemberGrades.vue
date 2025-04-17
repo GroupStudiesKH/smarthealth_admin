@@ -22,12 +22,14 @@ export default {
     const memberInfo = ref({
       name: "",
       email: "",
-      created_at: ""
+      created_at: "",
     });
 
     const tableData = ref([]);
     const showModal = ref(false);
-    const selectedCourse = ref(null);
+    const selectedCourse = ref({
+      chapters: [],
+    });
     const currentPage = ref(1);
     const pageSize = ref(10);
     const totalPages = ref(1);
@@ -45,7 +47,7 @@ export default {
       try {
         const response = await apiService.getStudentLearningRecord(memberId, {
           page: currentPage.value,
-          pageSize: pageSize.value
+          pageSize: pageSize.value,
         });
         memberInfo.value = response.student;
         tableData.value = response.courses;
@@ -56,6 +58,7 @@ export default {
     };
 
     const handleViewDetails = (course) => {
+      console.log("Viewing details for course:", course);
       selectedCourse.value = course;
       showModal.value = true;
     };
@@ -115,7 +118,9 @@ export default {
                     <div class="col-md-4">
                       <p class="mb-2">
                         <strong>註冊日期：</strong>
-                        {{ new Date(memberInfo.created_at).toLocaleDateString() }}
+                        {{
+                          new Date(memberInfo.created_at).toLocaleDateString()
+                        }}
                       </p>
                     </div>
                   </div>
@@ -126,7 +131,9 @@ export default {
                   <table class="table table-hover">
                     <thead>
                       <tr>
-                        <th v-for="column in tableColumns" :key="column.key">{{ column.label }}</th>
+                        <th v-for="column in tableColumns" :key="column.key">
+                          {{ column.label }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -137,7 +144,10 @@ export default {
                         <td>{{ item.completion_rate }}</td>
                         <td>{{ item.average_score }}</td>
                         <td>
-                          <button class="btn btn-sm btn-info" @click="handleViewDetails(item)">
+                          <button
+                            class="btn btn-sm btn-info"
+                            @click="handleViewDetails(item)"
+                          >
                             <i class="material-icons">visibility</i>
                           </button>
                         </td>
@@ -149,14 +159,40 @@ export default {
                 <!-- 分頁 -->
                 <nav class="mt-3" v-if="totalPages > 1">
                   <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage - 1)">上一頁</a>
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === 1 }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(currentPage - 1)"
+                        >上一頁</a
+                      >
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(page)">{{ page }}</a>
+                    <li
+                      v-for="page in totalPages"
+                      :key="page"
+                      class="page-item"
+                      :class="{ active: currentPage === page }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(page)"
+                        >{{ page }}</a
+                      >
                     </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                      <a class="page-link" href="#" @click.prevent="handlePageChange(currentPage + 1)">下一頁</a>
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === totalPages }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="handlePageChange(currentPage + 1)"
+                        >下一頁</a
+                      >
                     </li>
                   </ul>
                 </nav>
@@ -170,22 +206,34 @@ export default {
                     courseName: selectedCourse ? selectedCourse.name : '-',
                     totalTime: selectedCourse ? '計算中' : '-',
                     lastAccess: memberInfo.created_at,
-                    progress: selectedCourse ? parseInt(selectedCourse.completion_rate) : 0,
-                    chapterProgress: selectedCourse ? selectedCourse.chapters.map(chapter => ({
-                      name: chapter.name,
-                      progress: chapter.completion ? 100 : 0,
-                      score: chapter.score
-                    })) : [],
-                    quizResults: selectedCourse ? [
-                      ...selectedCourse.chapters.filter(chapter => chapter.score).map(chapter => ({
-                        name: `${chapter.name}測驗`,
-                        score: chapter.score,
-                        date: '-',
-                        isExam: false
-                      })),
-                      { name: '期中考試', score: 85, date: '2023-12-01', isExam: true },
-                      { name: '期末考試', score: 90, date: '2023-12-15', isExam: true }
-                    ] : []
+                    progress: selectedCourse
+                      ? parseInt(selectedCourse.completion_rate)
+                      : 0,
+                    chapterProgress: selectedCourse.chapter,
+                    quizResults: selectedCourse.hasOwnProperty('chapters')
+                      ? [
+                          ...selectedCourse.chapters
+                            .filter((chapter) => chapter.score)
+                            .map((chapter) => ({
+                              name: `${chapter.name}測驗`,
+                              score: chapter.score,
+                              date: '-',
+                              isExam: false,
+                            })),
+                          {
+                            name: '期中考試',
+                            score: 85,
+                            date: '2023-12-01',
+                            isExam: true,
+                          },
+                          {
+                            name: '期末考試',
+                            score: 90,
+                            date: '2023-12-15',
+                            isExam: true,
+                          },
+                        ]
+                      : [],
                   }"
                 />
               </div>

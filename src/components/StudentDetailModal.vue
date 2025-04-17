@@ -88,12 +88,11 @@ export default {
                     <tr>
                       <th>章節名稱</th>
                       <th>完成進度</th>
-                      <th>測驗分數</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="chapter in student.chapterProgress" :key="chapter.name">
-                      <td>{{ chapter.name }}</td>
+                    <tr v-for="chapter in student.chapterProgress" :key="chapter.title">
+                      <td>{{ chapter.title }}</td>
                       <td>
                         <div class="progress">
                           <div class="progress-bar bg-info" role="progressbar" :style="{ width: chapter.progress + '%' }">
@@ -101,7 +100,6 @@ export default {
                           </div>
                         </div>
                       </td>
-                      <td>{{ chapter.score || '尚未完成' }}</td>
                     </tr>
                   </tbody>
                 </table>
