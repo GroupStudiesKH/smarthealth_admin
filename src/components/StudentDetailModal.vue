@@ -113,27 +113,20 @@ export default {
                 <table class="table">
                   <thead>
                     <tr>
-                      <th>測驗類型</th>
-                      <th>測驗名稱</th>
+                      <th>日期</th>
                       <th>分數</th>
-                      <th>完成日期</th>
+                      <th>是否通過</th>
+                      <th>耗時</th>
                     </tr>
                   </thead>
                   <tbody>
                     <template v-if="student.quizResults">
                       <!-- 章節測驗 -->
-                      <tr v-for="quiz in student.quizResults.filter(q => !q.isExam)" :key="quiz.name">
-                        <td>章節測驗</td>
-                        <td>{{ quiz.name }}</td>
-                        <td>{{ quiz.score }}</td>
+                      <tr v-for="quiz in student.quizResults" :key="quiz.id">
                         <td>{{ quiz.date }}</td>
-                      </tr>
-                      <!-- 大考成績 -->
-                      <tr v-for="quiz in student.quizResults.filter(q => q.isExam)" :key="quiz.name" class="table-primary">
-                        <td>大考</td>
-                        <td>{{ quiz.name }}</td>
                         <td>{{ quiz.score }}</td>
-                        <td>{{ quiz.date }}</td>
+                        <td>{{ quiz.is_pass ? '通過' : '未通過' }}</td>
+                        <td>{{ quiz.time }} 分鐘</td>
                       </tr>
                     </template>
                   </tbody>

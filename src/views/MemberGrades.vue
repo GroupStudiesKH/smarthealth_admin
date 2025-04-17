@@ -210,30 +210,7 @@ export default {
                       ? parseInt(selectedCourse.completion_rate)
                       : 0,
                     chapterProgress: selectedCourse.chapter,
-                    quizResults: selectedCourse.hasOwnProperty('chapters')
-                      ? [
-                          ...selectedCourse.chapters
-                            .filter((chapter) => chapter.score)
-                            .map((chapter) => ({
-                              name: `${chapter.name}測驗`,
-                              score: chapter.score,
-                              date: '-',
-                              isExam: false,
-                            })),
-                          {
-                            name: '期中考試',
-                            score: 85,
-                            date: '2023-12-01',
-                            isExam: true,
-                          },
-                          {
-                            name: '期末考試',
-                            score: 90,
-                            date: '2023-12-15',
-                            isExam: true,
-                          },
-                        ]
-                      : [],
+                    quizResults: selectedCourse.quizResults
                   }"
                 />
               </div>
