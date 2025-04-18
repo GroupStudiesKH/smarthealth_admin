@@ -231,8 +231,8 @@ export default {
                   :student="{
                     name: memberInfo.name,
                     email: memberInfo.email,
-                    courseName: selectedCourse ? selectedCourse.name : '-',
-                    totalTime: selectedCourse ? '計算中' : '-',
+                    courseName: selectedCourse.courseName,
+                    totalTime: selectedCourse.totalTime,
                     lastAccess: memberInfo.created_at,
                     progress: parseInt(selectedCourse.completion_rate),
                     chapterProgress: selectedCourse.chapter,
