@@ -73,6 +73,7 @@ export default {
     });
 
     return {
+      memberId,
       memberInfo,
       tableData,
       tableColumns,
@@ -200,6 +201,8 @@ export default {
                 <!-- 詳細資訊 Modal -->
                 <StudentDetailModal
                   v-model:show="showModal"
+                  :studentId="memberId"
+                  :courseId="selectedCourse.id"
                   :student="{
                     name: memberInfo.name,
                     email: memberInfo.email,
