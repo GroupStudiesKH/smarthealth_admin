@@ -60,24 +60,25 @@ export default {
     };
 
     const handleViewDetails = (course) => {
-      console.log("Viewing details for course:", course);
+
       selectedCourse.value = {
+        id: course.id,
         courseId: course.id,
         studentId: memberId,
         name: memberInfo.value.name,
         email: memberInfo.value.email,
         courseName: course.name,
-        progress: course.completion_rate,
+        completion_rate: course.completion_rate,
         totalTime: `${memberInfo.value.total_study_hours}小時`,
         lastAccess: memberInfo.value.last_login,
         // 轉換章節進度資料格式
-        chapterProgress: course.chapter.map((chapter) => ({
+        chapter: course.chapter.map((chapter) => ({
           title: chapter.title,
           progress: chapter.progress,
         })),
         // 轉換測驗結果資料格式
         quizResults: course.quizResults.map((chapter) => ({
-          is_pass: false,
+          is_pass: chapter.is_pass,
           score: chapter.score,
           date: chapter.date || "-",
           time: chapter.time || "-",
@@ -233,9 +234,7 @@ export default {
                     courseName: selectedCourse ? selectedCourse.name : '-',
                     totalTime: selectedCourse ? '計算中' : '-',
                     lastAccess: memberInfo.created_at,
-                    progress: selectedCourse
-                      ? parseInt(selectedCourse.completion_rate)
-                      : 0,
+                    progress: parseInt(selectedCourse.completion_rate),
                     chapterProgress: selectedCourse.chapter,
                     quizResults: selectedCourse.quizResults,
                   }"
