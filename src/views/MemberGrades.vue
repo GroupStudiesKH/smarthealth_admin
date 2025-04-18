@@ -23,6 +23,8 @@ export default {
       name: "",
       email: "",
       created_at: "",
+      total_study_hours: 0,
+      last_login: "",
     });
 
     const tableData = ref([]);
@@ -59,7 +61,29 @@ export default {
 
     const handleViewDetails = (course) => {
       console.log("Viewing details for course:", course);
-      selectedCourse.value = course;
+      selectedCourse.value = {
+        courseId: course.id,
+        studentId: memberId,
+        name: memberInfo.value.name,
+        email: memberInfo.value.email,
+        courseName: course.name,
+        progress: course.completion_rate,
+        totalTime: `${memberInfo.value.total_study_hours}小時`,
+        lastAccess: memberInfo.value.last_login,
+        // 轉換章節進度資料格式
+        chapterProgress: course.chapter.map((chapter) => ({
+          title: chapter.title,
+          progress: chapter.progress,
+        })),
+        // 轉換測驗結果資料格式
+        quizResults: course.quizResults.map((chapter) => ({
+          is_pass: false,
+          score: chapter.score,
+          date: chapter.date || "-",
+          time: chapter.time || "-",
+        })),
+      };
+
       showModal.value = true;
     };
 
@@ -213,7 +237,7 @@ export default {
                       ? parseInt(selectedCourse.completion_rate)
                       : 0,
                     chapterProgress: selectedCourse.chapter,
-                    quizResults: selectedCourse.quizResults
+                    quizResults: selectedCourse.quizResults,
                   }"
                 />
               </div>

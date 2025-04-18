@@ -121,7 +121,6 @@ export default {
         // 呼叫API取得學生資料
         const response = await apiService.getCourseStudent(courseId, studentId);
 
-        console.log(response)
 
         // 整理API回傳的資料
         selectedStudent.value = {
