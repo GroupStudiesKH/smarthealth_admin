@@ -30,9 +30,7 @@ export default {
     }
 
     const downloadCertificate = () => {
-      // 這裡可以實作下載證明的邏輯
-      console.log('下載結訓證明', props.student)
-      // TODO: 實作與後端 API 的串接
+      apiService.getCourseStudentCert(props.courseId, props.studentId)
     }
 
     const downloadLearningRecord = () => {

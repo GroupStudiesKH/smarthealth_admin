@@ -1144,6 +1144,35 @@ const getCourseStudentExcel = async (courseId, studentId) => {
   }
 };
 
+const getCourseStudentCert = async (courseId, studentId) => {
+  const requestConfig = {
+    ...scGet(`${apiUrl}admin/stats/${courseId}/student/${studentId}/pdf`),
+    responseType: 'blob' // 設定回應類型為blob以處理檔案下載
+  };
+
+  try {
+    const response = await axios(requestConfig);
+    
+    // 建立下載用的URL
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    
+    // 建立暫時的a標籤來觸發下載
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `course-student-cert.pdf`); // 設定下載的檔案名稱
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理URL物件
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   apiUrl,
   apiWithoutPath,
@@ -1225,5 +1254,6 @@ export default {
   getCourseStudentExcel,
   getStudentExamDetail,
   getQuestionStatistics,
-  getStudentLearningRecord
+  getStudentLearningRecord,
+  getCourseStudentCert
 };
