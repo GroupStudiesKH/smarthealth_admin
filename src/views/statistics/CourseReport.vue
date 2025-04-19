@@ -136,11 +136,7 @@ export default {
             progress: chapter.progress
           })),
           // 轉換測驗結果資料格式
-          quizResults: response.chapters.map((chapter) => ({
-            name: `${chapter.title}測驗`,
-            score: chapter.quiz_score,
-            date: chapter.quiz_completed_at || "-",
-          })),
+          quizResults: response.quizResults
         };
 
         showStudentModal.value = true;
