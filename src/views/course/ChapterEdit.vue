@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
@@ -38,10 +38,18 @@ export default {
       notes: [{ time: "", content: "" }],
     });
 
+    /* 新增筆記滾動動畫 */
     const addNote = () => {
       chapter.value.notes.push({
         time: "",
-        content: "",
+        content: ""
+      });
+      nextTick(() => {
+        const container = document.querySelector('.notes-container');
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth'
+        });
       });
     };
 
@@ -345,51 +353,39 @@ export default {
                       </a>
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <!-- 影片筆記編輯區塊 -->
-                    <div class="mb-3">
-                      <label class="form-label">影片筆記</label>
-                      <div
-                        v-for="(note, index) in chapter.notes"
-                        :key="index"
-                        class="input-group mb-2"
-                      >
-                        <input
-                          type="text"
-                          class="form-control"
-                          v-model="note.time"
-                          placeholder="時間 (HH:mm:ss)"
-                          style="max-width: 120px"
-                        />
-                        <input
-                          type="text"
-                          class="form-control"
+                  <div class="col-md-6 video-column">
+                    <div class="notes-container">
+                      <div v-for="(note, index) in chapter.notes" :key="index" class="mb-3 p-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                          <input
+                            type="text"
+                            class="form-control flex-grow-0"
+                            v-model="note.time"
+                            placeholder="時間"
+                            style="width: 120px"
+                          />
+                          <button class="btn btn-outline-secondary btn-sm" @click="setNoteTime(index)">
+                            設為目前時間
+                          </button>
+                          <button class="btn btn-outline-danger btn-sm" @click="removeNote(index)">
+                            刪除
+                          </button>
+                        </div>
+                        <textarea
                           v-model="note.content"
+                          class="form-control w-100"
+                          rows="3"
                           placeholder="筆記內容"
-                        />
-                        <button
-                          class="btn btn-outline-secondary"
-                          type="button"
-                          @click="setNoteTime(index)"
-                        >
-                          設為目前時間
-                        </button>
-                        <button
-                          class="btn btn-outline-danger"
-                          type="button"
-                          @click="removeNote(index)"
-                        >
-                          刪除
-                        </button>
+                        ></textarea>
                       </div>
-                      <button
+                    </div>
+                    <button
                         class="btn btn-outline-primary btn-sm"
                         type="button"
                         @click="addNote"
                       >
                         新增筆記
                       </button>
-                    </div>
                   </div>
                 </div>
                 <!-- 章節標題與內容等其他表單欄位 -->
@@ -487,5 +483,31 @@ export default {
 .editor-container {
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
+}
+
+/* 新增佈局樣式 */
+.video-column {
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-container {
+  height: 600px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-right: 8px;
+}
+
+.note-textarea {
+  resize: vertical;
+  min-height: 80px;
+  margin-top: 8px;
+}
+
+.time-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 </style>
