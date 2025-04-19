@@ -133,10 +133,34 @@ export default {
       }
     };
 
+    const setNoteTime = (index) => {
+      // 取得 iframe
+      const iframe = document.querySelector('iframe[src*="vimeo.com"]');
+      if (!iframe) return;
+      // 使用 postMessage 與 Vimeo Player API 互動
+      iframe.contentWindow.postMessage({ method: 'getCurrentTime' }, '*');
+      // 監聽回傳
+      const handler = (event) => {
+        if (event.origin.includes('vimeo.com') && event.data && typeof event.data.value === 'number') {
+          // 轉換秒數為 HH:mm:ss
+          const sec = Math.floor(event.data.value);
+          const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+          const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+          const s = String(sec % 60).padStart(2, '0');
+          chapter.value.notes[index].time = `${h}:${m}:${s}`;
+          window.removeEventListener('message', handler);
+        }
+      };
+      window.addEventListener('message', handler);
+    };
+
     const saveChapter = async () => {
       isLoading.value = true;
       try {
-        await apiService.updateChapter(courseId, chapterId, chapter.value);
+        // 過濾內容為空的筆記
+        const filteredNotes = chapter.value.notes.filter(note => note.content && note.content.trim() !== '');
+        const chapterToSave = { ...chapter.value, notes: filteredNotes };
+        await apiService.updateChapter(courseId, chapterId, chapterToSave);
         router.push(`/course/${route.params.courseId}/chapters`);
       } catch (error) {
         console.error("保存章節失敗:", error);
@@ -259,6 +283,7 @@ export default {
       uploadStatusText,
       backToChapterList,
       videoUploadStatusText,
+      setNoteTime
     };
   },
 };
@@ -381,23 +406,27 @@ export default {
                       :key="index"
                       class="row mb-2"
                     >
-                      <div class="col-2">
+                      <div class="col-2 d-flex align-items-center">
                         <input
                           type="text"
-                          class="form-control"
+                          class="form-control me-1"
                           v-model="note.time"
                           placeholder="HH:mm:ss"
                           pattern="\d{2}:\d{2}:\d{2}"
                           title="請輸入正確的時間格式（時:分:秒）"
+                          readonly
                         />
+                        <button type="button" class="btn btn-outline-secondary btn-sm" @click="setNoteTime(index)">
+                          取得時間
+                        </button>
                       </div>
                       <div class="col-9">
-                        <input
-                          type="text"
+                        <textarea
                           class="form-control"
                           v-model="note.content"
                           placeholder="筆記內容"
-                        />
+                          rows="2"
+                        ></textarea>
                       </div>
                       <div class="col-1">
                         <button
