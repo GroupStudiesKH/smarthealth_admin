@@ -2,17 +2,19 @@ import axios from "axios";
 
 const currentHost = window.location.hostname;
 
-let apiUrl, homeUrl;
+let apiUrl, apiWithoutPath, homeUrl;
 
 if (currentHost === 'localhost') {
   apiUrl = "http://localhost:8000/api/";
+  apiWithoutPath = "http://localhost:8000";
   homeUrl = "http://localhost:5173/";
 } else if (currentHost.endsWith('.hanyuan.info')) {
   apiUrl = "https://api.smarthealth.hanyuan.info/api/";
+  apiWithoutPath = "https://api.smarthealth.hanyuan.info";
   homeUrl = "https://admin.smarthealth.hanyuan.info/";
 } else {
-  // Default fallback, you might want to adjust this
   apiUrl = "http://localhost:8000/api/";
+  apiWithoutPath = "http://localhost:8000";
   homeUrl = "http://localhost:5173/";
 }
 
@@ -1144,6 +1146,7 @@ const getCourseStudentExcel = async (courseId, studentId) => {
 
 export default {
   apiUrl,
+  apiWithoutPath,
   getServerToken,
   adminLogin,
   adminLogout,
