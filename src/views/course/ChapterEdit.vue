@@ -294,197 +294,60 @@ export default {
     <Sidebar />
     <div class="page-wrapper">
       <Navbar />
-
       <div class="page-content">
-        <div class="row">
-
-
-          <div class="col-12">
-            <div class="card mb-3">
-              <div class="card-body">
-                <label class="form-label">影片檔案</label>
-                <div v-if="chapter.vimeo_id" class="video-preview mb-3">
-                  <iframe
-                    :src="chapter.player_embed_url"
-                    v-if="chapter.vimeo_status == 'vimeo_ready'"
-                    width="100%"
-                    height="600"
-                    frameborder="0"
-                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-                    title="Untitled"
-                  >
-                  </iframe>
-                  <p v-else>已上傳Vimeo，Vimeo影片處理中，您可以繼續編輯</p>
-                </div>
-                <input
-                  type="file"
-                  class="form-control"
-                  accept=".mp4,.mov"
-                  @change="handleVideoUpload"
-                />
-                {{ videoUploadStatusText }}
-                <div v-if="chapter.vimeo_id" class="mt-2">
-                  <button
-                    type="button"
-                    class="btn btn-danger btn-sm"
-                    @click="removeVideo"
-                  >
-                    移除
-                  </button>
-
-                  <a
-                    :href="`https://vimeo.com${chapter.manage_link}`"
-                    target="_blank"
-                    class="m-2 btn btn-info btn-sm"
-                  >
-                    <i class="material-icons align-middle me-1">edit</i>
-                    Vimeo編輯
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 grid-margin stretch-card">
-
+        <div class="row mb-4">
+          <div class="col-12 mx-auto stretch-card">
             <div class="card">
               <div class="card-body">
-
+                <h6 class="card-title">編輯章節</h6>
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Vimeo 播放器區塊 -->
+                    <div v-if="chapter.player_embed_url" class="mb-3">
+                      <iframe :src="chapter.player_embed_url" width="100%" height="315" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- 影片筆記編輯區塊 -->
+                    <div class="mb-3">
+                      <label class="form-label">影片筆記</label>
+                      <div v-for="(note, index) in chapter.notes" :key="index" class="input-group mb-2">
+                        <input type="text" class="form-control" v-model="note.time" placeholder="時間 (HH:mm:ss)" style="max-width:120px">
+                        <input type="text" class="form-control" v-model="note.content" placeholder="筆記內容">
+                        <button class="btn btn-outline-secondary" type="button" @click="setNoteTime(index)">設為目前時間</button>
+                        <button class="btn btn-outline-danger" type="button" @click="removeNote(index)">刪除</button>
+                      </div>
+                      <button class="btn btn-outline-primary btn-sm" type="button" @click="addNote">新增筆記</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- 章節標題與內容等其他表單欄位 -->
                 <form @submit.prevent="saveChapter">
                   <div class="mb-3">
                     <label for="title" class="form-label">章節標題</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="title"
-                      v-model="chapter.title"
-                      required
-                    />
+                    <input type="text" class="form-control" id="title" v-model="chapter.title" required />
                   </div>
-
                   <div class="mb-3">
                     <label for="editor" class="form-label">章節內容</label>
                     <div id="editor" v-html="chapter.description"></div>
                   </div>
-
                   <div class="mb-3">
                     <label class="form-label">PDF檔案</label>
-                    <input
-                      type="file"
-                      class="form-control"
-                      accept=".pdf"
-                      @change="handlePdfUpload"
-                    />
-                    <div
-                      v-if="chapter.pdf_file_url && !uploadStatusText"
-                      class="mt-2"
-                    >
-                      <a :href="chapter.pdf_file_url" target="_blank"
-                        >上傳檔案：{{
-                          typeof chapter.pdf_file_url === "string"
-                            ? chapter.pdf_file_url.split("/").pop()
-                            : chapter.pdf_file_url.name
-                        }}</a
-                      >
-                      <button
-                        type="button"
-                        class="btn btn-danger btn-sm ms-2"
-                        @click="removePdf"
-                      >
-                        移除
-                      </button>
-                    </div>
-                    <div v-else class="text-muted mt-2">
-                      {{ uploadStatusText }}
+                    <input type="file" class="form-control" accept=".pdf" @change="handlePdfUpload" />
+                    <div v-if="chapter.pdf_file_url && !uploadStatusText" class="mt-2">
+                      <!-- PDF 檔案顯示區塊 -->
                     </div>
                   </div>
-
-                  <div class="mb-3">
-                    <label class="form-label">影片筆記</label>
-                    <div
-                      v-for="(note, index) in chapter.notes"
-                      :key="index"
-                      class="row mb-2"
-                    >
-                      <div class="col-2 d-flex align-items-center">
-                        <input
-                          type="text"
-                          class="form-control me-1"
-                          v-model="note.time"
-                          placeholder="HH:mm:ss"
-                          pattern="\d{2}:\d{2}:\d{2}"
-                          title="請輸入正確的時間格式（時:分:秒）"
-                          readonly
-                        />
-                        <button type="button" class="btn btn-outline-secondary btn-sm" @click="setNoteTime(index)">
-                          取得時間
-                        </button>
-                      </div>
-                      <div class="col-9">
-                        <textarea
-                          class="form-control"
-                          v-model="note.content"
-                          placeholder="筆記內容"
-                          rows="2"
-                        ></textarea>
-                      </div>
-                      <div class="col-1">
-                        <button
-                          type="button"
-                          class="btn btn-danger btn-sm"
-                          @click="removeNote(index)"
-                        >
-                          刪除
-                        </button>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-3">
-                        <button
-                          type="button"
-                          class="btn btn-primary mt-2"
-                          @click="addNote"
-                        >
-                          新增筆記
-                        </button>
-                      </div>
-                    </div>
+                  <div class="d-flex justify-content-end">
+                    <router-link :to="`/course/${courseId}/chapters`" class="btn btn-secondary me-2">取消</router-link>
+                    <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
-
-                  <div class="mb-3">
-                    <label for="status" class="form-label">狀態</label>
-                    <select
-                      class="form-select"
-                      id="status"
-                      v-model="chapter.status"
-                    >
-                      <option value="publish">顯示</option>
-                      <option value="unpublish">隱藏</option>
-                    </select>
-                  </div>
-
-                  <button
-                    type="submit"
-                    class="btn btn-primary me-2"
-                    :disabled="isLoading || isUploading"
-                  >
-                    {{ isLoading ? "儲存中..." : "儲存" }}
-                  </button>
-
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    @click="backToChapterList()"
-                  >
-                    取消
-                  </button>
                 </form>
               </div>
             </div>
           </div>
         </div>
       </div>
-
       <Footer />
     </div>
   </div>
