@@ -42,6 +42,7 @@ export default {
       status: "",
       is_mandatory: false,
       credit: 0,
+      level: "beginner",
       coverImage: null,
     });
 
@@ -78,6 +79,7 @@ export default {
           category: res.categories[0],
           tags: res.tags,
           status: res.status,
+          level: res.level,
           coverImage: res.media[0] ? res.media[0].media_url : '',
           is_mandatory: res.is_mandatory,
           credit: res.credit,
@@ -159,6 +161,7 @@ export default {
           status: course.value.status,
           is_mandatory: course.value.is_mandatory,
           credit: course.value.credit,
+          level: course.value.level,
           coverImage: course.value.coverImage,
         };
 
@@ -370,6 +373,21 @@ export default {
                       <option value="中文">中文</option>
                       <option value="英文">英文</option>
                     </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">課程等級 <span class="text-danger">*</span></label>
+                    <select
+                      v-model="course.level"
+                      class="form-select"
+                      required
+                    >
+                      <option value="beginner">初級</option>
+                      <option value="intermediate">中級</option>
+                      <option value="advanced">高級</option>
+                      <option value="all_levels">全等級</option>
+                    </select>
+                    <div class="invalid-feedback" v-if="errors.level">{{ errors.level }}</div>
                   </div>
 
                   <div class="row">

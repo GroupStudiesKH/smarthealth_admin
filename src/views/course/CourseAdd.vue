@@ -28,7 +28,6 @@ export default {
     const showModal = ref(false);
     const modalMessage = ref("");
 
-
     const course = ref({
       title: "",
       instructors: [],
@@ -40,6 +39,7 @@ export default {
       tags: [],
       is_mandatory: false,
       credit: 0,
+      level: 'beginner',
       status: "publish",
       coverImage: null,
     });
@@ -99,6 +99,7 @@ export default {
           is_mandatory: course.value.is_mandatory,
           credit: course.value.credit,
           coverImage: course.value.coverImage,
+          level: course.value.level,
           categories: course.value.category?.id
             ? [course.value.category.id]
             : [],
@@ -322,6 +323,21 @@ export default {
                     </select>
                     <div class="invalid-feedback" v-if="errors.language">{{ errors.language }}</div>
 
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label">課程等級 <span class="text-danger">*</span></label>
+                    <select
+                      v-model="course.level"
+                      class="form-select"
+                      required
+                    >
+                      <option value="beginner">初級</option>
+                      <option value="intermediate">中級</option>
+                      <option value="advanced">高級</option>
+                      <option value="all_levels">全等級</option>
+                    </select>
+                    <div class="invalid-feedback" v-if="errors.level">{{ errors.level }}</div>
                   </div>
 
                   <div class="row">
