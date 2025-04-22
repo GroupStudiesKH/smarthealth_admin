@@ -582,6 +582,16 @@ const getChapters = async (courseId) => {
   }
 };
 
+const deleteChapter = async (courseId, chapterId) => {
+  const requestConfig = scDelete(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
 const getChapter = async (courseId, chapterId) => {
   const requestConfig = scGet(`${apiUrl}admin/course/${courseId}/chapter/${chapterId}`);
 
@@ -1233,6 +1243,7 @@ export default {
   getInstructorsOption,
   addInstructor,
   updateInstructor,
+  deleteChapter,
   getChapters,
   getChapter,
   chapterPDFUpload,

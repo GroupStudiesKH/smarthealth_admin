@@ -18,13 +18,16 @@ export default {
     const currentPage = ref(1);
     const totalPages = ref(1);
     const pageSize = 10;
+    const loading = ref(false);
 
     const fetchAdmins = async (page = 1) => {
       try {
+        loading.value = true;
         const response = await apiService.getAdmins(page, pageSize);
         admins.value = response.data;
         totalPages.value = Math.ceil(response.total / pageSize);
         currentPage.value = page;
+        loading.value = false;
       } catch (error) {
         console.error("Failed to fetch admin data:", error);
       }
@@ -37,8 +40,10 @@ export default {
     const deleteAdmin = async (adminId) => {
       if (confirm("您確定要刪除這個管理員嗎？")) {
         try {
+          loading.value = true;
           await apiService.deleteAdmin(adminId);
           await fetchAdmins(currentPage.value);
+          loading.value = false;
         } catch (error) {
           console.error("Failed to delete admin:", error);
           alert(error.response?.data?.message || "刪除管理員時發生錯誤");
@@ -51,7 +56,7 @@ export default {
     };
 
     const addAdmin = () => {
-      router.push('/admins/add');
+      router.push("/admins/add");
     };
 
     onMounted(() => {
@@ -60,6 +65,7 @@ export default {
 
     return {
       admins,
+      loading,
       currentPage,
       totalPages,
       editAdmin,
@@ -82,9 +88,13 @@ export default {
           <div class="col-12 stretch-card">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
                   <h6 class="card-title">管理員列表</h6>
-                  <button @click="addAdmin" class="btn btn-primary">新增管理員</button>
+                  <button @click="addAdmin" class="btn btn-primary">
+                    新增管理員
+                  </button>
                 </div>
                 <div class="table-responsive">
                   <table class="table">
@@ -104,10 +114,16 @@ export default {
                         <td>{{ admin.email }}</td>
                         <td>{{ admin.permission_group.name }}</td>
                         <td>
-                          <button @click="editAdmin(admin.id)" class="btn btn-primary btn-sm me-2">
+                          <button
+                            @click="editAdmin(admin.id)"
+                            class="btn btn-primary btn-sm me-2"
+                          >
                             編輯
                           </button>
-                          <button @click="deleteAdmin(admin.id)" class="btn btn-danger btn-sm">
+                          <button
+                            @click="deleteAdmin(admin.id)"
+                            class="btn btn-danger btn-sm"
+                          >
                             刪除
                           </button>
                         </td>
@@ -117,14 +133,40 @@ export default {
                 </div>
                 <nav class="mt-4">
                   <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">上一頁</a>
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === 1 }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="changePage(currentPage - 1)"
+                        >上一頁</a
+                      >
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                      <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+                    <li
+                      v-for="page in totalPages"
+                      :key="page"
+                      class="page-item"
+                      :class="{ active: currentPage === page }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="changePage(page)"
+                        >{{ page }}</a
+                      >
                     </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">下一頁</a>
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === totalPages }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="changePage(currentPage + 1)"
+                        >下一頁</a
+                      >
                     </li>
                   </ul>
                 </nav>
@@ -134,6 +176,15 @@ export default {
         </div>
       </div>
       <Footer />
+    </div>
+  </div>
+  <!-- Loading 彈窗 -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
+      </div>
+      <div class="mt-2">載入中...</div>
     </div>
   </div>
 </template>

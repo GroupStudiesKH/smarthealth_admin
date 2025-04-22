@@ -14,9 +14,10 @@ export default {
   },
   setup() {
     const router = useRouter();
-    const modalMessage = ref('');
+    const modalMessage = ref("");
     const showModal = ref(false);
     const tableData = ref([]);
+    const loading = ref(false);
 
     const tableColumns = reactive([
       { key: "id", label: "編號" },
@@ -28,30 +29,34 @@ export default {
 
     const fetchTableData = async () => {
       try {
+        loading.value = true;
         // 呼叫 API 取得 Banner 列表
         const response = await apiService.listBanners();
-        
+
         tableData.value = response;
+        loading.value = false;
       } catch (error) {
-        console.error('獲取 Banner 列表時發生錯誤:', error);
+        console.error("獲取 Banner 列表時發生錯誤:", error);
       }
     };
 
     const deleteBanner = async (bannerId) => {
       try {
         // 顯示確認彈窗
-        if (confirm('確定要刪除此 Banner 嗎？')) {
+        if (confirm("確定要刪除此 Banner 嗎？")) {
+          loading.value = true;
           // 呼叫 API 刪除 Banner
           await apiService.deleteBanner(bannerId);
-          
+
           // 重新獲取 Banner 列表
           await fetchTableData();
           
+          loading.value = false;
           // 顯示成功訊息
-          showSuccessModal('Banner 已成功刪除');
+          showSuccessModal("Banner 已成功刪除");
         }
-      }catch (error) {
-        showErrorModal('刪除 Banner 時發生錯誤');
+      } catch (error) {
+        showErrorModal("刪除 Banner 時發生錯誤");
       }
     };
 
@@ -82,6 +87,7 @@ export default {
       closeModal,
       modalMessage,
       showModal,
+      loading
     };
   },
 };
@@ -96,7 +102,9 @@ export default {
       <div class="page-content">
         <div class="row mb-3">
           <div class="col-12 text-end">
-            <router-link to="/layout/banner/add" class="btn btn-primary">新增Banner</router-link>
+            <router-link to="/layout/banner/add" class="btn btn-primary"
+              >新增Banner</router-link
+            >
           </div>
         </div>
         <div class="row">
@@ -117,18 +125,29 @@ export default {
                       <tr v-for="(row, index) in tableData" :key="index">
                         <td v-for="column in tableColumns" :key="column.key">
                           <template v-if="column.key === 'img_url'">
-                            <img :src="row.img_url" alt="Banner Image" class="img-fluid rounded-0" style="max-width: 100px;">
+                            <img
+                              :src="row.img_url"
+                              alt="Banner Image"
+                              class="img-fluid rounded-0"
+                              style="max-width: 100px"
+                            />
                           </template>
                           <template v-else-if="column.key === 'actions'">
-                            <a :href="`/layout/banner/edit/${row.id}`" class="btn btn-link p-0 me-2">
+                            <a
+                              :href="`/layout/banner/edit/${row.id}`"
+                              class="btn btn-link p-0 me-2"
+                            >
                               <i class="material-icons">edit</i>
                             </a>
-                            <button @click="deleteBanner(row.id)" class="btn btn-link p-0">
+                            <button
+                              @click="deleteBanner(row.id)"
+                              class="btn btn-link p-0"
+                            >
                               <i class="material-icons">delete</i>
                             </button>
                           </template>
                           <template v-else-if="column.key === 'status'">
-                            {{ row.status === 'active' ? '啟用' : '未啟用' }}
+                            {{ row.status === "active" ? "啟用" : "未啟用" }}
                           </template>
                           <template v-else>
                             {{ row[column.key] }}
@@ -154,10 +173,11 @@ export default {
           <h5 class="modal-title">提示</h5>
           <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
-        <div class="modal-body" v-html="modalMessage">
-        </div>
+        <div class="modal-body" v-html="modalMessage"></div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
+          <button type="button" class="btn btn-secondary" @click="closeModal">
+            關閉
+          </button>
         </div>
       </div>
     </div>
@@ -166,6 +186,15 @@ export default {
   <!-- Modal -->
   <div class="modal-backdrop" v-if="showModal"></div>
 
+  <!-- Loading 彈窗 -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
+      </div>
+      <div class="mt-2">載入中...</div>
+    </div>
+  </div>
 </template>
 <style scoped>
 .modal-backdrop {

@@ -13,16 +13,17 @@ export default {
   },
   setup() {
     const instructors = ref([]);
+    const loading = ref(false);
     const pagination = ref({
       current_page: 1,
       total: 0,
-      per_page: 10
+      per_page: 10,
     });
 
     const searchQuery = ref("");
     const currentPage = ref(1);
-    const totalPages = ref(0)
-    const deleteID = ref('')
+    const totalPages = ref(0);
+    const deleteID = ref("");
 
     const handleSearch = () => {
       currentPage.value = 1;
@@ -30,17 +31,20 @@ export default {
     };
 
     const deleteInstructor = (id) => {
-      deleteID.value = id
+      deleteID.value = id;
     };
 
     const delInstructor = () => {
-      apiService.delInstructor(deleteID.value).then(response => {
-        fetchInstructors();
-        $('#delConfirmModal').modal('hide');
-      }).catch(error => {
-        console.error('刪除講師失敗:', error);
-      });
-    }
+      apiService
+        .delInstructor(deleteID.value)
+        .then((response) => {
+          fetchInstructors();
+          $("#delConfirmModal").modal("hide");
+        })
+        .catch((error) => {
+          console.error("刪除講師失敗:", error);
+        });
+    };
 
     const changePage = (page) => {
       currentPage.value = page;
@@ -49,27 +53,28 @@ export default {
 
     const fetchInstructors = async () => {
       try {
+        loading.value = true;
         const response = await apiService.getInstructors({
           page: currentPage.value,
           per_page: pagination.value.per_page,
-          search: searchQuery.value
+          search: searchQuery.value,
         });
-        
-        instructors.value = response.data.map(item => ({
+
+        instructors.value = response.data.map((item) => ({
           id: item.id,
           name: item.name,
           note: item.note,
           created_at: item.created_at,
-          index_show: item.index_show
+          index_show: item.index_show,
         }));
 
-    
         pagination.value.total = response.pagination.total;
         pagination.value.per_page = response.pagination.per_page;
-        totalPages.value = response.pagination.last_page
+        totalPages.value = response.pagination.last_page;
         currentPage.value = response.pagination.current_page;
+        loading.value = false;
       } catch (error) {
-        console.error('獲取講師列表失敗:', error);
+        console.error("獲取講師列表失敗:", error);
       }
     };
 
@@ -79,6 +84,7 @@ export default {
 
     return {
       instructors,
+      loading,
       searchQuery,
       handleSearch,
       currentPage,
@@ -86,7 +92,7 @@ export default {
       deleteInstructor,
       changePage,
       pagination,
-      delInstructor
+      delInstructor,
     };
   },
 };
@@ -103,9 +109,14 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
                   <h6 class="card-title mb-0">講師列表</h6>
-                  <router-link to="/course/instructor/add" class="btn btn-primary">
+                  <router-link
+                    to="/course/instructor/add"
+                    class="btn btn-primary"
+                  >
                     新增講師
                   </router-link>
                 </div>
@@ -142,10 +153,13 @@ export default {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="instructor in instructors" :key="instructor.id">
+                      <tr
+                        v-for="instructor in instructors"
+                        :key="instructor.id"
+                      >
                         <td>{{ instructor.name }}</td>
                         <td>{{ instructor.note }}</td>
-                        <td>{{ instructor.index_show ? '是' : '否' }}</td>
+                        <td>{{ instructor.index_show ? "是" : "否" }}</td>
                         <td>{{ instructor.created_at }}</td>
                         <td>
                           <router-link
@@ -156,7 +170,9 @@ export default {
                           </router-link>
                           <button
                             class="btn btn-sm btn-outline-danger"
-                            @click="deleteInstructor(instructor.id)" data-bs-toggle="modal" data-bs-target="#delConfirmModal"
+                            @click="deleteInstructor(instructor.id)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#delConfirmModal"
                           >
                             刪除
                           </button>
@@ -186,7 +202,11 @@ export default {
                       :key="page"
                       class="page-item"
                       :class="{ active: currentPage === page }"
-                      v-show="Math.abs(page - pagination.current_page) <= 2 || page === 1 || page === totalPages"
+                      v-show="
+                        Math.abs(page - pagination.current_page) <= 2 ||
+                        page === 1 ||
+                        page === totalPages
+                      "
                     >
                       <a
                         class="page-link"
@@ -217,25 +237,56 @@ export default {
       </div>
 
       <!-- Modal -->
-      <div class="modal fade" id="delConfirmModal" tabindex="-1" aria-labelledby="delConfirmModalLabel" aria-hidden="true">
+      <div
+        class="modal fade"
+        id="delConfirmModal"
+        tabindex="-1"
+        aria-labelledby="delConfirmModalLabel"
+        aria-hidden="true"
+      >
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="delConfirmModalLabel">確認刪除？</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="btn-close"
+              ></button>
             </div>
-            <div class="modal-body">
-              請確認是否刪除
-            </div>
+            <div class="modal-body">請確認是否刪除</div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-              <button type="button" class="btn btn-primary" @click="delInstructor()">確認</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                關閉
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary"
+                @click="delInstructor()"
+              >
+                確認
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <Footer />
+    </div>
+  </div>
+
+  <!-- Loading 彈窗 -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
+      </div>
+      <div class="mt-2">載入中...</div>
     </div>
   </div>
 </template>

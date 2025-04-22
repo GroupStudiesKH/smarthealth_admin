@@ -16,6 +16,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const chapters = ref([]);
+    const loading = ref(false);
 
     const addChapter = () => {
       router.push(`/course/${route.params.courseId}/chapter/add`);
@@ -28,24 +29,31 @@ export default {
     const deleteChapter = async (chapterId) => {
       if (confirm("確定要刪除此章節嗎？")) {
         try {
-          // 這裡實作刪除章節的 API 呼叫
-          console.log("刪除章節:", chapterId);
-          // 重新載入章節列表
-          // await fetchChapters();
+          loading.value = true;
+          await apiService.deleteChapter(route.params.courseId, chapterId);
+          chapters.value = chapters.value.filter(
+            (chapter) => chapter.id !== chapterId
+          );
+          loading.value = false;
         } catch (error) {
-          console.error("刪除章節失敗:", error);
+          loading.value = false;
+          alert("刪除章節失敗");
         }
       }
     };
 
     const fetchChapters = async () => {
       try {
-        const results = await apiService.getChapters(route.params.courseId)
-        chapters.value = results
+        loading.value = true;
+        const results = await apiService.getChapters(route.params.courseId);
+        loading.value = false;
+        chapters.value = results;
       } catch (error) {
-        console.log(error)
+        loading.value = false;
+        alert("獲取課程列表失敗");
+        console.log(error);
       }
-    }
+    };
 
     onMounted(() => {
       // 這裡實作載入章節列表的 API 呼叫
@@ -54,6 +62,7 @@ export default {
 
     return {
       chapters,
+      loading,
       addChapter,
       editChapter,
       deleteChapter,
@@ -73,9 +82,15 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
                   <h6 class="card-title mb-0">章節管理</h6>
-                  <button type="button" class="btn btn-primary" @click="addChapter">
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    @click="addChapter"
+                  >
                     <i class="link-icon" data-feather="plus"></i>
                     新增章節
                   </button>
@@ -98,10 +113,13 @@ export default {
                           <span
                             :class="{
                               'badge bg-success': chapter.status === 'publish',
-                              'badge bg-warning': chapter.status === 'unpublish',
+                              'badge bg-warning':
+                                chapter.status === 'unpublish',
                             }"
                           >
-                            {{ chapter.status == 'publish' ? '公開' : '未公開' }}
+                            {{
+                              chapter.status == "publish" ? "公開" : "未公開"
+                            }}
                           </span>
                         </td>
                         <td>{{ chapter.created_at }}</td>
@@ -129,6 +147,16 @@ export default {
         </div>
       </div>
       <Footer />
+    </div>
+  </div>
+
+  <!-- Loading 彈窗 -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
+      </div>
+      <div class="mt-2">載入中...</div>
     </div>
   </div>
 </template>
