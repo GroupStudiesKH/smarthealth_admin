@@ -1,6 +1,6 @@
 <script>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -10,43 +10,40 @@ export default {
   components: {
     Footer,
     Navbar,
-    Sidebar
+    Sidebar,
   },
   setup() {
     const router = useRouter();
     const categories = ref([]);
-    const searchQuery = ref('');
+    const searchQuery = ref("");
     const currentPage = ref(1);
     const pageSize = ref(10);
     const loading = ref(false);
-    const totalPages = ref(0)
-    const deleteId = ref('')
+    const totalPages = ref(0);
+    const deleteId = ref("");
 
-
-    
     const fetchCategories = async () => {
       loading.value = true;
       try {
         const response = await apiService.getTags({
-          type: 'category',
+          type: "category",
           page: currentPage.value,
           per_page: pageSize.value,
-          search: searchQuery.value
+          search: searchQuery.value,
         });
-        categories.value = response.data.map(item => ({
+        categories.value = response.data.map((item) => ({
           id: item.id,
           name: item.name,
           courseCount: item.courses_count,
-          createdAt: item.created_at
+          createdAt: item.created_at,
         }));
 
         // 從 API 回應取得分頁資訊
         pageSize.value = response.pagination.per_page;
         totalPages.value = response.pagination.last_page;
         currentPage.value = response.pagination.current_page;
-
       } catch (error) {
-        console.error('獲取分類失敗:', error);
+        console.error("獲取分類失敗:", error);
       } finally {
         loading.value = false;
       }
@@ -57,7 +54,7 @@ export default {
     };
 
     const handleDelete = (id) => {
-      deleteId.value = id
+      deleteId.value = id;
     };
 
     const delTag = async () => {
@@ -66,20 +63,20 @@ export default {
         fetchCategories();
 
         // 關閉 Modal
-        $('#delConfirmModal').modal('hide');
+        $("#delConfirmModal").modal("hide");
       } catch (error) {
-        console.error('刪除標籤失敗:', error);
+        console.error("刪除標籤失敗:", error);
       }
     };
 
     const changePage = async (page) => {
       currentPage.value = page;
-      await fetchCategories()
+      await fetchCategories();
     };
 
     const handleSearch = () => {
-      currentPage.value = 1
-      fetchCategories()
+      currentPage.value = 1;
+      fetchCategories();
     };
 
     onMounted(() => {
@@ -97,9 +94,9 @@ export default {
       handleDelete,
       changePage,
       handleSearch,
-      delTag
+      delTag,
     };
-  }
+  },
 };
 </script>
 
@@ -114,9 +111,16 @@ export default {
           <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
               <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
                   <h6 class="card-title mb-0">課程分類管理</h6>
-                  <button class="btn btn-primary" @click="$router.push('/course/category/add')">新增分類</button>
+                  <button
+                    class="btn btn-primary"
+                    @click="$router.push('/course/category/add')"
+                  >
+                    新增分類
+                  </button>
                 </div>
 
                 <!-- 搜尋欄位 -->
@@ -124,12 +128,12 @@ export default {
                   <div class="col-md-4">
                     <div class="input-group">
                       <input
-                          type="text"
-                          class="form-control"
-                          v-model="searchQuery"
-                          placeholder="搜尋分類名稱"
-                        />
-                        <button class="btn btn-primary" @click="handleSearch">
+                        type="text"
+                        class="form-control"
+                        v-model="searchQuery"
+                        placeholder="搜尋分類名稱"
+                      />
+                      <button class="btn btn-primary" @click="handleSearch">
                         搜尋
                       </button>
                     </div>
@@ -152,10 +156,18 @@ export default {
                         <td>{{ category.courseCount }}</td>
                         <td>{{ category.createdAt }}</td>
                         <td>
-                          <button class="btn btn-sm btn-outline-primary me-2" @click="handleEdit(category.id)">
+                          <button
+                            class="btn btn-sm btn-outline-primary me-2"
+                            @click="handleEdit(category.id)"
+                          >
                             編輯
                           </button>
-                          <button class="btn btn-sm btn-outline-danger" @click="handleDelete(category.id)" data-bs-toggle="modal" data-bs-target="#delConfirmModal">
+                          <button
+                            class="btn btn-sm btn-outline-danger"
+                            @click="handleDelete(category.id)"
+                            data-bs-toggle="modal"
+                            data-bs-target="#delConfirmModal"
+                          >
                             刪除
                           </button>
                         </td>
@@ -167,8 +179,17 @@ export default {
                 <!-- 分頁導航 -->
                 <nav class="mt-4" v-if="totalPages > 0">
                   <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage > 1 ? currentPage - 1 : 1)">
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === 1 }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="
+                          changePage(currentPage > 1 ? currentPage - 1 : 1)
+                        "
+                      >
                         上一頁
                       </a>
                     </li>
@@ -178,12 +199,29 @@ export default {
                       class="page-item"
                       :class="{ active: currentPage === page }"
                     >
-                      <a class="page-link" href="#" @click.prevent="changePage(page)">
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="changePage(page)"
+                      >
                         {{ page }}
                       </a>
                     </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                      <a class="page-link" href="#" @click.prevent="changePage(currentPage < totalPages ? currentPage + 1 : totalPages)">
+                    <li
+                      class="page-item"
+                      :class="{ disabled: currentPage === totalPages }"
+                    >
+                      <a
+                        class="page-link"
+                        href="#"
+                        @click.prevent="
+                          changePage(
+                            currentPage < totalPages
+                              ? currentPage + 1
+                              : totalPages
+                          )
+                        "
+                      >
                         下一頁
                       </a>
                     </li>
@@ -195,27 +233,52 @@ export default {
         </div>
       </div>
 
-
       <!-- Modal -->
-      <div class="modal fade" id="delConfirmModal" tabindex="-1" aria-labelledby="delConfirmModalLabel" aria-hidden="true">
+      <div
+        class="modal fade"
+        id="delConfirmModal"
+        tabindex="-1"
+        aria-labelledby="delConfirmModalLabel"
+        aria-hidden="true"
+      >
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="delConfirmModalLabel">確認刪除？</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="btn-close"></button>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="btn-close"
+              ></button>
             </div>
-            <div class="modal-body">
-              請確認是否刪除
-            </div>
+            <div class="modal-body">請確認是否刪除</div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-              <button type="button" class="btn btn-primary" @click="delTag()">確認</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                關閉
+              </button>
+              <button type="button" class="btn btn-primary" @click="delTag()">
+                確認
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <Footer />
+    </div>
+  </div>
+  <!-- Loading 彈窗 -->
+  <div v-if="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">載入中...</span>
+      </div>
+      <div class="mt-2">載入中...</div>
     </div>
   </div>
 </template>
