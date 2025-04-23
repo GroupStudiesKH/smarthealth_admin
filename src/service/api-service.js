@@ -625,6 +625,16 @@ const createChapter = async (courseId, inputForm) => {
   }
 };
 
+const getVimeoUpdateStatus = async (chapterId) => {
+  const requestConfig = scGet(`${apiUrl}admin/vimeo/update/${chapterId}`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getExamLists = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/exam?${queryString}`);
@@ -1246,6 +1256,7 @@ export default {
   deleteChapter,
   getChapters,
   getChapter,
+  getVimeoUpdateStatus,
   chapterPDFUpload,
   updateChapter,
   createChapter,

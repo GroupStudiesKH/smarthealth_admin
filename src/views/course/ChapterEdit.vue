@@ -110,6 +110,9 @@ export default {
             videoUploadStatusText.value = "上傳完成";
             event.target.value = "";
             isUploading.value = false;
+
+            // every 10 seconds check the status of the video
+            setInterval(autoUpdateVimeoStatus, 10000);
           },
         });
 
@@ -124,6 +127,20 @@ export default {
         setTimeout(() => {
           uploadProgress.value = 0;
         }, 3000);
+      }
+    };
+
+    const autoUpdateVimeoStatus = async () => {
+      try {
+        const result = await apiService.getVimeoUpdateStatus(chapterId);
+        chapter.value.vimeo_status = result.vimeo_status;
+
+        if(chapter.value.vimeo_status == "vimeo_ready"){
+          // stop the interval
+          clearInterval(autoUpdateVimeoStatus);
+        }
+      } catch (error) {
+        console.log(error);
       }
     };
 
