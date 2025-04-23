@@ -353,7 +353,10 @@ export default {
                     </div>
                   </div>
                   <div class="col-md-6 video-column">
-                    <div class="notes-container">
+                    <div
+                      class="notes-container"
+                      v-if="chapter.notes.length > 0"
+                    >
                       <div
                         v-for="(note, index) in chapter.notes"
                         :key="index"
@@ -388,13 +391,31 @@ export default {
                         ></textarea>
                       </div>
                     </div>
+
+                    <div class="notes-container" v-else>
+                      <div
+                        class="d-flex align-items-center justify-content-center h-100 text-muted"
+                      >
+                        <h3 class="empty_note">尚未新增筆記</h3>
+                      </div>
+                    </div>
                     <button
-                      class="btn btn-outline-primary btn-sm"
+                      class="btn btn-outline-primary btn-sm my-2"
+                      :class="
+                        chapter.vimeo_status != 'vimeo_ready'
+                          ? 'btn-disabled'
+                          : ''
+                      "
                       type="button"
                       @click="addNote"
                     >
                       新增筆記
                     </button>
+                    <small
+                      v-if="chapter.vimeo_status != 'vimeo_ready'"
+                      class="text-center text-danger"
+                      >影片正在處理中，無法新增筆記</small
+                    >
                   </div>
                 </div>
                 <!-- 章節標題與內容等其他表單欄位 -->
