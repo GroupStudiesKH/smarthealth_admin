@@ -8,12 +8,14 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import apiService from "@/service/api-service.js";
 import multiselect from "vue-multiselect";
 import UploadAdapter from "@/utils/UploadAdapter";
+import Loading from "@/components/loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading,
     multiselect,
   },
   setup() {
@@ -25,7 +27,7 @@ export default {
     const uploadStatusText = ref("");
 
     const errors = ref({});
-    const isLoading = ref(false);
+    const loading = ref(false);
     const showModal = ref(false);
     const modalMessage = ref("");
 
@@ -63,6 +65,7 @@ export default {
     // 修改课程获取逻辑
     const getCourse = async () => {
       try {
+        
         const courseID = route.params.id;
         const res = await apiService.getCourse(courseID);
 
@@ -147,6 +150,7 @@ export default {
 
     const saveCourse = async () => {
       try {
+        loading.value = true;
         const courseID = route.params.id;
         let sendForm = {
           title: course.value.title,
@@ -170,9 +174,10 @@ export default {
         }
 
         await apiService.updateCourse(courseID, sendForm);
-
+        loading.value = false;
         router.push({ name: "courseList" });
       } catch (error) {
+        loading.value = false;
         // 處理後端回傳的驗證錯誤
         if (error.response?.data?.status === 'error') {
           // 處理後端回傳的驗證錯誤
@@ -200,7 +205,7 @@ export default {
         }
         
       } finally {
-        isLoading.value = false;
+        loading.value = false;
       }
     };
 
@@ -232,10 +237,12 @@ export default {
 
     onMounted(async () => {
       try {
+        loading.value = true;
         getTags();
         getCategory();
         getInstructor();
         await getCourse();
+
 
         editor.value = await ClassicEditor.create(
           document.querySelector("#editor"),
@@ -285,6 +292,8 @@ export default {
           .catch((error) => {
             console.error(error);
           });
+
+          loading.value = false;
       } catch (error) {
         console.error("資料獲取失敗:", error);
       }
@@ -316,7 +325,7 @@ export default {
       availableInstructors,
       nameWithPos,
       errors,
-      isLoading,
+      loading,
       showModal,
       modalMessage,
       showErrorModal,
@@ -540,7 +549,8 @@ export default {
 
   <!-- Modal -->
   <div class="modal-backdrop" v-if="showModal"></div>
-
+  <!-- 載入中彈窗 -->
+  <Loading v-if="loading" />
 </template>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
 <style scoped>
