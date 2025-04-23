@@ -42,13 +42,13 @@ export default {
     const addNote = () => {
       chapter.value.notes.push({
         time: "",
-        content: ""
+        content: "",
       });
       nextTick(() => {
-        const container = document.querySelector('.notes-container');
+        const container = document.querySelector(".notes-container");
         container.scrollTo({
           top: container.scrollHeight,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       });
     };
@@ -313,7 +313,6 @@ export default {
                 <h6 class="card-title">編輯章節</h6>
                 <div class="row">
                   <div class="col-md-6">
-
                     <div v-if="chapter.vimeo_id" class="video-preview mb-3">
                       <iframe
                         :src="chapter.player_embed_url"
@@ -355,7 +354,11 @@ export default {
                   </div>
                   <div class="col-md-6 video-column">
                     <div class="notes-container">
-                      <div v-for="(note, index) in chapter.notes" :key="index" class="mb-3 p-2 border-bottom">
+                      <div
+                        v-for="(note, index) in chapter.notes"
+                        :key="index"
+                        class="mb-3 p-2 border-bottom"
+                      >
                         <div class="d-flex align-items-center gap-2 mb-2">
                           <input
                             type="text"
@@ -364,10 +367,16 @@ export default {
                             placeholder="時間"
                             style="width: 120px"
                           />
-                          <button class="btn btn-outline-secondary btn-sm" @click="setNoteTime(index)">
+                          <button
+                            class="btn btn-outline-secondary btn-sm"
+                            @click="setNoteTime(index)"
+                          >
                             設為目前時間
                           </button>
-                          <button class="btn btn-outline-danger btn-sm" @click="removeNote(index)">
+                          <button
+                            class="btn btn-outline-danger btn-sm"
+                            @click="removeNote(index)"
+                          >
                             刪除
                           </button>
                         </div>
@@ -380,12 +389,12 @@ export default {
                       </div>
                     </div>
                     <button
-                        class="btn btn-outline-primary btn-sm"
-                        type="button"
-                        @click="addNote"
-                      >
-                        新增筆記
-                      </button>
+                      class="btn btn-outline-primary btn-sm"
+                      type="button"
+                      @click="addNote"
+                    >
+                      新增筆記
+                    </button>
                   </div>
                 </div>
                 <!-- 章節標題與內容等其他表單欄位 -->
@@ -416,6 +425,13 @@ export default {
                       v-if="chapter.pdf_file_url && !uploadStatusText"
                       class="mt-2"
                     >
+                      <a :href="chapter.pdf_file_url" target="_blank"
+                        >上傳檔案：{{
+                          typeof chapter.pdf_file_url === "string"
+                            ? chapter.pdf_file_url.split("/").pop()
+                            : chapter.pdf_file_url.name
+                        }}</a
+                      >
                       <!-- PDF 檔案顯示區塊 -->
                     </div>
                   </div>
