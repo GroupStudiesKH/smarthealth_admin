@@ -4,12 +4,14 @@ import apiService from '@/service/api-service.js';
 import Footer from '@/components/Footer.vue';
 import Navbar from '@/components/Navbar.vue';
 import Sidebar from '@/components/Sidebar.vue';
+import Loading from '@/components/Loading.vue';
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const socialSettings = ref({
@@ -26,6 +28,7 @@ export default {
     const showModal = ref(false);
     const modalMessage = ref('');
     const modalTitle = ref('');
+    const loading = ref(false);
 
     // 解析API錯誤訊息
     const parseApiErrors = (error) => {
@@ -57,6 +60,7 @@ export default {
 
     const fetchSocialSettings = async () => {
       try {
+        loading.value = true;
         const response = await apiService.getSocialSetting();
         socialSettings.value = {
           address: response.address,
@@ -67,7 +71,9 @@ export default {
           twitter: response.twitter_acc,
           youtube: response.youtube_acc,
         };
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error('獲取社群設定失敗:', error);
         modalTitle.value = '錯誤';
         modalMessage.value = '獲取設定失敗，請重新整理頁面';
@@ -77,6 +83,7 @@ export default {
 
     const saveSocialSettings = async () => {
       try {
+        loading.value = true;
         errors.value = {}; // 重置錯誤訊息
         const settings = [
           { meta_key: 'address', meta_value: { address: socialSettings.value.address } },
@@ -88,17 +95,19 @@ export default {
           { meta_key: 'youtube_acc', meta_value: { youtube_acc: socialSettings.value.youtube } }
         ];
 
-        await apiService.updateSiteMetaBatch({ settings });
+        await apiService.updateSiteMetaBatch(settings);
         
         modalTitle.value = '成功';
         modalMessage.value = '社群設定已更新';
         showModal.value = true;
+        loading.value = false;
       } catch (error) {
         console.error('Error saving social settings:', error);
         errors.value = parseApiErrors(error);
         modalTitle.value = '錯誤';
         modalMessage.value = '更新設定失敗，請檢查輸入內容';
         showModal.value = true;
+        loading.value = false;
       }
     };
 
@@ -118,6 +127,7 @@ export default {
       modalTitle,
       saveSocialSettings,
       closeModal,
+      loading
     };
   },
 };
@@ -271,4 +281,5 @@ export default {
       <div class="modal-backdrop fade show" v-if="showModal"></div>
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

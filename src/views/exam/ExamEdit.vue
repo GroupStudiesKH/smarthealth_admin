@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import QuestionModal from "@/components/QuestionModal.vue";
 import apiService from "@/service/api-service";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
@@ -13,6 +14,7 @@ export default {
     Navbar,
     Sidebar,
     QuestionModal,
+    Loading
   },
   setup() {
     const route = useRoute();
@@ -27,6 +29,7 @@ export default {
     const totalPages = ref(10);
     const chapterOptions = ref([]);
     const chapterModalOptions = ref([]);
+    const loading = ref(false);
 
     // 題目數據
     const questions = ref([]);
@@ -42,7 +45,9 @@ export default {
           page: currentPage.value,
           pageSize: pageSize.value,
         };
+        loading.value = true;
         const response = await apiService.getQuestionLists(params);
+        loading.value = false;
         chapterOptions.value = [{
           id: '',
           title: `全部`,
@@ -83,8 +88,9 @@ export default {
           if (index !== -1) {
             questions.value.splice(index, 1);
           }
-          
+          loading.value = true;
           await apiService.delQuestion(questionId);
+          loading.value = false;
         }
       } catch (error) {
         console.error("刪除題目失敗：", error);
@@ -131,7 +137,8 @@ export default {
       isEditMode,
       chapterOptions,
       chapterModalOptions,
-      fetchQuestions
+      fetchQuestions,
+      loading
     };
   },
 };
@@ -315,6 +322,7 @@ export default {
       />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>

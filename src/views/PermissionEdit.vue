@@ -5,12 +5,14 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -29,6 +31,7 @@ export default {
 
     const fetchPermissionOptions = async () => {
       try {
+        isLoading.value = true;
         const response = await apiService.getPermissionOptions();
         permissionStructure.value = response;
         permissionData.value = {
@@ -39,13 +42,16 @@ export default {
             return acc;
           }, {})
         };
+        isLoading.value = false;
       } catch (error) {
+        isLoading.value = false;
         console.error("Error fetching permission options:", error);
       }
     };
 
     const fetchPermissionData = async () => {
       try {
+        isLoading.value = true;
         const response = await apiService.getPermission(permissionId);
         permissionData.value = {
           id: response.id,
@@ -64,7 +70,9 @@ export default {
           });
         });
         console.log("Updated permissionData:", permissionData.value);
+        isLoading.value = false;
       } catch (error) {
+        isLoading.value = false;
         console.error("Error fetching permission data:", error);
       }
     };
@@ -224,4 +232,5 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isLoading" />
 </template>

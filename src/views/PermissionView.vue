@@ -5,17 +5,20 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading,
   },
   setup() {
     const router = useRouter();
     const tableData = ref([]);
     const totalRecords = ref(0);
+    const loading = ref(false);
 
     const handleSearch = () => {
       fetchTableData();
@@ -30,7 +33,7 @@ export default {
       fetchTableData();
     };
     const tableColumns = reactive([
-      { key: "id", label: "編號"},
+      { key: "id", label: "編號" },
       { key: "name", label: "名稱" },
       { key: "actions", label: "操作" },
     ]);
@@ -38,15 +41,18 @@ export default {
     const fetchTableData = async (page = 1, pageSize = 10, search = "") => {
       try {
         // Fetch data from API with pagination parameters
+        loading.value = true;
         const response = await apiService.getPermissions({
           page,
           pageSize,
-          search
+          search,
         });
+        loading.value = false;
 
         tableData.value = response.data;
         totalRecords.value = response.recordsTotal;
       } catch (error) {
+        loading.value = false;
         console.error("Failed to fetch permission data:", error);
         // Handle error (e.g., show error message to user)
       }
@@ -61,6 +67,7 @@ export default {
       tableColumns,
       handleSearch,
       resetSearch,
+      loading
     };
   },
 };
@@ -75,7 +82,9 @@ export default {
       <div class="page-content">
         <div class="row mb-3">
           <div class="col-12 text-end">
-            <router-link to="/permission/add" class="btn btn-primary">新增權限</router-link>
+            <router-link to="/permission/add" class="btn btn-primary"
+              >新增權限</router-link
+            >
           </div>
         </div>
         <div class="row">
@@ -96,7 +105,10 @@ export default {
                       <tr v-for="(row, index) in tableData" :key="index">
                         <td v-for="column in tableColumns" :key="column.key">
                           <template v-if="column.key === 'actions'">
-                            <a :href="`/permission/edit/${row.id}`" class="btn btn-link p-0">
+                            <a
+                              :href="`/permission/edit/${row.id}`"
+                              class="btn btn-link p-0"
+                            >
                               <i class="material-icons">edit</i>
                             </a>
                           </template>
@@ -117,4 +129,5 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

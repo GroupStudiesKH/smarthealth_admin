@@ -5,16 +5,19 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const loading = ref(false)
     // 模擬課程統計數據
     const courses = ref([])
 
@@ -67,6 +70,7 @@ export default {
 
     const exportReport = async () => {
       try {
+        loading.value = true
         const params = {
           category_id: selectedCategory.value,
           status: '',
@@ -76,14 +80,15 @@ export default {
         }
         // 直接呼叫API下載Excel檔案
         await apiService.downloadStatsExcel(params)
+        loading.value = false
       } catch (error) {
+        loading.value = false
         console.error('下載報表失敗:', error)
       }
     }
 
     // 總頁數
     const totalPages = ref(1)
-    const loading = ref(false)
     const total = ref(0)
 
     const fetchStats = async () => {
@@ -151,6 +156,7 @@ export default {
       totalPages,
       goToPage,
       toggleSort,
+      loading,
       sortField,
       sortOrder,
       exportReport
@@ -273,6 +279,7 @@ export default {
       <Footer />
     </div>
   </div>
+  <loading v-if="loading" />
 </template>
 
 <style scoped>

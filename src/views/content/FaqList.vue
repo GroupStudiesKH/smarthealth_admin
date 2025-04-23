@@ -5,16 +5,19 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
     const faqList = ref([]);
+    const loading = ref(false);
 
     const addFaq = () => {
       router.push({ name: 'faqAdd' });
@@ -41,9 +44,12 @@ export default {
 
     const fetchFaqList = async () => {
       try {
+        loading.value = true;
         const response = await apiService.getPosts({type: 'faq'});
         faqList.value = response;
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error('Error fetching FAQ list:', error);
       }
     }
@@ -54,6 +60,7 @@ export default {
 
     return {
       faqList,
+      loading,
       addFaq,
       editFaq,
       deleteFaq
@@ -111,6 +118,7 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>

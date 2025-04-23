@@ -4,14 +4,17 @@ import apiService from '@/service/api-service.js';
 import Footer from '@/components/Footer.vue';
 import Navbar from '@/components/Navbar.vue';
 import Sidebar from '@/components/Sidebar.vue';
+import Loading from "@/components/loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
+    const loading = ref(false);
     const brandSettings = ref({
       siteName: '',
       metaTitle: '',
@@ -41,6 +44,7 @@ export default {
 
     const saveBrandSettings = async () => {
       try {
+        loading.value = true;
         const settings = [
           { meta_key: 'site_name', meta_value: brandSettings.value.siteName },
           { meta_key: 'meta_title', meta_value: brandSettings.value.metaTitle },
@@ -68,11 +72,13 @@ export default {
         modalTitle.value = '成功';
         modalMessage.value = '品牌設定已更新';
         showModal.value = true;
+        loading.value = false;
       } catch (error) {
         console.error('Error saving brand settings:', error);
         modalTitle.value = '錯誤';
         modalMessage.value = '更新設定失敗，請稍後再試';
         showModal.value = true;
+        loading.value = false;
       }
     };
 
@@ -82,6 +88,7 @@ export default {
 
     const getBrandSettings = async () => {
       try {
+        loading.value = true;
         const response = await apiService.getBrandSetting();
         brandSettings.value = {
           siteName: response.site_name,
@@ -91,7 +98,9 @@ export default {
           logo: response.logo_img,
           trackingCode: response.tracking_code,
         };
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error('獲取品牌設定失敗:', error);
         modalTitle.value = '錯誤';
         modalMessage.value = '獲取設定失敗，請重新整理頁面';
@@ -112,6 +121,7 @@ export default {
       handleFileUpload,
       saveBrandSettings,
       closeModal,
+      loading
     };
   },
 };
@@ -231,4 +241,5 @@ export default {
       <div class="modal-backdrop fade show" v-if="showModal"></div>
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

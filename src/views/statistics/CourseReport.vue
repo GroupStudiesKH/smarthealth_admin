@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import StudentDetailModal from "@/components/StudentDetailModal.vue";
 import ExamReviewModal from "@/components/ExamReviewModal.vue";
 import apiService from "@/service/api-service";
+import Loading from "@/components/loading.vue";
 
 export default {
   components: {
@@ -15,11 +16,13 @@ export default {
     Sidebar,
     StudentDetailModal,
     ExamReviewModal,
+    Loading
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
     const courseId = route.params.id;
+    const loading = ref(false);
 
     // 學生詳細資料模態框狀態
     const showStudentModal = ref(false);
@@ -48,6 +51,7 @@ export default {
     // 載入課程報表資料
     const loadCourseReport = async () => {
       try {
+        loading.value = true;
         const data = await apiService.getCourseReport(courseId);
         courseDetail.value = {
           name: data.title,
@@ -60,7 +64,9 @@ export default {
             completionRate: chapter.completion_rate,
           })),
         };
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Error loading course report:", error);
       }
     };
@@ -68,19 +74,24 @@ export default {
     // 載入學生列表資料
     const loadStudents = async () => {
       try {
+        loading.value = true;
         const data = await apiService.getCourseStudents(courseId, {
           page: currentPage.value,
         });
         students.value = data.students;
         totalStudents.value = data.total;
         totalStudentPages.value = data.totalPages;
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Error loading students:", error);
       }
     };
 
-    const exportReport = () => {
-      apiService.getCourseReportExcel(courseId);
+    const exportReport = async () => {
+      loading.value = true;
+      await apiService.getCourseReportExcel(courseId);
+      loading.value = false;
     };
 
     // 初始化資料
@@ -100,6 +111,7 @@ export default {
 
     const viewExam = async (studentId) => {
       try {
+        loading.value = true;
         const results = await apiService.getStudentExamDetail({
           course_id: courseId,
           user_id: studentId,
@@ -107,6 +119,7 @@ export default {
 
         selectedExamData.value = results;
         showExamModal.value = true;
+        loading.value = false;
       } catch (error) {
         console.error("Error fetching student details:", error);
         // 如果是404錯誤，顯示尚未進行考試的提示
@@ -118,6 +131,7 @@ export default {
 
     const viewStudent = async (studentId) => {
       try {
+        loading.value = true;
         // 呼叫API取得學生資料
         const response = await apiService.getCourseStudent(courseId, studentId);
 
@@ -140,6 +154,7 @@ export default {
         };
 
         showStudentModal.value = true;
+        loading.value = false;
       } catch (error) {
         console.error("Error fetching student details:", error);
       }
@@ -159,6 +174,7 @@ export default {
       viewExam,
       exportReport,
       courseId,
+      loading
     };
   },
 };
@@ -360,6 +376,7 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>

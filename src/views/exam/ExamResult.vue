@@ -5,17 +5,20 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const courseID = route.params.id;
+    const loading = ref(false);
 
     // 模擬測驗結果數據
     const examResult = ref({});
@@ -26,9 +29,11 @@ export default {
 
     const getCourseExamResult = async () => {
       try {
+        loading.value = true;
         const results = await apiService.getQuestionStatistics({
           course_id: courseID,
         });
+        loading.value = false;
         examResult.value = results;
       } catch (error) {
         console.error("Error fetching course exam result:", error);
@@ -42,6 +47,7 @@ export default {
     return {
       examResult,
       goToCourseReport,
+      loading
     };
   },
 };
@@ -150,4 +156,5 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

@@ -5,18 +5,21 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
     const isEdit = route.params.id !== undefined;
     const memberId = route.params.id;
+    const loading = ref(false);
 
     const formData = reactive({
       name: "",
@@ -53,30 +56,34 @@ export default {
       if (!isEdit) return;
       
       try {
-        // 模擬 API 響應數據
-        const mockData = await apiService.getMember(memberId);
 
+        loading.value = true
+        const mockData = await apiService.getMember(memberId);
+        loading.value = false;
         Object.assign(formData, mockData);
       } catch (error) {
         console.error("Failed to fetch member data:", error);
         modalMessage.value = "獲取會員資料失敗";
         showModal.value = true;
+        loading.value = false;
       }
     };
 
     const handleSubmit = async () => {
       try {
         errors.value = {};
+        loading.value = true;
         if (!isEdit){
           await apiService.addMember(formData);
         }else{
           await apiService.editMember(memberId, formData);
         }
+        loading.value = false;
         
         router.push("/member");
       } catch (error) {
         console.error("Failed to save member:", error);
-        
+        loading.value = false;
         // 處理後端回傳的驗證錯誤
         if (error.response?.data?.status === 'error') {
           // 處理後端回傳的驗證錯誤
@@ -102,17 +109,21 @@ export default {
           // 如果不是預期的錯誤格式，顯示一般錯誤訊息
           modalMessage.value = "儲存失敗";
           showModal.value = true;
+          loading.value = false;
         }
       }
     };
     onMounted(() => {
-      fetchMemberData();
+      if(isEdit){
+        fetchMemberData();
+      }
     });
 
     return {
       formData,
       errors,
       isEdit,
+      loading,
       showModal,
       modalMessage,
       handleSubmit
@@ -387,4 +398,6 @@ export default {
     <div class="modal-backdrop fade show" v-if="showModal"></div>
 
   </div>
+
+  <Loading v-if="loading" />
 </template>

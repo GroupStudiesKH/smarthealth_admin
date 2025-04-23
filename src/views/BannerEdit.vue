@@ -5,12 +5,14 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading,
   },
   setup() {
     const router = useRouter();
@@ -39,12 +41,15 @@ export default {
 
     const fetchBannerData = async () => {
       try {
+        isLoading.value = true;
         // 使用假資料
         bannerData.value = await apiService.bannerShow(bannerId);
         if (bannerData.value.img_url) {
           imagePreview.value = bannerData.value.img_url;
         }
+        isLoading.value = false;
       } catch (error) {
+        isLoading.value = false;
         console.error("Error fetching banner data:", error);
         showErrorModal("獲取橫幅數據失敗，請稍後再試。");
       }
@@ -293,6 +298,8 @@ export default {
       </div>
     </div>
   </div>
+  <Loading v-if="isLoading" />
+
 </template>
 
 <style scoped>

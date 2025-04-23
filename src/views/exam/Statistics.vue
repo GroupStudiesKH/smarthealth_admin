@@ -5,23 +5,29 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter(); 
     const searchQuery = ref('');
+    const loading = ref(false);
 
     // 獲取分類選項
     const fetchCategories = async () => {
       try {
+        loading.value = true
         const response = await apiService.getTagsOption('category');
         categories.value = [{id: '', 'name': `全部`}, ...response];
+        loading.value = false
       } catch (error) {
+        loading.value = false
         console.error('獲取分類失敗:', error);
       }
     };
@@ -60,11 +66,9 @@ export default {
     const currentPage = ref(1)
     const pageSize = ref(10)
     const totalPages = ref(1)
-    const loading = ref(false)
 
     // 獲取測驗列表
     const fetchExams = async () => {
-      loading.value = true
       try {
         const params = {
           category_id: selectedCategory.value === '全部' ? '' : selectedCategory.value,
@@ -72,6 +76,8 @@ export default {
           page: currentPage.value,
           pageSize: pageSize.value
         }
+        loading.value = true
+
         const response = await apiService.getExamLists(params)
         examData.value = response.courses.map(course => ({
           id: course.id,
@@ -83,8 +89,10 @@ export default {
           createdAt: course.created_at
         }))
         totalPages.value = response.totalPages
+        loading.value = false
       } catch (error) {
         console.error('獲取測驗列表失敗:', error)
+        loading.value = false
       } finally {
         loading.value = false
       }
@@ -129,7 +137,8 @@ export default {
       toggleSort,
       sortField,
       sortOrder,
-      fetchExams
+      fetchExams,
+      loading
     }
   }
 }
@@ -252,4 +261,5 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

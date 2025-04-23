@@ -7,6 +7,7 @@ import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import UploadAdapter from "@/utils/UploadAdapter";
+import Loading from "@/components/Loading.vue";
 import * as tus from "tus-js-client";
 
 export default {
@@ -14,6 +15,7 @@ export default {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -238,7 +240,9 @@ export default {
     };
 
     onMounted(async () => {
+      isLoading.value = true;
       await fetchChapter();
+      isLoading.value = false;
 
       editor.value = await ClassicEditor.create(
         document.querySelector("#editor"),
@@ -295,6 +299,7 @@ export default {
         return new UploadAdapter(loader);
       };
     }
+
 
     return {
       chapter,
@@ -490,6 +495,8 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isLoading" />
+
 </template>
 
 <style scoped>

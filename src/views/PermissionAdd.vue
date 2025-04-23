@@ -5,12 +5,14 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -285,4 +287,5 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isLoading" />
 </template>

@@ -7,17 +7,20 @@ import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service.js";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import UploadAdapter from "@/utils/UploadAdapter";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const faqList = ref([]);
+    const loading = ref(false);
     const currentFaq = ref({
       id: null,
       title: "",
@@ -34,9 +37,12 @@ export default {
 
     const editFaq = async () => {
       try {
+        loading.value = true;
         const response = await apiService.getPost({ id: route.params.id });
         currentFaq.value = { ...response };
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Error fetching FAQ:", error);
         alert("獲取FAQ資料失敗，請稍後再試");
       }
@@ -44,6 +50,7 @@ export default {
 
     const saveFaq = async () => {
       try {
+        loading.value = true;
         if (!route.params.id) {
           const response = await apiService.createPost(currentFaq.value);
         } else {
@@ -52,6 +59,7 @@ export default {
             currentFaq.value
           );
         }
+        loading.value = false;
         router.push({ name: "faqList" });
       } catch (error) {
         console.error("Failed to save member:", error);
@@ -161,7 +169,8 @@ export default {
       showModal,
       modalMessage,
       errors,
-      isEdit
+      isEdit,
+      loading,
     };
   },
 };
@@ -252,6 +261,7 @@ export default {
     </div>
     <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>

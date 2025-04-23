@@ -7,17 +7,20 @@ import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service.js";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import UploadAdapter from "@/utils/UploadAdapter";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading,
   },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const postList = ref([]);
+    const loading = ref(false);
     const currentpost = ref({
       id: null,
       title: "",
@@ -33,9 +36,12 @@ export default {
 
     const editpost = async () => {
       try {
-        const response = await apiService.getPost({ type: 'security' });
+        loading.value = true;
+        const response = await apiService.getPost({ type: "security" });
         currentpost.value = { ...response };
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Error fetching post:", error);
         alert("獲取文章資料失敗，請稍後再試");
       }
@@ -43,15 +49,17 @@ export default {
 
     const savepost = async () => {
       try {
+        loading.value = true;
         const response = await apiService.updatePost(
-            currentpost.value.id,
-            currentpost.value
-          );
-      
-          modalMessage.value = "儲存成功";
-          showModal.value = true;
-          
+          currentpost.value.id,
+          currentpost.value
+        );
+
+        modalMessage.value = "儲存成功";
+        showModal.value = true;
+        loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Failed to save member:", error);
 
         // 處理後端回傳的驗證錯誤
@@ -86,8 +94,6 @@ export default {
         }
       }
     };
-
-
 
     onMounted(async () => {
       await editpost();
@@ -148,8 +154,6 @@ export default {
       };
     }
 
-
-
     return {
       postList,
       currentpost,
@@ -159,6 +163,7 @@ export default {
       showModal,
       modalMessage,
       errors,
+      loading
     };
   },
 };
@@ -243,6 +248,7 @@ export default {
     </div>
     <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>
