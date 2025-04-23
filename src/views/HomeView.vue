@@ -8,12 +8,14 @@ import apiService from "@/service/api-service.js";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/Loading.vue";
 
 export default {
   components: {
     Footer,
     Navbar,
-    Sidebar
+    Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -30,8 +32,9 @@ export default {
     
     const fetchDashboardData = async () => {
       try {
+        loading.value = true;
         const data = await apiService.getDashboard();
-        
+        loading.value = false;
         // 更新會員統計數據
         memberStats.value = {
           totalMembers: data.total_members,
@@ -55,6 +58,7 @@ export default {
           courses: instructor.course_count
         }));
       } catch (error) {
+        loading.value = false;
         console.error('獲取儀表板數據失敗:', error);
       }
     };
@@ -66,7 +70,8 @@ export default {
     return {
       memberStats,
       popularCourses,
-      popularTeachers
+      popularTeachers,
+      loading
     };
   },
 };
@@ -190,4 +195,5 @@ export default {
       <Footer/>
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>

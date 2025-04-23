@@ -5,29 +5,34 @@ import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { useRouter, useRoute } from "vue-router";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/Loading.vue";
 
 
 export default {
   components: {
     Footer,
     Navbar,
-    Sidebar
+    Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
     const route = useRoute();
     const categoryName = ref("");
 
-    const loading = ref(true);
+    const loading = ref(false);
     const error = ref(null);
 
     onMounted(async () => {
       try {
         const categoryId = route.params.id;
+        loading.value = true;
         const response = await apiService.getTag(categoryId);
+        loading.value = false;
         categoryName.value = response.name;
       } catch (err) {
         console.error('獲取分類失敗:', err);
+        loading.value = false;
         error.value = '無法載入分類資料';
       } finally {
         loading.value = false;
@@ -37,7 +42,9 @@ export default {
     const handleSubmit = async () => {
       try {
         const categoryId = route.params.id;
+        loading.value = true;
         await apiService.editTag(categoryId, { name: categoryName.value });
+        loading.value = false;
         router.push({name: 'category-list'});
       } catch (err) {
         console.error('更新失敗:', err);
@@ -47,7 +54,8 @@ export default {
 
     return {
       categoryName,
-      handleSubmit
+      handleSubmit,
+      loading
     };
   }
 };
@@ -97,6 +105,7 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="loading" />
 </template>
 
 <style scoped>
