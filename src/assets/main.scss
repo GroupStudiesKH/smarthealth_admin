@@ -32,7 +32,8 @@ table.dataTable {
 
   .btn-disabled {
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.3;
+    filter: grayscale(100%);
   }
 
   .notes-container {
