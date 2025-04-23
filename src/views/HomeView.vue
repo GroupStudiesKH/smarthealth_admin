@@ -19,7 +19,7 @@ export default {
   },
   setup() {
     const router = useRouter();
-
+    const loading = ref(false);
     const memberStats = ref({
       totalMembers: 0,
       newMonthlyMembers: 0,
