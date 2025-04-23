@@ -149,7 +149,7 @@ export default {
                       </option>
                     </select>
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <select class="form-select" v-model="selectedStatus">
                       <option value="">所有狀態</option>
                       <option
@@ -161,7 +161,7 @@ export default {
                       </option>
                     </select>
                   </div>
-                  <div class="col-md-2">
+                  <div class="col-md-4">
                     <button
                       class="btn btn-primary mx-2"
                       @click="handleFilter"
