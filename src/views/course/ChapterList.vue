@@ -4,6 +4,7 @@ import { useRouter, useRoute } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import Loading from "@/components/loading.vue";
 import apiService from "@/service/api-service";
 
 export default {
@@ -11,6 +12,7 @@ export default {
     Footer,
     Navbar,
     Sidebar,
+    Loading,
   },
   setup() {
     const router = useRouter();
@@ -150,13 +152,7 @@ export default {
     </div>
   </div>
 
-  <!-- Loading 彈窗 -->
-  <div v-if="loading" class="loading-overlay">
-    <div class="loading-spinner">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">載入中...</span>
-      </div>
-      <div class="mt-2">載入中...</div>
-    </div>
-  </div>
+  
+  <!-- 載入中彈窗 -->
+  <Loading v-if="loading" />
 </template>
