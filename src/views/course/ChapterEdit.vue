@@ -329,8 +329,8 @@ export default {
               <div class="card-body">
                 <h6 class="card-title">編輯章節</h6>
                 <div class="row">
-                  <div class="col-md-6">
-                    <div v-if="chapter.vimeo_id" class="video-preview mb-3">
+                  <div class="col-md-6 video-preview">
+                    <div v-if="chapter.vimeo_id" class="mb-3">
                       <iframe
                         :src="chapter.player_embed_url"
                         v-if="chapter.vimeo_status == 'vimeo_ready'"
@@ -431,12 +431,13 @@ export default {
                     <small
                       v-if="chapter.vimeo_status != 'vimeo_ready'"
                       class="text-center text-danger"
-                      >影片正在處理中，無法新增筆記</small
+                      >影片尚未上傳，或在處理中，無法新增筆記</small
                     >
                   </div>
                 </div>
                 <!-- 章節標題與內容等其他表單欄位 -->
-                <form @submit.prevent="saveChapter">
+                <hr/>
+                <form @submit.prevent="saveChapter" class="mt-3">
                   <div class="mb-3">
                     <label for="title" class="form-label">章節標題</label>
                     <input
@@ -474,11 +475,10 @@ export default {
                     </div>
                   </div>
                   <div class="d-flex justify-content-end">
-                    <router-link
-                      :to="`/course/${courseId}/chapters`"
+                    <div
+                      @click="backToChapterList"
                       class="btn btn-secondary me-2"
-                      >取消</router-link
-                    >
+                      >取消</div>
                     <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>
