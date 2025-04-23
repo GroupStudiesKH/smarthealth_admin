@@ -26,7 +26,7 @@ export default {
         const response = await apiService.getInstructor(route.params.id);
         instructor.value = response
         if (instructor.value.photo) {
-          imagePreview.value = `${apiService.apiWithoutPath}${instructor.value.photo}`;
+          imagePreview.value = `${instructor.value.photo}`;
         }
       } catch (error) {
         alert('取得講師資料失敗');
