@@ -196,14 +196,6 @@ export default {
                       <option value="inactive">停用</option>
                     </select>
                   </div>
-                  <div class="col-6">
-                    <label class="form-label">狀態</label>
-                    <select class="form-select" v-model="currentpost.status">
-                      <option value="active">啟用</option>
-                      <option value="inactive">停用</option>
-                    </select>
-                  </div>
-
                   <div class="col-6 d-flex align-items-end">
                     <button class="btn btn-primary w-100" @click="savepost">
                       儲存變更
