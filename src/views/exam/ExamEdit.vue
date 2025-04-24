@@ -1,6 +1,6 @@
 <script>
 import { ref, watch, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -18,6 +18,7 @@ export default {
   },
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const examId = route.params.id;
 
     // 搜尋和篩選相關的狀態
@@ -30,6 +31,10 @@ export default {
     const chapterOptions = ref([]);
     const chapterModalOptions = ref([]);
     const loading = ref(false);
+    const course = ref({
+      id: '',
+      title: "",
+    });
 
     // 題目數據
     const questions = ref([]);
@@ -54,11 +59,16 @@ export default {
         }, ...response.chapterLists];
         chapterModalOptions.value = response.chapterLists;
         questions.value = response.questions;
+        course.value = response.course;
         total.value = response.total;
         totalPages.value = response.totalPages;
       } catch (error) {
         console.error("獲取題目列表失敗：", error);
       }
+    };
+
+    const backToExamList = () => {
+      router.push(`/exam/statistics`);
     };
 
     // 監聽搜尋和分頁變化
@@ -138,7 +148,9 @@ export default {
       chapterOptions,
       chapterModalOptions,
       fetchQuestions,
-      loading
+      loading,
+      backToExamList,
+      course
     };
   },
 };
@@ -157,11 +169,26 @@ export default {
                 <div
                   class="d-flex justify-content-between align-items-center mb-4"
                 >
-                  <h6 class="card-title mb-0">題目管理</h6>
-                  <button class="btn btn-primary" @click="addQuestion">
-                    <i class="material-icons align-middle me-1">add</i>
-                    新增題目
-                  </button>
+                  <h6 class="card-title mb-0">{{ course.title }} 題目管理</h6>
+
+
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-primary" @click="addQuestion">
+                      <i class="material-icons align-middle me-1">add</i>
+                      新增題目
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="backToExamList"
+                    >
+                      <i class="link-icon" data-feather="plus"></i>
+                      返回測驗課程列表
+                    </button>
+                  </div>
+
+
                 </div>
 
                 <!-- 搜尋和篩選區域 -->
