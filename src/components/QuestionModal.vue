@@ -60,6 +60,27 @@ export default {
         }
       }
     );
+    
+    // 監聽彈窗顯示狀態，當彈窗打開且不是編輯模式時重置表單
+    watch(
+      () => props.show,
+      (newShow) => {
+        if (newShow && !props.isEdit) {
+          questionForm.value = {
+            id: "",
+            chapter_id: "",
+            question: "",
+            type: "true_false",
+            note: "",
+            options: [
+              { option_text: "是", option_index: 0, is_correct: true },
+              { option_text: "否", option_index: 1, is_correct: false },
+            ],
+          };
+          questionType.value = "true_false";
+        }
+      }
+    );
 
     // 題型選項
     const questionTypes = {
@@ -80,7 +101,7 @@ export default {
       try {
         questionForm.value = {
           id: "",
-          chapter: "",
+          chapter_id: "",
           question: "",
           type: "true_false",
           note: "",
