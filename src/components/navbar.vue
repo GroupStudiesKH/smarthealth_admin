@@ -112,16 +112,7 @@ export default {
   <nav class="navbar">
     <div class="navbar-content">
       <div class="logo-mini-wrapper">
-        <img
-          src="../assets/images/logo-mini-light.png"
-          class="logo-mini logo-mini-light"
-          alt="logo"
-        />
-        <img
-          src="../assets/images/logo-mini-dark.png"
-          class="logo-mini logo-mini-dark"
-          alt="logo"
-        />
+        <h4 class="text-primary">SmartHealth</h4>
       </div>
 
 
