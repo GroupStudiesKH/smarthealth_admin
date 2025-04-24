@@ -15,7 +15,7 @@ export default {
     Footer,
     Navbar,
     Sidebar,
-    Loading
+    Loading,
   },
   setup() {
     const router = useRouter();
@@ -27,6 +27,7 @@ export default {
     const uploadProgress = ref(0);
     const isVideoUploading = ref(false);
     const videoUploadStatusText = ref("");
+    const course = ref({ id: 0, title: "" });
 
     const chapter = ref({
       title: "",
@@ -137,7 +138,7 @@ export default {
         const result = await apiService.getVimeoUpdateStatus(chapterId);
         chapter.value.vimeo_status = result.vimeo_status;
 
-        if(chapter.value.vimeo_status == "vimeo_ready"){
+        if (chapter.value.vimeo_status == "vimeo_ready") {
           // stop the interval
           clearInterval(autoUpdateVimeoStatus);
         }
@@ -150,7 +151,8 @@ export default {
       try {
         // 模擬 API 回傳數據
         const results = await apiService.getChapter(courseId, chapterId);
-        chapter.value = results;
+        chapter.value = results.chapter;
+        course.value = results.course;
       } catch (error) {
         console.error("獲取章節數據失敗:", error);
         alert(`獲取章節數據失敗`);
@@ -300,9 +302,9 @@ export default {
       };
     }
 
-
     return {
       chapter,
+      course,
       isUploading,
       isLoading,
       saveChapter,
@@ -332,7 +334,17 @@ export default {
           <div class="col-12 mx-auto stretch-card">
             <div class="card">
               <div class="card-body">
-                <h6 class="card-title">編輯章節</h6>
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
+                  <h6 class="card-title">{{ course.title }} 編輯章節</h6>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary" @click="backToChapterList">
+                      <i class="link-icon" data-feather="plus"></i>
+                      返回章節
+                    </button>
+                  </div>
+                </div>
                 <div class="row">
                   <div class="col-md-6 video-preview">
                     <div v-if="chapter.vimeo_id" class="mb-3">
@@ -441,7 +453,7 @@ export default {
                   </div>
                 </div>
                 <!-- 章節標題與內容等其他表單欄位 -->
-                <hr/>
+                <hr />
                 <form @submit.prevent="saveChapter" class="mt-3">
                   <div class="mb-3">
                     <label for="title" class="form-label">章節標題</label>
@@ -483,7 +495,9 @@ export default {
                     <div
                       @click="backToChapterList"
                       class="btn btn-secondary me-2"
-                      >取消</div>
+                    >
+                      取消
+                    </div>
                     <button type="submit" class="btn btn-primary">儲存</button>
                   </div>
                 </form>
@@ -496,7 +510,6 @@ export default {
     </div>
   </div>
   <Loading v-if="isLoading" />
-
 </template>
 
 <style scoped>

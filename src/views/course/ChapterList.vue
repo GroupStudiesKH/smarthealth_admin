@@ -18,6 +18,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const chapters = ref([]);
+    const course = ref({id: 0, title: ""})
     const loading = ref(false);
 
     const addChapter = () => {
@@ -44,12 +45,17 @@ export default {
       }
     };
 
+    const backToCourse = () => {
+      router.push(`/course`);
+    };
+
     const fetchChapters = async () => {
       try {
         loading.value = true;
         const results = await apiService.getChapters(route.params.courseId);
         loading.value = false;
-        chapters.value = results;
+        chapters.value = results.chapters;
+        course.value = results.course;
       } catch (error) {
         loading.value = false;
         alert("獲取課程列表失敗");
@@ -64,10 +70,12 @@ export default {
 
     return {
       chapters,
+      course,
       loading,
       addChapter,
       editChapter,
       deleteChapter,
+      backToCourse
     };
   },
 };
@@ -87,15 +95,27 @@ export default {
                 <div
                   class="d-flex justify-content-between align-items-center mb-4"
                 >
-                  <h6 class="card-title mb-0">章節管理</h6>
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    @click="addChapter"
-                  >
-                    <i class="link-icon" data-feather="plus"></i>
-                    新增章節
-                  </button>
+                  <h6 class="card-title mb-0">{{ course.title }} 章節管理</h6>
+                  
+                  <div class="d-flex gap-2">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      @click="addChapter"
+                    >
+                      <i class="link-icon" data-feather="plus"></i>
+                      新增章節
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      @click="backToCourse"
+                    >
+                      <i class="link-icon" data-feather="plus"></i>
+                      返回課程
+                    </button>
+                  </div>
                 </div>
 
                 <div class="table-responsive">
