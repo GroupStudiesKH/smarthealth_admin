@@ -124,6 +124,7 @@ export default {
         console.error("Error fetching student details:", error);
         // 如果是404錯誤，顯示尚未進行考試的提示
         if (error.response && error.response.status === 404) {
+          loading.value = false;
           alert("此學生尚未進行考試");
         }
       }
@@ -156,6 +157,7 @@ export default {
         showStudentModal.value = true;
         loading.value = false;
       } catch (error) {
+        loading.value = false;
         console.error("Error fetching student details:", error);
       }
     };
