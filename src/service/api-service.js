@@ -161,6 +161,36 @@ const adminLogout = async () => {
   }
 }
 
+const forgetPassword = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/forgot-password`, inputData, false);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
+const verifyToken = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/verify-reset-token`, inputData, false);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
+const resetPassword = async (inputData) => {
+  const requestConfig = scPost(`${apiUrl}admin/reset-password`, inputData, false);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
 const getPlayers = async (params) => {
   const queryString = objectToQueryString(params);
   const requestConfig = scGet(`${apiUrl}admin/players?${queryString}`);
@@ -1211,6 +1241,9 @@ export default {
   adminLogout,
   adminMe,
   adminEdit,
+  forgetPassword,
+  verifyToken,
+  resetPassword,
   getCourses,
   getCourse,
   delCourse,

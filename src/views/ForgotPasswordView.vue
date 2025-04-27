@@ -1,8 +1,14 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import apiService from '@/service/api-service';
+import Loading from "@/components/loading.vue";
+
 
 export default {
+  components: {
+    Loading
+  },
   setup() {
     const router = useRouter();
     const email = ref('');
@@ -16,12 +22,14 @@ export default {
       isLoading.value = true;
       
       try {
-        // TODO: 整合 API 發送重設密碼信
-        // const response = await axios.post('/api/forgot-password', { email: email.value });
+        isLoading.value = true;
+        await apiService.forgetPassword({ email: email.value});
+        isLoading.value = false;
         showSuccessModal.value = true;
       } catch (error) {
         errorMessage.value = error.response?.data?.message || '發送重設密碼信件失敗';
         showErrorModal.value = true;
+        isLoading.value = false;
       } finally {
         isLoading.value = false;
       }
@@ -44,7 +52,8 @@ export default {
       isLoading,
       errorMessage,
       showErrorModal,
-      closeErrorModal
+      closeErrorModal,
+      isLoading
     };
   }
 };
@@ -134,4 +143,5 @@ export default {
       </div>
     </div>
   </div>
+  <Loading v-if="isLoading" />
 </template>

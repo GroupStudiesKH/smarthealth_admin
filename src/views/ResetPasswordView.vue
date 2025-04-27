@@ -1,8 +1,13 @@
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import apiService from '@/service/api-service';
+import Loading from "@/components/loading.vue";
 
 export default {
+  components: {
+    Loading
+  },
   setup() {
     const router = useRouter();
     const route = useRoute();
@@ -24,20 +29,30 @@ export default {
       isLoading.value = true;
       
       try {
-        // TODO: 整合 API 重設密碼
-        // const response = await axios.post('/api/reset-password', {
-        //   token: route.query.token,
-        //   password: password.value,
-        //   password_confirmation: password_confirmation.value
-        // });
+        await apiService.resetPassword({
+          token: route.query.token,
+          password: password.value
+        })
         showSuccessModal.value = true;
       } catch (error) {
         errorMessage.value = error.response?.data?.message || '重設密碼失敗';
         showErrorModal.value = true;
+        isLoading.value = false;
       } finally {
         isLoading.value = false;
       }
     };
+
+    const verifyToken = async () => {
+      try {
+        isLoading.value = true;
+        await apiService.verifyToken({token: route.query.token});
+        isLoading.value = false;
+      } catch (error) {
+        alert('無效的重設密碼連結');
+        router.push('/login');
+      }
+    }
 
     const closeSuccessModal = () => {
       showSuccessModal.value = false;
@@ -47,6 +62,16 @@ export default {
     const closeErrorModal = () => {
       showErrorModal.value = false;
     };
+
+    onMounted(() => {
+      console.log(route.query.token);
+      if (!route.query.token) {
+        alert('無效的重設密碼連結');
+        router.push('/login');
+      }else{
+        verifyToken();
+      }
+    });
 
     return {
       password,
@@ -158,4 +183,6 @@ export default {
       </div>
     </div>
   </div>
+  <Loading v-if="isLoading" />
+
 </template>

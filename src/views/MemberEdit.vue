@@ -46,6 +46,7 @@ export default {
       mobile: "",
       gender: "",
       birthdate: "",
+      provider: "",
     });
 
     const errors = ref({});
@@ -361,6 +362,16 @@ export default {
                           type="text"
                           class="form-control"
                           v-model="formData.last_login_ip"
+                          disabled
+                        />
+                      </div>
+
+                      <div class="col-md-6 col-12 mb-3">
+                        <label class="form-label">第三方註冊</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          v-model="formData.provider"
                           disabled
                         />
                       </div>
