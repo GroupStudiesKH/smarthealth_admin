@@ -83,6 +83,7 @@ export default {
           date: chapter.date || "-",
           time: chapter.time || "-",
         })),
+        examIsPassed: course.examIsPassed,
       };
 
       showModal.value = true;
@@ -237,6 +238,7 @@ export default {
                     progress: parseInt(selectedCourse.completion_rate),
                     chapterProgress: selectedCourse.chapter,
                     quizResults: selectedCourse.quizResults,
+                    examIsPassed: selectedCourse.examIsPassed
                   }"
                 />
               </div>

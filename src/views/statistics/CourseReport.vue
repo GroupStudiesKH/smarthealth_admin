@@ -151,7 +151,8 @@ export default {
             progress: chapter.progress
           })),
           // 轉換測驗結果資料格式
-          quizResults: response.quizResults
+          quizResults: response.quizResults,
+          examIsPassed: response.examIsPassed
         };
 
         showStudentModal.value = true;

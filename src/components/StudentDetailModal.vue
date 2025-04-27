@@ -134,7 +134,7 @@ export default {
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary me-2" @click="downloadLearningRecord">學習紀錄下載</button>
-            <button type="button" class="btn btn-primary me-2" @click="downloadCertificate">結訓證明下載</button>
+            <button type="button" class="btn btn-primary me-2" @click="downloadCertificate" v-if="student.examIsPassed">結訓證明下載</button>
             <button type="button" class="btn btn-secondary" @click="closeModal">關閉</button>
           </div>
         </div>
