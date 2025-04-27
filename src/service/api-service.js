@@ -250,6 +250,16 @@ const getPermissions = async (params) => {
   }
 }
 
+const getPermissionGroups = async () => {
+  const requestConfig = scGet(`${apiUrl}admin/permission/groups`);
+  try {
+    const response = await axios(requestConfig);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
 const getPermission = async (permissionId) => {
   const requestConfig = scGet(`${apiUrl}admin/permission/${permissionId}`);
 
@@ -1254,6 +1264,7 @@ export default {
   getPlayer,
   updatePlayer,
   getPermissions,
+  getPermissionGroups,
   getPermission,
   addPermission,
   updatePermission,
