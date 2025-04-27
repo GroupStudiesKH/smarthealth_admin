@@ -2,6 +2,8 @@
 import { onMounted, ref, reactive } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/loading.vue";
+
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
@@ -11,6 +13,7 @@ export default {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -28,41 +31,24 @@ export default {
     const modalMessage = ref('');
     const modalTitle = ref('');
     const errors = ref({});
+    const isLoading = ref(false);
 
-    // const adminEdit = () => {
-    //   if (!validateForm()) {
-    //     return;
-    //   }
-    //   apiService.updateAdmin(userData.value)
-    //   .then(response => {
-    //     // Show success message
-    //     showModalMessage('成功', '管理員資料已成功更新');
-    //     router.push('/admins'); // 新增成功後導向管理員列表
-
-    //   })
-    //   .catch(error => {
-    //     console.error('Error updating admin data:', error);
-    //     if (error.response && error.response.data) {
-    //       errors.value = error.response.data.content || {};
-    //     }
-    //     // Show error message
-    //     showModalMessage('錯誤', '更新管理員資料失敗，請檢查輸入並再試一次');
-    //   });
-    // }
-
-    const validateForm = () => {
-      errors.value = {};
-      if (!userData.value.name.trim()) {
-        errors.value.name = ['請填寫姓名'];
-      }
-      if (!userData.value.permission_group_id) {
-        errors.value.permission_group_id = ['請選擇權限群組'];
-      }
-      if (userData.value.password !== userData.value.password_confirmation) {
-        errors.value.password = ['兩次輸入的密碼不一致'];
-      }
-      return Object.keys(errors.value).length === 0;
+    const adminEdit = () => {
+      isLoading.value = true;
+      apiService.updateAdmin(userData.value)
+      .then(response => {
+        // Show success message
+        showModalMessage('成功', '管理員資料已成功更新');
+        router.push('/admins'); // 新增成功後導向管理員列表
+        isLoading.value = false;
+      })
+      .catch(error => {
+        errors.value = error.response?.data.content || {};  
+        isLoading.value = false;
+        showModalMessage('錯誤', '更新管理員失敗，請檢查輸入並再試一次');
+      });
     }
+
 
     const showModalMessage = (title, message) => {
       modalTitle.value = title;
@@ -76,48 +62,30 @@ export default {
 
     const fetchPermissionList = async () => {
       try {
-        // 模擬權限群組數據
-        const mockPermissions = [
-          { id: 1, name: '超級管理員' },
-          { id: 2, name: '內容管理員' },
-          { id: 3, name: '一般管理員' }
-        ];
-        permissionList.value = mockPermissions;
+        isLoading.value = true;
+        const response = await apiService.getPermissionGroups();
+        permissionList.value = response;
+        isLoading.value = false;
       } catch (error) {
-        console.error('Error fetching permission list:', error);
-        showModalMessage('錯誤', '獲取權限列表失敗，請再試一次');
+        console.error("Error fetching permission list:", error);
+        showModalMessage("錯誤", "獲取權限列表失敗，請再試一次");
       }
     };
 
     const fetchAdminData = async () => {
       try {
-        // 模擬管理員數據
-        const mockAdminData = {
-          id: route.params.id,
-          name: '管理員A',
-          email: 'admin_a@example.com',
-          permission_group_id: 1
-        };
-        userData.value = { ...mockAdminData, password: '', password_confirmation: '' };
+        isLoading.value = true;
+        const response = await apiService.getAdmin(userData.value.id);
+        userData.value = response;
+        isLoading.value = false;
       } catch (error) {
-        console.error('Error fetching admin data:', error);
-        showModalMessage('錯誤', '獲取管理員資料失敗，請再試一次');
+        console.error("Error fetching admin data:", error);
+        showModalMessage("錯誤", "獲取管理員資料失敗，請再試一次");
       }
     };
 
-    const adminEdit = () => {
-      if (!validateForm()) {
-        return;
-      }
-      // 模擬更新成功
-      setTimeout(() => {
-        showModalMessage('成功', '管理員資料已成功更新');
-        router.push('/admins');
-      }, 500);
-    }
-
-    onMounted(() => {
-      fetchPermissionList();
+    onMounted(async () => {
+      await fetchPermissionList();
       fetchAdminData();
     });
 
@@ -129,7 +97,8 @@ export default {
         modalMessage,
         modalTitle,
         closeModal,
-        errors
+        errors,
+        isLoading
     };
   },
 };
@@ -247,4 +216,6 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isLoading" />
+
 </template>
