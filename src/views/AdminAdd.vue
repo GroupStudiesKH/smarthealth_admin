@@ -2,15 +2,19 @@
 import { onMounted, ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/loading.vue";
+
 import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
+
 
 export default {
   components: {
     Footer,
     Navbar,
     Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
@@ -26,44 +30,23 @@ export default {
     const modalMessage = ref('');
     const modalTitle = ref('');
     const errors = ref({});
+    const isLoading = ref(false);
 
-    // const registerAdmin = () => {
-    //   if (!validateForm()) {
-    //     return;
-    //   }
-    //   apiService.registerAdmin(userData.value)
-    //   .then(response => {
-    //     showModalMessage('成功', '管理員已成功新增');
-    //     router.push('/admins'); // 新增成功後導向管理員列表
-    //   })
-    //   .catch(error => {
-    //     console.error('Error registering admin:', error);
-    //     if (error.response && error.response.data) {
-    //       errors.value = error.response.data.content || {};
-    //     }
-    //     showModalMessage('錯誤', '新增管理員失敗，請檢查輸入並再試一次');
-    //   });
-    // }
-
-    const validateForm = () => {
-      errors.value = {};
-      if (!userData.value.name.trim()) {
-        errors.value.name = ['請填寫姓名'];
-      }
-      if (!userData.value.email.trim()) {
-        errors.value.email = ['請填寫電子郵件'];
-      }
-      if (!userData.value.permission_group_id) {
-        errors.value.permission_group_id = ['請選擇權限群組'];
-      }
-      if (!userData.value.password) {
-        errors.value.password = ['請輸入密碼'];
-      }
-      if (userData.value.password !== userData.value.password_confirmation) {
-        errors.value.password = ['兩次輸入的密碼不一致'];
-      }
-      return Object.keys(errors.value).length === 0;
+    const registerAdmin = () => {
+      isLoading.value = true;
+      apiService.registerAdmin(userData.value)
+      .then(response => {
+        isLoading.value = false;
+        showModalMessage('成功', '管理員已成功新增');
+        router.push('/admins'); // 新增成功後導向管理員列表
+      })
+      .catch(error => {
+        errors.value = error.response?.data.content || {};  
+        isLoading.value = false;
+        showModalMessage('錯誤', '新增管理員失敗，請檢查輸入並再試一次');
+      });
     }
+
 
     const showModalMessage = (title, message) => {
       modalTitle.value = title;
@@ -77,32 +60,18 @@ export default {
 
     const fetchPermissionList = async () => {
       try {
-        // 模擬權限群組數據
-        const mockPermissions = [
-          { id: 1, name: '超級管理員' },
-          { id: 2, name: '內容管理員' },
-          { id: 3, name: '一般管理員' }
-        ];
-        permissionList.value = mockPermissions;
+        const response = await apiService.getPermissionGroups();
+        permissionList.value = response;
       } catch (error) {
-        console.error('Error fetching permission list:', error);
-        showModalMessage('錯誤', '獲取權限列表失敗，請再試一次');
+        console.error("Error fetching permission list:", error);
+        showModalMessage("錯誤", "獲取權限列表失敗，請再試一次");
       }
     };
 
-    const registerAdmin = () => {
-      if (!validateForm()) {
-        return;
-      }
-      // 模擬註冊成功
-      setTimeout(() => {
-        showModalMessage('成功', '管理員已成功新增');
-        router.push('/admins');
-      }, 500);
-    }
-
-    onMounted(() => {
-      fetchPermissionList();
+    onMounted(async () => {
+      isLoading.value = true;
+      await fetchPermissionList();
+      isLoading.value = false;
     });
 
     return {
@@ -113,7 +82,8 @@ export default {
         modalMessage,
         modalTitle,
         closeModal,
-        errors
+        errors,
+        isLoading
     };
   },
 };
@@ -237,4 +207,6 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isLoading" />
+
 </template>

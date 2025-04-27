@@ -68,7 +68,9 @@ export default {
     };
 
     onMounted(() => {
+      isLoading.value = true;
       fetchPermissionList();
+      isLoading.value = false;
 
       const userDataString = sessionStorage.getItem("userData");
       if (userDataString) {
