@@ -5,18 +5,20 @@ import Sidebar from "@/components/Sidebar.vue";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import apiService from "@/service/api-service.js";
+import Loading from "@/components/Loading.vue";
 
 
 export default {
   components: {
     Footer,
     Navbar,
-    Sidebar
+    Sidebar,
+    Loading
   },
   setup() {
     const router = useRouter();
     const categoryName = ref("");
-
+    const featuredImage = ref(null);
     const loading = ref(false);
     const error = ref(null);
 
@@ -24,10 +26,13 @@ export default {
       loading.value = true;
       error.value = null;
       try {
-        await apiService.addTag({
-          name: categoryName.value,
-          type: 'category'
-        });
+        const formData = new FormData();
+        formData.append('name', categoryName.value);
+        formData.append('type', 'category');
+        if (featuredImage.value) {
+          formData.append('featured_image', featuredImage.value);
+        }
+        await apiService.addTag(formData);
         router.push('/course/category');
       } catch (err) {
         console.error('新增失敗:', err);
@@ -37,9 +42,18 @@ export default {
       }
     };
 
+    const handleImageChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        featuredImage.value = file;
+      }
+    };
+
     return {
       categoryName,
-      handleSubmit
+      handleSubmit,
+      handleImageChange,
+      loading
     };
   }
 };
@@ -70,6 +84,17 @@ export default {
                     />
                   </div>
 
+                  <div class="mb-3">
+                    <label for="featuredImage" class="form-label">分類圖片</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="featuredImage"
+                      @change="handleImageChange"
+                      accept="image/*"
+                    />
+                  </div>
+
                   <div class="d-flex justify-content-end">
                     <router-link
                       class="btn btn-secondary me-2"
@@ -89,6 +114,7 @@ export default {
       <Footer />
     </div>
   </div>
+  <Loading v-if="isUploading" />
 </template>
 
 <style scoped>

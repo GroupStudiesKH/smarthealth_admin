@@ -19,7 +19,8 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const categoryName = ref("");
-
+    const featuredImage = ref(null);
+    const imagePreview = ref("");
     const loading = ref(false);
     const error = ref(null);
 
@@ -30,6 +31,10 @@ export default {
         const response = await apiService.getTag(categoryId);
         loading.value = false;
         categoryName.value = response.name;
+        if (response.featured_image) {
+          imagePreview.value = response.featured_image;
+          error.value = null;
+        }
       } catch (err) {
         console.error('獲取分類失敗:', err);
         loading.value = false;
@@ -43,7 +48,12 @@ export default {
       try {
         const categoryId = route.params.id;
         loading.value = true;
-        await apiService.editTag(categoryId, { name: categoryName.value });
+        const formData = new FormData();
+        formData.append('name', categoryName.value);
+        if (featuredImage.value) {
+          formData.append('featured_image', featuredImage.value);
+        }
+        await apiService.editTag(categoryId, formData);
         loading.value = false;
         router.push({name: 'category-list'});
       } catch (err) {
@@ -52,10 +62,20 @@ export default {
       }
     };
 
+    const handleImageChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        featuredImage.value = file;
+        imagePreview.value = URL.createObjectURL(file);
+      }
+    };
+
     return {
       categoryName,
       handleSubmit,
-      loading
+      handleImageChange,
+      loading,
+      imagePreview
     };
   }
 };
@@ -86,6 +106,20 @@ export default {
                     />
                   </div>
 
+                  <div class="mb-3">
+                    <label for="featuredImage" class="form-label">分類圖片</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="featuredImage"
+                      @change="handleImageChange"
+                      accept="image/*"
+                    />
+                    <div v-if="imagePreview" class="mt-2">
+                      <img :src="imagePreview" class="img-preview" alt="分類圖片預覽" />
+                    </div>
+                  </div>
+
                   <div class="d-flex justify-content-end">
                     <router-link
                       class="btn btn-secondary me-2"
@@ -111,5 +145,14 @@ export default {
 <style scoped>
 .page-content {
   padding: 2rem;
+}
+
+.img-preview {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
 }
 </style>

@@ -961,7 +961,7 @@ const delTag = async (id) => {
 };
 
 const addTag = async (formData) => {
-  const requestConfig = scPost(`${apiUrl}admin/tag`, formData);
+  const requestConfig = scPost(`${apiUrl}admin/tag`, formData, false);
 
   try {
     const response = await axios(requestConfig);
@@ -973,7 +973,7 @@ const addTag = async (formData) => {
 }
 
 const editTag = async (id, formData) => {
-  const requestConfig = scPost(`${apiUrl}admin/tag/${id}`, formData);
+  const requestConfig = scPost(`${apiUrl}admin/tag/${id}`, formData, false);
 
   try {
     const response = await axios(requestConfig);
