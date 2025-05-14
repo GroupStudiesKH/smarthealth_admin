@@ -25,7 +25,7 @@ export default {
     const chapter = ref({
       title: "",
       description: "",
-      status: "",
+      status: "publish",
       pdf_file_url: null,
     });
 

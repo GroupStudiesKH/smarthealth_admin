@@ -491,6 +491,18 @@ export default {
                       <!-- PDF 檔案顯示區塊 -->
                     </div>
                   </div>
+                  <div class="mb-3">
+                    <label for="status" class="form-label">狀態</label>
+                    <select
+                      class="form-select"
+                      id="status"
+                      v-model="chapter.status"
+                    >
+                      <option value="publish">顯示</option>
+                      <option value="unpublish">隱藏</option>
+                    </select>
+                  </div>
+
                   <div class="d-flex justify-content-end">
                     <div
                       @click="backToChapterList"
