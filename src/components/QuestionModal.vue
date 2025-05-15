@@ -205,11 +205,11 @@ export default {
             const errorMessages = Object.values(cleanedErrors).join('<br/>');
             
 
-            showErrorModal("橫幅更新失敗：" + (errorMessages|| "未知錯誤"));
+            showErrorModal("更新失敗：" + (errorMessages|| "未知錯誤"));
 
           } else {
             // 如果有錯誤訊息但沒有詳細內容
-            showErrorModal("橫幅更新失敗：" + (error.response.data.message || "儲存失敗"));
+            showErrorModal("更新失敗：" + (error.response.data.message || "儲存失敗"));
           }
         } else {
           // 如果不是預期的錯誤格式，顯示一般錯誤訊息
