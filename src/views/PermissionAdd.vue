@@ -127,6 +127,10 @@ export default {
                 title: "計劃緣起",
                 permissions: ["edit"]
               },
+              "content-terms": {
+                title: "計劃緣起",
+                permissions: ["edit"]
+              },
               "content-privacy": {
                 title: "隱私權政策",
                 permissions: ["edit"]

@@ -187,6 +187,7 @@ defineExpose({ hasPermission });
             hasPermission('layout-banner-management', 'list') ||
             hasPermission('content-faq', 'edit') ||
             hasPermission('content-about', 'edit') ||
+            hasPermission('content-terms', 'edit') ||
             hasPermission('content-privacy', 'edit') ||
             hasPermission('content-security', 'edit')
           "
@@ -224,6 +225,9 @@ defineExpose({ hasPermission });
               </li>
               <li class="nav-item" v-if="hasPermission('content-about', 'edit')">
                 <a href="/content/about" class="nav-link" :class="{ active: $route.path === '/content/about' }">計劃緣起</a>
+              </li>
+              <li class="nav-item" v-if="hasPermission('content-terms', 'edit')">
+                <a href="/content/terms" class="nav-link" :class="{ active: $route.path === '/content/terms' }">使用者條款</a>
               </li>
               <li class="nav-item" v-if="hasPermission('content-privacy', 'edit')">
                 <a href="/content/privacy" class="nav-link" :class="{ active: $route.path === '/content/privacy' }">隱私權政策</a>

@@ -131,6 +131,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: "/content/terms",
+      name: "termsEdit",
+      component: () => import("../views/content/TermsEdit.vue"),
+      meta: { requiresAuth: true }
+    },
+    {
       path: "/content/security",
       name: "securityEdit",
       component: () => import("../views/content/SecurityEdit.vue"),
