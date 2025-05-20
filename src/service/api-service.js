@@ -1243,6 +1243,24 @@ const getCourseStudentCert = async (courseId, studentId) => {
   }
 };
 
+const getAbout = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}admin/site-meta/about`);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
+const updateAbout = async (inputData) => {
+  try {
+    const response = await axios.post(`${apiUrl}admin/site-meta/about`, inputData);
+    return checkServerResponse(response);
+  } catch (error) {
+    throw error;
+  }
+}
+
 export default {
   apiUrl,
   apiWithoutPath,
@@ -1332,5 +1350,7 @@ export default {
   getStudentExamDetail,
   getQuestionStatistics,
   getStudentLearningRecord,
-  getCourseStudentCert
+  getCourseStudentCert,
+  getAbout,
+  updateAbout,
 };

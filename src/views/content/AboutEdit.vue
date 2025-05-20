@@ -5,8 +5,6 @@ import Footer from "@/components/Footer.vue";
 import Navbar from "@/components/Navbar.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import apiService from "@/service/api-service.js";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import UploadAdapter from "@/utils/UploadAdapter";
 import Loading from "@/components/Loading.vue";
 
 export default {
@@ -19,55 +17,83 @@ export default {
   setup() {
     const route = useRoute();
     const router = useRouter();
-    const postList = ref([]);
-    const currentpost = ref({
-      id: null,
-      title: "",
-      content: "",
-      sort: 0,
-      status: "active",
-      type: "post",
+    const aboutData = ref({
+      key_person_title: "",
+      key_person_chinese_name: "",
+      key_person_english_name: "",
+      key_person_pic: "",
+      section_1: "",
+      section_2_title: "",
+      section_2_content: "",
+      section_3_title: "",
+      section_3_content: "",
+      section_4_title: "",
+      section_4_content: ""
     });
     const errors = ref({});
     const showModal = ref(false);
     const modalMessage = ref("");
-    const editor = ref(null);
     const loading = ref(false);
 
-    const editpost = async () => {
+    const getAboutData = async () => {
       try {
         loading.value = true;
-        const response = await apiService.getPost({ type: 'about' });
-        currentpost.value = { ...response };
+        const response = await apiService.getAbout();
+        aboutData.value = { ...aboutData.value, ...response };
         loading.value = false;
       } catch (error) {
         loading.value = false;
-        console.error("Error fetching post:", error);
-        alert("獲取文章資料失敗，請稍後再試");
+        console.error("Error fetching about data:", error);
+        alert("獲取關於我們資料失敗，請稍後再試");
       }
     };
 
-    const savepost = async () => {
+    const handleFileChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        // 創建預覽URL
+        const previewUrl = URL.createObjectURL(file);
+        aboutData.value = {
+          ...aboutData.value,
+          key_person_pic: file,
+          preview_url: previewUrl // 添加預覽URL
+        };
+      }
+    };
+
+    const saveAboutData = async () => {
       try {
         loading.value = true;
-        const response = await apiService.updatePost(
-            currentpost.value.id,
-            currentpost.value
-          );
-      
-          modalMessage.value = "儲存成功";
-          showModal.value = true;
-          loading.value = false;
+        const formData = new FormData();
+        
+        // 遍歷所有欄位並加入 FormData
+        Object.entries(aboutData.value).forEach(([key, value]) => {
+          // 跳過預覽URL
+          if (key === 'preview_url') return;
           
+          // 處理圖片欄位
+          if (key === 'key_person_pic') {
+            if (value instanceof File) {
+              formData.append(key, value);
+            }
+          } else if (value !== null && value !== undefined) {
+            formData.append(key, value);
+          }
+        });
+
+        const response = await apiService.updateAbout(formData);
+        modalMessage.value = "儲存成功";
+        showModal.value = true;
+        loading.value = false;
+
+        // 更新成功後重新獲取資料
+        await getAboutData();
       } catch (error) {
         loading.value = false;
-        console.error("Failed to save member:", error);
-
-        // 處理後端回傳的驗證錯誤
+        console.error("Failed to save about data:", error);
+    
         if (error.response?.data?.status === "error") {
-          // 處理後端回傳的驗證錯誤
           if (error.response.data.content) {
-            // 移除錯誤訊息中的括號和引號
             const cleanedErrors = {};
             for (const [key, value] of Object.entries(
               error.response.data.content
@@ -77,98 +103,35 @@ export default {
                 : value;
             }
             errors.value = cleanedErrors;
-
-            // 組合所有錯誤訊息
+    
             const errorMessages = Object.values(cleanedErrors).join("<br/>");
-
             modalMessage.value = errorMessages;
             showModal.value = true;
           } else {
-            // 如果有錯誤訊息但沒有詳細內容
             modalMessage.value = error.response.data.message || "儲存失敗";
             showModal.value = true;
           }
         } else {
-          // 如果不是預期的錯誤格式，顯示一般錯誤訊息
           modalMessage.value = "儲存失敗";
           showModal.value = true;
         }
       }
     };
 
+    onMounted(() => {
+      getAboutData();
+    })
 
-
-    onMounted(async () => {
-      await editpost();
-
-      editor.value = await ClassicEditor.create(
-        document.querySelector("#editor"),
-        {
-          removePlugins: ["Markdown"],
-          extraPlugins: [MyCustomUploadAdapterPlugin],
-          toolbar: [
-            "heading",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "bulletedList",
-            "numberedList",
-            "blockQuote",
-            "imageUpload",
-          ],
-          heading: {
-            options: [
-              {
-                model: "paragraph",
-                title: "Paragraph",
-                class: "ck-heading_paragraph",
-              },
-              {
-                model: "heading1",
-                view: "h2",
-                title: "Heading 1",
-                class: "ck-heading_heading1",
-              },
-              {
-                model: "heading2",
-                view: "h3",
-                title: "Heading 2",
-                class: "ck-heading_heading2",
-              },
-            ],
-          },
-        }
-      )
-        .then((editorInstance) => {
-          editorInstance.model.document.on("change:data", () => {
-            currentpost.value.content = editorInstance.getData();
-          });
-          return editorInstance;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    });
-
-    function MyCustomUploadAdapterPlugin(editor) {
-      editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
-        return new UploadAdapter(loader);
-      };
-    }
-
-
-
+    // 在 setup 中的 return 添加 preview_url
     return {
-      postList,
-      currentpost,
-      editor,
-      editpost,
-      savepost,
+      aboutData,
+      errors,
       showModal,
       modalMessage,
-      errors,
       loading,
+      getAboutData,
+      saveAboutData,
+      handleFileChange
     };
   },
 };
@@ -186,55 +149,143 @@ export default {
               <div class="card-body">
                 <h6 class="card-title">關於我們編輯</h6>
                 <div class="row mb-4">
-                  <div class="col-12">
-                    <label class="form-label">標題</label>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">關鍵人物職稱</label>
                     <input
                       type="text"
                       class="form-control"
-                      disabled
-                      v-model="currentpost.title"
+                      v-model="aboutData.key_person_title"
                     />
                   </div>
-                  <div class="col-12 my-3">
-                    <label class="form-label">內容編輯</label>
-                    <div id="editor" v-html="currentpost.content"></div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">關鍵人物中文姓名</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="aboutData.key_person_chinese_name"
+                    />
                   </div>
-                  <div class="col-6">
-                    <label class="form-label">狀態</label>
-                    <select class="form-select" v-model="currentpost.status">
-                      <option value="active">啟用</option>
-                      <option value="inactive">停用</option>
-                    </select>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">關鍵人物英文姓名</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="aboutData.key_person_english_name"
+                    />
                   </div>
-                  <div class="col-6 d-flex align-items-end">
-                    <button class="btn btn-primary w-100" @click="savepost">
-                      儲存變更
-                    </button>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">關鍵人物照片</label>
+                    <input
+                      type="file"
+                      class="form-control"
+                      @change="handleFileChange"
+                      accept="image/*"
+                    />
+                    <!-- 圖片預覽區域 -->
+                    <div class="image-preview mt-2" v-if="aboutData.preview_url || aboutData.key_person_pic">
+                      <img
+                        :src="aboutData.preview_url || aboutData.key_person_pic"
+                        alt="Key Person Picture Preview"
+                        style="max-width: 200px"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第一段內容</label>
+                    <textarea
+                      class="form-control"
+                      rows="5"
+                      v-model="aboutData.section_1"
+                      style="white-space: pre-wrap;"
+                    ></textarea>
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第二段標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="aboutData.section_2_title"
+                    />
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第二段內容</label>
+                    <textarea
+                      class="form-control"
+                      rows="5"
+                      v-model="aboutData.section_2_content"
+                      style="white-space: pre-wrap;"
+                    ></textarea>
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第三段標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="aboutData.section_3_title"
+                    />
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第三段內容</label>
+                    <textarea
+                      class="form-control"
+                      rows="5"
+                      v-model="aboutData.section_3_content"
+                      style="white-space: pre-wrap;"
+                    ></textarea>
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第四段標題</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      v-model="aboutData.section_4_title"
+                    />
+                  </div>
+                  <div class="col-12 mb-3">
+                    <label class="form-label">第四段內容</label>
+                    <textarea
+                      class="form-control"
+                      rows="5"
+                      v-model="aboutData.section_4_content"
+                      style="white-space: pre-wrap;"
+                    ></textarea>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  class="btn btn-primary me-2"
+                  @click="saveAboutData"
+                  :disabled="loading"
+                >
+                  {{ loading ? '儲存中...' : '儲存' }}
+                </button>
               </div>
             </div>
           </div>
         </div>
-        <Footer />
       </div>
+      <Footer />
     </div>
-
-    <!-- Error Modal -->
+    <!-- Modal -->
     <div
       class="modal fade"
-      :class="{ show: showModal }"
+      id="exampleModal"
       tabindex="-1"
+      aria-labelledby="exampleModalLabel"
+      :class="{ show: showModal }"
       :style="{ display: showModal ? 'block' : 'none' }"
+      aria-modal="true"
+      role="dialog"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">錯誤提示</h5>
+            <h5 class="modal-title" id="exampleModalLabel">系統訊息</h5>
             <button
               type="button"
               class="btn-close"
               @click="showModal = false"
+              aria-label="btn-close"
             ></button>
           </div>
           <div class="modal-body" v-html="modalMessage"></div>
@@ -250,28 +301,11 @@ export default {
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showModal"></div>
+    <div
+      class="modal-backdrop fade show"
+      v-if="showModal"
+      @click="showModal = false"
+    ></div>
+    <Loading v-if="loading" />
   </div>
-  <Loading v-if="loading" />
 </template>
-
-<style scoped>
-.cursor-move {
-  cursor: move;
-}
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1040;
-}
-.modal {
-  z-index: 1050;
-}
-:deep .ck-editor__editable {
-  min-height: 500px;
-}
-</style>
