@@ -19,10 +19,10 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const categoryName = ref("");
-
+    const description = ref("");
     const loading = ref(true);
     const error = ref(null);
-
+    
     onMounted(async () => {
       try {
         const categoryId = route.params.id;
@@ -30,6 +30,7 @@ export default {
         const response = await apiService.getTag(categoryId);
         loading.value = false;
         categoryName.value = response.name;
+        description.value = response.description || "";
       } catch (err) {
         console.error('獲取分類失敗:', err);
         loading.value = false;
@@ -38,12 +39,15 @@ export default {
         loading.value = false;
       }
     });
-
+    
     const handleSubmit = async () => {
       try {
         const categoryId = route.params.id;
         loading.value = true;
-        await apiService.editTag(categoryId, { name: categoryName.value });
+        await apiService.editTag(categoryId, { 
+          name: categoryName.value,
+          description: description.value
+        });
         loading.value = false;
         router.push({name: 'tagList'});
       } catch (err) {
@@ -52,9 +56,10 @@ export default {
         error.value = '儲存分類時發生錯誤';
       }
     };
-
+    
     return {
       categoryName,
+      description,
       handleSubmit,
       loading,
     };
@@ -85,6 +90,16 @@ export default {
                       v-model="categoryName"
                       required
                     />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">標籤描述</label>
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      v-model="description"
+                      rows="5"
+                    ></textarea>
                   </div>
 
                   <div class="d-flex justify-content-end">

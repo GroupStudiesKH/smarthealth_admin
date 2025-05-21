@@ -18,6 +18,7 @@ export default {
   setup() {
     const router = useRouter();
     const categoryName = ref("");
+    const description = ref("");
     const featuredImage = ref(null);
     const loading = ref(false);
     const error = ref(null);
@@ -28,6 +29,7 @@ export default {
       try {
         const formData = new FormData();
         formData.append('name', categoryName.value);
+        formData.append('description', description.value);
         formData.append('type', 'category');
         if (featuredImage.value) {
           formData.append('featured_image', featuredImage.value);
@@ -51,6 +53,7 @@ export default {
 
     return {
       categoryName,
+      description,
       handleSubmit,
       handleImageChange,
       loading
@@ -82,6 +85,16 @@ export default {
                       v-model="categoryName"
                       required
                     />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">分類描述</label>
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      v-model="description"
+                      rows="5"
+                    ></textarea>
                   </div>
 
                   <div class="mb-3">

@@ -19,6 +19,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const categoryName = ref("");
+    const description = ref("");
     const featuredImage = ref(null);
     const imagePreview = ref("");
     const loading = ref(false);
@@ -31,6 +32,7 @@ export default {
         const response = await apiService.getTag(categoryId);
         loading.value = false;
         categoryName.value = response.name;
+        description.value = response.description || "";
         if (response.featured_image) {
           imagePreview.value = response.featured_image;
           error.value = null;
@@ -50,6 +52,7 @@ export default {
         loading.value = true;
         const formData = new FormData();
         formData.append('name', categoryName.value);
+        formData.append('description', description.value);
         if (featuredImage.value) {
           formData.append('featured_image', featuredImage.value);
         }
@@ -72,6 +75,7 @@ export default {
 
     return {
       categoryName,
+      description,
       handleSubmit,
       handleImageChange,
       loading,
@@ -104,6 +108,16 @@ export default {
                       v-model="categoryName"
                       required
                     />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">分類描述</label>
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      v-model="description"
+                      rows="5"
+                    ></textarea>
                   </div>
 
                   <div class="mb-3">

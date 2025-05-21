@@ -16,7 +16,7 @@ export default {
   setup() {
     const router = useRouter();
     const tagName = ref("");
-
+    const description = ref("");
     const loading = ref(false);
     const error = ref(null);
 
@@ -26,6 +26,7 @@ export default {
       try {
         await apiService.addTag({
           name: tagName.value,
+          description: description.value,
           type: 'tag'
         });
         router.push('/course/tag');
@@ -39,6 +40,7 @@ export default {
 
     return {
       tagName,
+      description,
       handleSubmit
     };
   }
@@ -68,6 +70,16 @@ export default {
                       v-model="tagName"
                       required
                     />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">標籤描述</label>
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      v-model="description"
+                      rows="5"
+                    ></textarea>
                   </div>
 
                   <div class="d-flex justify-content-end">
