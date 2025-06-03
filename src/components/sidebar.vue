@@ -24,7 +24,7 @@ defineExpose({ hasPermission });
   <!-- partial:partials/_sidebar.html -->
   <nav class="sidebar">
     <div class="sidebar-header">
-      <a href="/" class="sidebar-brand"> Smart<span>Health</span> </a>
+      <a href="/" class="sidebar-brand"> <img src="/assets/images/logo.png" alt="logo" width="150px;" /> </a>
       <div class="sidebar-toggler">
         <span></span>
         <span></span>
