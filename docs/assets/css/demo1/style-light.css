@@ -33,7 +33,7 @@
     --bs-danger: #ff3366;
     --bs-light: #e9ecef;
     --bs-dark: #060c17;
-    --bs-primary-rgb: 101, 113, 255;
+    --bs-primary-rgb: 223, 234, 252;
     --bs-secondary-rgb: 121, 135, 161;
     --bs-success-rgb: 5, 163, 74;
     --bs-info-rgb: 102, 209, 209;
@@ -5917,7 +5917,7 @@ div.tox .wizard>.actions .btn-group-vertical>a~.tox-button {
     --bs-badge-padding-y: 0.35em;
     --bs-badge-font-size: 0.8em;
     --bs-badge-font-weight: 500;
-    --bs-badge-color: #fff;
+    --bs-badge-color: #333;
     --bs-badge-border-radius: var(--bs-border-radius);
     display: inline-block;
     padding: var(--bs-badge-padding-y) var(--bs-badge-padding-x);
