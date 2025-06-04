@@ -463,7 +463,7 @@ export default {
                   <button
                     type="button"
                     class="btn btn-light"
-                    @click="router.push({ name: 'courseList' })"
+                    @click="$router.push({ name: 'courseList' })"
                   >
                     取消
                   </button>

@@ -1,1 +1,0 @@
-import{_ as a,o as n,c as o,b as s}from"./index-e36c3218.js";const r={},t={class:"loading-overlay"};function c(i,e){return n(),o("div",t,e[0]||(e[0]=[s("div",{class:"loading-spinner"},[s("div",{class:"spinner-border text-primary",role:"status"},[s("span",{class:"visually-hidden"},"載入中...")]),s("div",{class:"mt-2"},"載入中...")],-1)]))}const l=a(r,[["render",c]]);export{l as L};
