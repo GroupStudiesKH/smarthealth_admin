@@ -21,6 +21,110 @@ export default {
     const memberId = route.params.id;
     const loading = ref(false);
 
+    // 國籍選項 - 世界各國家地區（中英文對照）
+    const nationalityOptions = [
+      // 亞洲
+      { value: '台灣', label: '台灣 (Taiwan)' },
+      { value: '中國', label: '中國 (China)' },
+      { value: '日本', label: '日本 (Japan)' },
+      { value: '韓國', label: '韓國 (South Korea)' },
+      { value: '新加坡', label: '新加坡 (Singapore)' },
+      { value: '馬來西亞', label: '馬來西亞 (Malaysia)' },
+      { value: '泰國', label: '泰國 (Thailand)' },
+      { value: '越南', label: '越南 (Vietnam)' },
+      { value: '菲律賓', label: '菲律賓 (Philippines)' },
+      { value: '印尼', label: '印尼 (Indonesia)' },
+      { value: '印度', label: '印度 (India)' },
+      { value: '巴基斯坦', label: '巴基斯坦 (Pakistan)' },
+      { value: '孟加拉', label: '孟加拉 (Bangladesh)' },
+      { value: '斯里蘭卡', label: '斯里蘭卡 (Sri Lanka)' },
+      { value: '緬甸', label: '緬甸 (Myanmar)' },
+      { value: '柬埔寨', label: '柬埔寨 (Cambodia)' },
+      { value: '寮國', label: '寮國 (Laos)' },
+      { value: '蒙古', label: '蒙古 (Mongolia)' },
+      { value: '哈薩克', label: '哈薩克 (Kazakhstan)' },
+      { value: '烏茲別克', label: '烏茲別克 (Uzbekistan)' },
+      // 歐洲
+      { value: '英國', label: '英國 (United Kingdom)' },
+      { value: '法國', label: '法國 (France)' },
+      { value: '德國', label: '德國 (Germany)' },
+      { value: '義大利', label: '義大利 (Italy)' },
+      { value: '西班牙', label: '西班牙 (Spain)' },
+      { value: '葡萄牙', label: '葡萄牙 (Portugal)' },
+      { value: '荷蘭', label: '荷蘭 (Netherlands)' },
+      { value: '比利時', label: '比利時 (Belgium)' },
+      { value: '瑞士', label: '瑞士 (Switzerland)' },
+      { value: '奧地利', label: '奧地利 (Austria)' },
+      { value: '瑞典', label: '瑞典 (Sweden)' },
+      { value: '挪威', label: '挪威 (Norway)' },
+      { value: '丹麥', label: '丹麥 (Denmark)' },
+      { value: '芬蘭', label: '芬蘭 (Finland)' },
+      { value: '冰島', label: '冰島 (Iceland)' },
+      { value: '愛爾蘭', label: '愛爾蘭 (Ireland)' },
+      { value: '波蘭', label: '波蘭 (Poland)' },
+      { value: '捷克', label: '捷克 (Czech Republic)' },
+      { value: '匈牙利', label: '匈牙利 (Hungary)' },
+      { value: '斯洛伐克', label: '斯洛伐克 (Slovakia)' },
+      { value: '斯洛維尼亞', label: '斯洛維尼亞 (Slovenia)' },
+      { value: '克羅埃西亞', label: '克羅埃西亞 (Croatia)' },
+      { value: '塞爾維亞', label: '塞爾維亞 (Serbia)' },
+      { value: '保加利亞', label: '保加利亞 (Bulgaria)' },
+      { value: '羅馬尼亞', label: '羅馬尼亞 (Romania)' },
+      { value: '希臘', label: '希臘 (Greece)' },
+      { value: '俄羅斯', label: '俄羅斯 (Russia)' },
+      { value: '烏克蘭', label: '烏克蘭 (Ukraine)' },
+      { value: '白俄羅斯', label: '白俄羅斯 (Belarus)' },
+      { value: '立陶宛', label: '立陶宛 (Lithuania)' },
+      { value: '拉脫維亞', label: '拉脫維亞 (Latvia)' },
+      { value: '愛沙尼亞', label: '愛沙尼亞 (Estonia)' },
+      // 北美洲
+      { value: '美國', label: '美國 (United States)' },
+      { value: '加拿大', label: '加拿大 (Canada)' },
+      { value: '墨西哥', label: '墨西哥 (Mexico)' },
+      // 南美洲
+      { value: '巴西', label: '巴西 (Brazil)' },
+      { value: '阿根廷', label: '阿根廷 (Argentina)' },
+      { value: '智利', label: '智利 (Chile)' },
+      { value: '秘魯', label: '秘魯 (Peru)' },
+      { value: '哥倫比亞', label: '哥倫比亞 (Colombia)' },
+      { value: '委內瑞拉', label: '委內瑞拉 (Venezuela)' },
+      { value: '厄瓜多', label: '厄瓜多 (Ecuador)' },
+      { value: '烏拉圭', label: '烏拉圭 (Uruguay)' },
+      { value: '巴拉圭', label: '巴拉圭 (Paraguay)' },
+      { value: '玻利維亞', label: '玻利維亞 (Bolivia)' },
+      // 非洲
+      { value: '南非', label: '南非 (South Africa)' },
+      { value: '埃及', label: '埃及 (Egypt)' },
+      { value: '奈及利亞', label: '奈及利亞 (Nigeria)' },
+      { value: '肯亞', label: '肯亞 (Kenya)' },
+      { value: '衣索比亞', label: '衣索比亞 (Ethiopia)' },
+      { value: '摩洛哥', label: '摩洛哥 (Morocco)' },
+      { value: '阿爾及利亞', label: '阿爾及利亞 (Algeria)' },
+      { value: '突尼西亞', label: '突尼西亞 (Tunisia)' },
+      { value: '利比亞', label: '利比亞 (Libya)' },
+      { value: '加納', label: '加納 (Ghana)' },
+      // 大洋洲
+      { value: '澳洲', label: '澳洲 (Australia)' },
+      { value: '紐西蘭', label: '紐西蘭 (New Zealand)' },
+      { value: '斐濟', label: '斐濟 (Fiji)' },
+      { value: '巴布亞紐幾內亞', label: '巴布亞紐幾內亞 (Papua New Guinea)' },
+      // 中東
+      { value: '以色列', label: '以色列 (Israel)' },
+      { value: '土耳其', label: '土耳其 (Turkey)' },
+      { value: '伊朗', label: '伊朗 (Iran)' },
+      { value: '伊拉克', label: '伊拉克 (Iraq)' },
+      { value: '沙烏地阿拉伯', label: '沙烏地阿拉伯 (Saudi Arabia)' },
+      { value: '阿拉伯聯合大公國', label: '阿拉伯聯合大公國 (UAE)' },
+      { value: '科威特', label: '科威特 (Kuwait)' },
+      { value: '卡達', label: '卡達 (Qatar)' },
+      { value: '巴林', label: '巴林 (Bahrain)' },
+      { value: '阿曼', label: '阿曼 (Oman)' },
+      { value: '約旦', label: '約旦 (Jordan)' },
+      { value: '黎巴嫩', label: '黎巴嫩 (Lebanon)' },
+      { value: '敘利亞', label: '敘利亞 (Syria)' },
+      { value: '葉門', label: '葉門 (Yemen)' }
+    ];
+
     const formData = reactive({
       name: "",
       email: "",
@@ -41,6 +145,7 @@ export default {
         { value: "other", label: "其他" }
       ],
       organization: "",
+      nationality: "",
       national_id: "",
       address: "",
       mobile: "",
@@ -122,6 +227,7 @@ export default {
 
     return {
       formData,
+      nationalityOptions,
       errors,
       isEdit,
       loading,
@@ -231,7 +337,26 @@ export default {
                     </div>
 
                     <div class="col-md-6 col-12 mb-3">
-                      <label class="form-label">身分證字號 <span class="text-danger">*</span></label>
+                      <label class="form-label">國籍 <span class="text-danger">*</span></label>
+                      <select
+                        class="form-select"
+                        :class="{ 'is-invalid': errors.nationality }"
+                        v-model="formData.nationality"
+                      >
+                        <option value="">請選擇國籍</option>
+                        <option v-for="option in nationalityOptions" 
+                                :key="option.value" 
+                                :value="option.value">
+                          {{ option.label }}
+                        </option>
+                      </select>
+                      <div class="invalid-feedback" v-if="errors.nationality">
+                        {{ errors.nationality }}
+                      </div>
+                    </div>
+
+                    <div class="col-md-6 col-12 mb-3">
+                      <label class="form-label">身分證字號/護照號碼 <span class="text-danger">*</span></label>
                       <input
                         type="text"
                         class="form-control"
